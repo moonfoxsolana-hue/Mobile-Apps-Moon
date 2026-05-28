@@ -1,0 +1,44 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Implement full UI and business logic for all screens: Auth (Login/Register), Home (complete content with hero, tokenomics, utility cards, roadmap, FAQ, community links, partnership), Profile (with token history), Claim/Airdrop (first claim + daily code), News (paginated list + detail), Stories (paginated list + detail with audio), Staking (types, stake, view, claim, cancel), and all 6 Games (Trivia, Logical/IQ, Intuition, Tarot Ritual, Ular Tangga, Ngepet Online) with full game flows.",
+  "status": "completed",
+  "steps": [
+    "Implement LoginScreen with email/password fields, login button calling AuthViewModel.login(), error display, and navigation to Register. Implement RegisterScreen with name/email/password/confirm fields and register flow. On success, save token to DataStore and navigate to Home.",
+    "Implement SplashScreen that checks DataStore for saved token - if exists navigate to Home, otherwise to Login.",
+    "Implement HomeScreen as a scrollable page with sections matching home.blade.php: Hero section (Mystic Nusa logo placeholder, title, tagline, Klaim Airdrop button), 'Apa itu Mystic Nusa?' section, Token Distribution table (matching the tokenomics table), Token Utility cards grid (Trading, Staking, GameFi, Akses Eksklusif, DAO Voting, Merch Swap), Roadmap 2025-2026 cards (Q2 2025 through Q3 2026 with bullet items), Whitepaper summary section, Community links section (YouTube, Twitter, Instagram, Telegram, TikTok as clickable buttons), FAQ accordion section (8 FAQ items with expand/collapse), Partnership section, Footer.",
+    "Implement ProfileScreen showing user data (name, email, wallet_address, total_token, locked_balance, has_claimed) with a button to view Token History. Implement TokenHistoryScreen showing list of transactions with type icon, amount (colored green for add, red for subtract), description, and date.",
+    "Implement ClaimScreen with two sections: First Claim (wallet address input with Solana address validation regex /^[1-9A-HJ-NP-Za-km-z]{32,44}$/, submit button) and Daily Claim (code input field, submit button). Show success/error messages and updated token balance.",
+    "Implement NewsScreen with LazyColumn showing paginated news items (image, title, date) loaded from API. Implement NewsDetailScreen showing full article with image header, title, content, and date.",
+    "Implement StoriesScreen with LazyColumn showing paginated stories (date, title, theme). Implement StoryDetailScreen showing full story content with audio player button if audio_path is available.",
+    "Implement StakingScreen with three tabs/sections: 'Staking Types' (list of available staking options with duration and APR, stake button for each), 'My Stakings' (list of user's active/claimed/cancelled stakings with claim/cancel buttons where applicable), and stake dialog (select type and duration, confirm).",
+    "Implement GamesScreen as a hub/menu showing 6 game cards: Trivia, Logical/IQ, Intuition, Tarot Ritual, Ular Tangga, Ngepet Online. Each card has icon, title, brief description, and navigates to respective game screen.",
+    "Implement TriviaGameScreen with full flow: category input + question count selection -> start game -> question display with 4 answer options -> answer feedback (correct/wrong with streak) -> next question -> finish screen showing score. Include leaderboard tab.",
+    "Implement LogicalGameScreen with full flow: start match -> display logic question with multiple choice answers -> submit answer -> next question (10 total) -> finish showing IQ score, category, and message. Include leaderboard and statistics tabs.",
+    "Implement IntuitionGameScreen with flow: start match -> display 3 item options per round -> select one -> show if correct -> repeat 10 rounds -> show final stats. Include leaderboard.",
+    "Implement TarotGameScreen with flow: start ritual -> display 10 card options (as card backs) -> user picks 1-3 cards -> enter name and energy choice -> submit -> show picked cards with orientation -> request AI reading -> display AI prediction text. Include history tab.",
+    "Implement UlartanggaGameScreen with lobby flow: list available matches, create match (name, max players), join match, ready up. Game board view showing player positions, dice roll button, move animation indication, effect display (snake/ladder). Turn-based logic with bot support.",
+    "Implement NgepetGameScreen with flow: list open houses, create house (host flow with token pool and settings), join as intruder (name, token amount), item selection (intruder picks hiding spot from 10 items), host guessing flow, and result display. Show event log.",
+    "Add pull-to-refresh on list screens (News, Stories, Staking). Add loading states and error states with retry buttons on all screens.",
+    "Implement logout functionality in Profile screen that calls API logout, clears DataStore token, and navigates back to Login."
+  ],
+  "acceptance_criteria": [
+    "Running ./gradlew assembleDebug compiles successfully with all screen implementations",
+    "All screens have complete UI implementations with proper Material3 components and mystic dark theme",
+    "Auth flow: Login -> saves token -> Home; Register -> saves token -> Home; Logout -> clears token -> Login",
+    "Home screen contains all sections from the web version (hero, tokenomics, utility, roadmap, FAQ, community, partnership)",
+    "All 6 game screens have complete game flow UI with proper state management in ViewModels",
+    "Profile shows user data and token history list",
+    "Claim screen handles both first-time wallet claim and daily code claim",
+    "News and Stories screens show paginated lists with detail views",
+    "Staking screen shows types, user stakings, and supports stake/claim/cancel actions",
+    "Bottom navigation works correctly between Home, Games, Claim, and Profile"
+  ],
+  "verification": [
+    "Run: cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug",
+    "Run: cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew test",
+    "Verify both commands succeed with exit code 0"
+  ],
+  "blocked_reason": null,
+  "findings": "Build successful with ./gradlew assembleDebug. Material3 Compose BOM 2024.01.00 uses Divider instead of HorizontalDivider, and LinearProgressIndicator uses progress: Float parameter (not lambda). All 20+ screens implemented with full UI. Two new ViewModels added (UlartanggaViewModel, NgepetViewModel). Tests pass. Only warnings: unused isPassword param in MysticTextField component (pre-existing from FEAT-001)."
+}

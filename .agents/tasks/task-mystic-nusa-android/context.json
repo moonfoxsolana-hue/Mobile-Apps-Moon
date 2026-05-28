@@ -1,0 +1,30 @@
+{
+  "project_type": "Native Android App - Kotlin + Jetpack Compose",
+  "language": "Kotlin",
+  "build_system": "Gradle 8.14 with Kotlin DSL, AGP, Java 17 target",
+  "test_framework": "JUnit4 for unit tests, Compose UI testing",
+  "build_command": "cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug",
+  "test_command": "cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew test",
+  "verification_instructions": "1. Run ./gradlew assembleDebug to verify project compiles. 2. Run ./gradlew test to verify unit tests pass.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "Project uses Gradle wrapper. Java 17 and Gradle 8.14 are pre-installed in sandbox. Run ./gradlew assembleDebug from the MysticNusa directory.",
+  "environment_constraints": "OPEN_INTERNET network mode - full access to Maven Central, Google Maven, etc. Java 17 and Gradle 8.14 available. No physical Android device or emulator for running the app, but compilation and unit tests are possible.",
+  "contribution_requirements": "This is a greenfield Android project. Follow standard Android development conventions with MVVM architecture.",
+  "key_patterns": "MVVM with Repository pattern, Retrofit for networking, DataStore for token persistence, Navigation Compose for routing, Material3 with custom dark theme (deep purple/black backgrounds, gold/yellow accents)",
+  "relevant_files": [
+    "Controllers/AuthController.php - Auth API (register, login, logout, updateWallet)",
+    "Controllers/ProfileController.php - Profile API (show, tokenHistory)",
+    "Controllers/AirdropController.php - Claim API (claim first, claimWithCode)",
+    "Controllers/NewsController.php - News API (list paginated)",
+    "Controllers/AiStoryController.php - Stories API (list paginated)",
+    "Controllers/StakingController.php - Staking API (getTypes, stake, index, claim, cancel)",
+    "Controllers/Api/TriviaGameController.php - Trivia game (start, answer, finish, leaderboard, rooms)",
+    "Controllers/Api/LogicalGameController.php - Logic/IQ game (start, answer, finish, leaderboard, statistics)",
+    "Controllers/Api/IntuitionGameController.php - Intuition game (start, getRoundItems, submitAnswer, leaderboard)",
+    "Controllers/Api/TarotRitualController.php - Tarot ritual (start, pickCards, aiReading, history)",
+    "Controllers/Api/UlartanggaGameController.php - Ular Tangga board game (multiplayer)",
+    "Controllers/Api/NgepetMatchController.php - Ngepet Online multiplayer game",
+    "resources/views/home.blade.php - Home page content and styling reference"
+  ],
+  "directory_structure": "MysticNusa/ (Android project root) -> app/src/main/java/com/mysticnusa/app/ with packages: ui/, data/, domain/, navigation/, theme/"
+}
