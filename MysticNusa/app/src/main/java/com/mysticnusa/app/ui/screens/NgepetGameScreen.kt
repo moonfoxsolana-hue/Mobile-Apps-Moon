@@ -1580,7 +1580,7 @@ private fun AvatarCollectionTab(
                         )
                     } else {
                         Button(
-                            onClick = { viewModel.equipAvatar(ownedItem.avatarId) },
+                            onClick = { ownedItem.avatar?.id?.let { viewModel.equipAvatar(it) } },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MysticPurple,
                                 contentColor = Color.White

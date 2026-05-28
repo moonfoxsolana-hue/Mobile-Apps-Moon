@@ -531,7 +531,7 @@ data class NgepetAvatarShopResponse(
 data class NgepetOwnedAvatarItem(
     val id: Int,
     @SerializedName("avatar_id")
-    val avatarId: Int,
+    val avatarId: Int? = null,
     @SerializedName("is_equipped")
     val isEquipped: Boolean?,
     val avatar: NgepetAvatar?
