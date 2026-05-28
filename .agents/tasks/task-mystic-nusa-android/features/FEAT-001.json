@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Create the complete Android project structure with Gradle setup, dependencies, theme, navigation, and all screen scaffolds. This includes: project initialization, dependency configuration (Retrofit, DataStore, Navigation Compose, Material3, Hilt), custom dark mystic theme, MVVM architecture layers (data/domain/ui), API service interfaces, repository layer, ViewModels, and all screen composables with navigation graph.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create Android project at /projects/sandbox/Mobile-Apps/MysticNusa/ with proper Gradle Kotlin DSL build files (settings.gradle.kts, root build.gradle.kts, app/build.gradle.kts). Use compileSdk 34, minSdk 26, targetSdk 34. Add dependencies: Retrofit + Gson converter, OkHttp logging interceptor, Jetpack Compose BOM, Navigation Compose, Material3, DataStore Preferences, Hilt, Coil for image loading, Kotlin Coroutines.",
     "Create the app/src/main/AndroidManifest.xml with INTERNET permission and application setup.",
@@ -32,5 +32,5 @@
     "Verify compilation succeeds with exit code 0"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Android SDK was not pre-installed, had to install commandlinetools and SDK platform-34 + build-tools 34.0.0. Java 17 is at /root/.local/share/mise/installs/java/17.0.2. Gradle wrapper generated for 8.5. ANDROID_HOME=/opt/android-sdk. Build succeeded with only deprecation warnings (ArrowBack icon) and unused parameter warnings. local.properties must point to sdk.dir=/opt/android-sdk. The project compiles with: export JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 && export ANDROID_HOME=/opt/android-sdk && ./gradlew assembleDebug --no-daemon"
 }
