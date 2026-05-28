@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Rewrite NgepetViewModel.kt with comprehensive state management to handle all game phases: lobby browsing, match creation (host), joining (intruder), active match room with role-based actions, avatar selection, leaderboards, and history. Use a phase-based approach similar to TarotViewModel/TarotPhase pattern.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create an enum NgepetPhase with states: LOBBY, CREATE_MATCH, JOIN_MATCH, MATCH_ROOM, AVATAR_SHOP, LEADERBOARD, HISTORY. The MATCH_ROOM phase handles both host and intruder sub-states internally.",
     "Define NgepetUiState data class with fields: isLoading:Boolean, phase:NgepetPhase, matches:List<NgepetLobbyMatch>, activeMatch:NgepetActiveMatchData?, matchDetail:NgepetMatchDetailWrapper? (the full show response), ownedAvatars:List<NgepetOwnedAvatarItem>, avatarShop:List<NgepetAvatar>, history:List<NgepetHistoryItem>, leaderboard:List<Any> (generic for different boards), leaderboardType:String, currentRole:String? (host/intruder), guessResult:NgepetGuessResponse?, message:String?, error:String?. Add sub-fields for create form state (hostName, difficulty, duration, maxIntruders, tokenPool, minToken, maxToken, selectedHouseAvatarId) and join form state (intruderName, tokenAmount, selectedPlayerAvatarId).",
@@ -22,5 +22,5 @@
     "Run: export JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 && export PATH=$JAVA_HOME/bin:$PATH && cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Build verified with assembleDebug. NgepetPhase enum is defined in viewmodels package; the screen still has its own local NgepetPhase enum (LOBBY, CHOOSE_ITEM, WAITING, RESULT) which will be replaced in FEAT-003. Fixed NgepetGameScreen submitChoice call to use new single-arg signature (matchId is now internal to ViewModel state)."
 }
