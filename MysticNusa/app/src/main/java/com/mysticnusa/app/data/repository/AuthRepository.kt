@@ -76,22 +76,5 @@ class AuthRepository {
         }
     }
 
-    suspend fun updateWallet(walletAddress: String): Result<ApiResponse> {
-        return try {
-            val response = api.updateWallet(WalletRequest(walletAddress))
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    Result.success(it)
-                } ?: Result.failure(Exception("Empty response body"))
-            } else {
-                val errorMsg = parseErrorMessage(
-                    response.errorBody()?.string(),
-                    "Wallet update failed: ${response.code()}"
-                )
-                Result.failure(Exception(errorMsg))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+
 }
