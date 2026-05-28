@@ -5,7 +5,8 @@ import com.google.gson.annotations.SerializedName
 // Common
 data class ApiResponse(
     val status: String?,
-    val message: String?
+    val message: String?,
+    val success: String? = null
 )
 
 data class LeaderboardEntry(
@@ -563,12 +564,24 @@ data class NgepetLeaderboardEntry(
     val name: String?,
     @SerializedName("host_name")
     val hostName: String? = null,
+    @SerializedName("intruder_name")
+    val intruderName: String? = null,
     val wins: Int? = null,
+    @SerializedName("total_wins")
+    val totalWins: Int? = null,
     @SerializedName("total_matches")
     val totalMatches: Int? = null,
+    @SerializedName("total_intruder_games")
+    val totalIntruderGames: Int? = null,
+    @SerializedName("total_games")
+    val totalGames: Int? = null,
     @SerializedName("token_pool")
     val tokenPool: Int? = null,
-    val winrate: Double? = null
+    val winrate: Double? = null,
+    @SerializedName("winrate_percentage")
+    val winratePercentage: Double? = null,
+    @SerializedName("win_rate")
+    val winRate: Double? = null
 )
 
 data class NgepetLeaderboardResponse(

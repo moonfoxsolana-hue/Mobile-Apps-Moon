@@ -436,6 +436,17 @@ class NgepetViewModel(
             _uiState.value = state.copy(error = "Token amount must be a positive number")
             return
         }
+        // Validate token range against match limits
+        val minToken = state.selectedMatchForJoin?.minIntruderToken
+        val maxToken = state.selectedMatchForJoin?.maxIntruderToken
+        if (minToken != null && tokenAmount < minToken) {
+            _uiState.value = state.copy(error = "Token minimum is $minToken")
+            return
+        }
+        if (maxToken != null && tokenAmount > maxToken) {
+            _uiState.value = state.copy(error = "Token maximum is $maxToken")
+            return
+        }
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
@@ -450,7 +461,7 @@ class NgepetViewModel(
                     isLoading = false,
                     currentMatchId = matchId,
                     currentRole = "intruder",
-                    message = response.message,
+                    message = response.message ?: response.success,
                     showMatchDetailDialog = false,
                     selectedMatchForJoin = null
                 )
@@ -464,6 +475,10 @@ class NgepetViewModel(
                             activeMatchData = data
                         )
                     }
+                }.onFailure {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Berhasil join, tapi gagal memuat data match. Silakan refresh."
+                    )
                 }
                 loadMatchDetail(matchId)
                 _uiState.value = _uiState.value.copy(phase = NgepetPhase.MATCH_ROOM)
@@ -484,7 +499,7 @@ class NgepetViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    message = response.message
+                    message = response.message ?: response.success
                 )
                 refreshMatchDetail()
             }.onFailure { e ->

@@ -765,6 +765,14 @@ private fun MatchRoomPhase(
 ) {
     val matchDetail = uiState.matchDetail?.match
 
+    // Auto-refresh match detail every 30 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(30_000L)
+            viewModel.refreshMatchDetail()
+        }
+    }
+
     if (uiState.isLoading && matchDetail == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = MysticGold)
@@ -1572,7 +1580,7 @@ private fun AvatarCollectionTab(
                         )
                     } else {
                         Button(
-                            onClick = { viewModel.equipAvatar(ownedItem.id) },
+                            onClick = { viewModel.equipAvatar(ownedItem.avatarId) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MysticPurple,
                                 contentColor = Color.White
@@ -1654,22 +1662,25 @@ private fun LeaderboardPhase(
                             )
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = entry.name ?: entry.hostName ?: "-",
+                                    text = entry.name ?: entry.hostName ?: entry.intruderName ?: "-",
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp
                                 )
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    entry.wins?.let {
+                                    val effectiveWins = entry.wins ?: entry.totalWins
+                                    effectiveWins?.let {
                                         Text("Wins: $it", color = TextSecondary, fontSize = 11.sp)
                                     }
-                                    entry.totalMatches?.let {
+                                    val effectiveMatches = entry.totalMatches ?: entry.totalIntruderGames ?: entry.totalGames
+                                    effectiveMatches?.let {
                                         Text("Matches: $it", color = TextSecondary, fontSize = 11.sp)
                                     }
                                     entry.tokenPool?.let {
                                         Text("Pool: $it", color = TextSecondary, fontSize = 11.sp)
                                     }
-                                    entry.winrate?.let {
+                                    val effectiveWinrate = entry.winrate ?: entry.winratePercentage ?: entry.winRate
+                                    effectiveWinrate?.let {
                                         Text(
                                             "WR: ${"%.1f".format(it)}%",
                                             color = SuccessColor,
