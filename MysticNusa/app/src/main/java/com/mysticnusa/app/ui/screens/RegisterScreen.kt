@@ -13,14 +13,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.mysticnusa.app.data.local.TokenManager
+import com.mysticnusa.app.data.remote.RetrofitInstance
 import com.mysticnusa.app.data.repository.AuthRepository
 import com.mysticnusa.app.navigation.Screen
 import com.mysticnusa.app.ui.components.LoadingIndicator
@@ -34,8 +34,7 @@ import com.mysticnusa.app.ui.viewmodels.AuthViewModel
 
 @Composable
 fun RegisterScreen(navController: NavController) {
-    val context = LocalContext.current
-    val tokenManager = remember { TokenManager(context.applicationContext) }
+    val tokenManager = remember { RetrofitInstance.tokenManager!! }
     val viewModel: AuthViewModel = viewModel(
         factory = AuthViewModel.Factory(AuthRepository(), tokenManager)
     )
@@ -126,7 +125,9 @@ fun RegisterScreen(navController: NavController) {
                     unfocusedBorderColor = MysticPurple,
                     focusedLabelColor = MysticGold,
                     unfocusedLabelColor = TextSecondary,
-                    cursorColor = MysticGold
+                    cursorColor = MysticGold,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
                 )
             )
 
@@ -145,7 +146,9 @@ fun RegisterScreen(navController: NavController) {
                     unfocusedBorderColor = MysticPurple,
                     focusedLabelColor = MysticGold,
                     unfocusedLabelColor = TextSecondary,
-                    cursorColor = MysticGold
+                    cursorColor = MysticGold,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
                 )
             )
 

@@ -10,13 +10,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.mysticnusa.app.data.local.TokenManager
+import com.mysticnusa.app.data.remote.RetrofitInstance
 import com.mysticnusa.app.data.repository.AuthRepository
 import com.mysticnusa.app.data.repository.ProfileRepository
 import com.mysticnusa.app.navigation.Screen
@@ -28,8 +27,7 @@ import com.mysticnusa.app.ui.viewmodels.ProfileViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
-    val context = LocalContext.current
-    val tokenManager = remember { TokenManager(context.applicationContext) }
+    val tokenManager = remember { RetrofitInstance.tokenManager!! }
     val profileViewModel: ProfileViewModel = viewModel(
         factory = ProfileViewModel.Factory(ProfileRepository())
     )
