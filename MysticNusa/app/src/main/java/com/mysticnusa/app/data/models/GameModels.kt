@@ -50,7 +50,8 @@ data class TriviaStartResponse(
     val currentQuestion: Int?,
     @SerializedName("total_question")
     val totalQuestion: Int?,
-    val complete: Boolean?
+    val complete: Boolean?,
+    val message: String?
 )
 
 data class TriviaAnswerRequest(

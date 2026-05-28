@@ -421,8 +421,9 @@ private fun IntuitionItemCard(
                 contentAlignment = Alignment.Center
             ) {
                 if (item.image != null) {
+                    val imageUrl = if (item.image.startsWith("http")) item.image else "https://mystical-nusa.web.id/${item.image.trimStart('/')}"
                     AsyncImage(
-                        model = item.image,
+                        model = imageUrl,
                         contentDescription = item.name,
                         modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp)),
                         contentScale = ContentScale.Crop

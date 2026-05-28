@@ -20,6 +20,9 @@ data class TriviaUiState(
     val streak: Int = 0,
     val isComplete: Boolean = false,
     val finishResponse: TriviaFinishResponse? = null,
+    val lastAnswerCorrect: Boolean? = null,
+    val correctAnswer: String? = null,
+    val showFeedback: Boolean = false,
     val error: String? = null
 )
 
@@ -33,19 +36,34 @@ class TriviaViewModel(
     fun startGame(category: String? = null, questionCount: Int? = null) {
         viewModelScope.launch {
             _uiState.value = TriviaUiState(isLoading = true)
-            val result = gamesRepository.startTrivia(TriviaStartRequest(category, questionCount))
-            result.onSuccess { response ->
+            try {
+                val result = gamesRepository.startTrivia(TriviaStartRequest(category, questionCount))
+                result.onSuccess { response ->
+                    if (response.complete == true) {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            sessionId = response.sessionId,
+                            isComplete = true
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            sessionId = response.sessionId,
+                            currentQuestion = response.question,
+                            currentQuestionNumber = response.currentQuestion ?: 1,
+                            totalQuestions = response.totalQuestion ?: 0
+                        )
+                    }
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Gagal memulai permainan"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    sessionId = response.sessionId,
-                    currentQuestion = response.question,
-                    currentQuestionNumber = response.currentQuestion ?: 1,
-                    totalQuestions = response.totalQuestion ?: 0
-                )
-            }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
@@ -54,22 +72,43 @@ class TriviaViewModel(
     fun answerQuestion(questionId: Int, selectedAnswer: String) {
         val sessionId = _uiState.value.sessionId ?: return
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val result = gamesRepository.answerTrivia(
-                TriviaAnswerRequest(sessionId, questionId, selectedAnswer)
-            )
-            result.onSuccess { response ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    currentQuestion = response.nextQuestion,
-                    currentQuestionNumber = response.currentQuestion ?: _uiState.value.currentQuestionNumber,
-                    streak = response.streak ?: _uiState.value.streak,
-                    isComplete = response.complete ?: false
+            _uiState.value = _uiState.value.copy(isLoading = true, showFeedback = false)
+            try {
+                val result = gamesRepository.answerTrivia(
+                    TriviaAnswerRequest(sessionId, questionId, selectedAnswer)
                 )
-            }.onFailure { error ->
+                result.onSuccess { response ->
+                    val isCorrect = response.isCorrect ?: false
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        lastAnswerCorrect = isCorrect,
+                        correctAnswer = response.correctAnswer,
+                        showFeedback = true,
+                        streak = response.streak ?: _uiState.value.streak,
+                        isComplete = response.complete ?: false
+                    )
+                    // Delay to show feedback, then advance
+                    kotlinx.coroutines.delay(1500)
+                    if (response.complete != true) {
+                        _uiState.value = _uiState.value.copy(
+                            currentQuestion = response.nextQuestion,
+                            currentQuestionNumber = response.currentQuestion ?: _uiState.value.currentQuestionNumber + 1,
+                            totalQuestions = response.totalQuestion ?: _uiState.value.totalQuestions,
+                            showFeedback = false,
+                            lastAnswerCorrect = null,
+                            correctAnswer = null
+                        )
+                    }
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Gagal mengirim jawaban"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
@@ -79,21 +118,33 @@ class TriviaViewModel(
         val sessionId = _uiState.value.sessionId ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            val result = gamesRepository.finishTrivia(TriviaFinishRequest(sessionId))
-            result.onSuccess { response ->
+            try {
+                val result = gamesRepository.finishTrivia(TriviaFinishRequest(sessionId))
+                result.onSuccess { response ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        finishResponse = response,
+                        score = response.score ?: 0,
+                        streak = response.streak ?: _uiState.value.streak,
+                        isComplete = true
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Gagal menyelesaikan permainan"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    finishResponse = response,
-                    score = response.score ?: 0,
-                    isComplete = true
-                )
-            }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
     }
 
     class Factory(
