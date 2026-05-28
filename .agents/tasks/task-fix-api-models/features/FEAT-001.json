@@ -1,0 +1,50 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Fix all data models, ApiService return types, repositories, and ViewModels to match actual API response formats from the Laravel backend controllers",
+  "status": "completed",
+  "steps": [
+    "Step 1: Fix ProfileModels.kt - (a) In UserProfile, change totalToken from Double? to String? and lockedBalance from Double? to String?. (b) Remove ProfileResponse wrapper class entirely - the API returns the user profile fields directly at the top level (name, email, wallet_address, total_token, has_claimed, locked_balance). So UserProfile IS the response. (c) In TokenHistoryItem, change amount from Double? to String?. (d) Remove TokenHistoryResponse wrapper class - the API returns a direct JSON array of TokenHistoryItem objects [...].",
+    "Step 2: Fix AirdropModels.kt - In AirdropClaimResponse: remove 'status' field, remove 'tokensReceived' field (with @SerializedName tokens_received). The API returns {message: string, amount: int}. So the correct fields are: message (String?) and amount (Int?).",
+    "Step 3: Fix StakingModels.kt - (a) In StakingType, change amountToken from Double? to Int?. (b) In StakingDuration, add @SerializedName(\"staking_type_id\") val stakingTypeId: Int? field. (c) In UserStaking, change amount from Double? to String? and expectedReward from Double? to String?. (d) Remove StakingTypesResponse wrapper - API returns direct array List<StakingType>. (e) Remove UserStakingsResponse wrapper - API returns direct array List<UserStaking>.",
+    "Step 4: Fix GameModels.kt Trivia section - (a) In TriviaStartResponse, change sessionId type from String? to Int?. (b) In TriviaAnswerRequest, change sessionId type from String to Int. (c) In TriviaFinishRequest, change sessionId type from String to Int. (d) In TriviaFinishResponse, add field category: String? (with @SerializedName if needed).",
+    "Step 5: Fix GameModels.kt Logical section - (a) In LogicalStartResponse, change matchId from String? to Int? (the API returns an integer match_id). (b) In LogicalQuestion, change id from Int to String (it is a UUID). (c) In LogicalAnswer, change id from Int to String (it is a UUID). Add @SerializedName(\"question_id\") val questionId: String? field. (d) In LogicalAnswerRequest, change matchId from String to Int, change questionId from Int to String, change answerId from Int to String. (e) Create a new data class LogicalFinishRequest with @SerializedName(\"match_id\") val matchId: Int - this replaces the reuse of TriviaFinishRequest for logical.",
+    "Step 6: Fix GameModels.kt Intuition section - (a) IntuitionStartResponse is OK (matchId is String UUID - correct). (b) Fix IntuitionRoundItemsResponse: remove 'status' field, rename 'items' to 'options' (with @SerializedName(\"options\")). Add field 'round: Int?'. (c) Fix IntuitionAnswerResponse: remove status/isCorrect/correctItem/currentRound/totalRounds/complete/score fields. Replace with: correct (Boolean?), @SerializedName(\"correct_item_id\") correctItemId (Int?), @SerializedName(\"match_completed\") matchCompleted (Boolean?), @SerializedName(\"next_round\") nextRound (Int?).",
+    "Step 7: Fix GameModels.kt Tarot section - (a) In TarotCardOption, change id from Int to String (UUID). (b) In TarotPickRequest, change cards from List<Int> to List<TarotCardSelection> where TarotCardSelection is a new data class with id: String and orientation: String. (c) In TarotReadingResponse, rename 'reading' to 'message' with @SerializedName(\"message\"). Also add @SerializedName(\"oracle\") val oracle: String? field. Remove the old reading field. Actually keep the field named 'reading' but annotate with @SerializedName(\"message\") so JSON 'message' maps to it. Also add oracle field. (d) In TarotCardDetail, change id from Int to String (or remove id, since the pick-card response returns cards with name/image/orientation only, no id). Actually the response has name, image, orientation - so remove id and meaning from TarotCardDetail, add image: String?.",
+    "Step 8: Fix ApiService.kt - (a) Change getProfile() return type from Response<ProfileResponse> to Response<UserProfile>. (b) Change getTokenHistory() return type from Response<TokenHistoryResponse> to Response<List<TokenHistoryItem>>. (c) Change getStakingTypes() return type from Response<StakingTypesResponse> to Response<List<StakingType>>. (d) Change getUserStakings() return type from Response<UserStakingsResponse> to Response<List<UserStaking>>. (e) Change finishLogical parameter from TriviaFinishRequest to LogicalFinishRequest. (f) Change pickTarotCards return type from Response<ApiResponse> to Response<TarotPickCardResponse> (new model with status, message, oracle, session_id, cards).",
+    "Step 9: Fix ProfileRepository.kt - (a) Change getProfile() to return Result<UserProfile> instead of Result<ProfileResponse>. (b) Change getTokenHistory() to return Result<List<TokenHistoryItem>> instead of Result<TokenHistoryResponse>.",
+    "Step 10: Fix StakingRepository.kt - (a) Change getTypes() to return Result<List<StakingType>> instead of Result<StakingTypesResponse>. (b) Change getUserStakings() to return Result<List<UserStaking>> instead of Result<UserStakingsResponse>.",
+    "Step 11: Fix GamesRepository.kt - (a) Change finishLogical to create LogicalFinishRequest(matchId.toInt()) instead of TriviaFinishRequest(sessionId). The parameter name should change from sessionId to matchId and it should be Int type. (b) In answerLogical, ensure the LogicalAnswerRequest is created with correct types (matchId as Int, questionId/answerId as String).",
+    "Step 12: Fix ProfileViewModel.kt - (a) In loadProfile(), change from response.user to just use response directly (since getProfile now returns UserProfile). (b) In loadTokenHistory(), change from response.history to just use response directly (since it now returns List<TokenHistoryItem>).",
+    "Step 13: Fix StakingViewModel.kt - (a) In loadStakingTypes(), change from response.types to just use response directly. (b) In loadUserStakings(), change from response.stakings to just use response directly.",
+    "Step 14: Fix LogicalViewModel.kt - (a) In answerQuestion, change parameter types: questionId should be String, answerId should be String. (b) In finishGame, pass matchId as Int (matchId is now Int? in start response). Update the matchId in UiState from String? to Int?. Convert accordingly.",
+    "Step 15: Fix IntuitionViewModel.kt - (a) In loadRoundItems, change to read from response.options (the field is now named options via @SerializedName). (b) In answerRound, update to use new IntuitionAnswerResponse fields: correct, matchCompleted, nextRound instead of isCorrect, complete, currentRound.",
+    "Step 16: Fix TarotViewModel.kt - (a) In pickCards, change parameter from cardIds: List<Int> to cards: List<TarotCardSelection>. Create TarotPickRequest with the new card objects. (b) In getReading, change from response.reading to response.reading (since we annotated reading with @SerializedName(\"message\"), this still works).",
+    "Step 17: Fix NewsRepository.kt and StoryRepository.kt - Since /api/news and /api/stories endpoints do not exist on the backend, make these repositories handle failure gracefully. Change them to catch 404 errors and return empty results instead of propagating the error. In NewsRepository.getNews(), if the response code is 404, return a success with an empty PaginatedResponse. Same for StoryRepository.getStories()."
+  ],
+  "acceptance_criteria": [
+    "Running ./gradlew assembleDebug compiles without errors",
+    "ProfileModels UserProfile has totalToken and lockedBalance as String? types",
+    "TokenHistoryItem amount field is String? type",
+    "No ProfileResponse or TokenHistoryResponse wrapper classes exist",
+    "AirdropClaimResponse has only message (String?) and amount (Int?) fields",
+    "StakingTypesResponse and UserStakingsResponse wrapper classes are removed",
+    "ApiService returns List<StakingType> and List<UserStaking> directly",
+    "TriviaStartResponse.sessionId, TriviaAnswerRequest.sessionId, TriviaFinishRequest.sessionId are all Int types",
+    "LogicalStartResponse.matchId is Int?, LogicalQuestion.id is String, LogicalAnswer.id is String",
+    "LogicalAnswerRequest has matchId: Int, questionId: String, answerId: String",
+    "A separate LogicalFinishRequest class exists with matchId: Int",
+    "IntuitionRoundItemsResponse uses field name 'options' (with @SerializedName) and has 'round' field",
+    "IntuitionAnswerResponse has fields: correct, correctItemId, matchCompleted, nextRound",
+    "TarotCardOption.id is String, TarotPickRequest.cards is List<TarotCardSelection>",
+    "TarotCardSelection data class exists with id: String and orientation: String",
+    "TarotReadingResponse.reading field is annotated with @SerializedName(\"message\")",
+    "All ViewModels compile correctly with the updated repository return types",
+    "NewsRepository and StoryRepository handle 404 gracefully returning empty data"
+  ],
+  "verification": [
+    "Run: export JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 && export PATH=$JAVA_HOME/bin:$PATH && cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug"
+  ],
+  "blocked_reason": null,
+  "findings": "All changes compile successfully. Had to also update ClaimScreen.kt (referenced removed AirdropClaimResponse.status and tokensReceived), LogicalGameScreen.kt (selectedAnswerId type changed from Int? to String?), and TarotGameScreen.kt (selectedCardIds type changed from Set<Int> to Set<String>, pickCards call updated to construct TarotCardSelection objects, removed card.meaning and card.id references from TarotCardDetail). TriviaViewModel sessionId type also changed from String? to Int? to match. Only deprecation warnings remain (pre-existing)."
+}

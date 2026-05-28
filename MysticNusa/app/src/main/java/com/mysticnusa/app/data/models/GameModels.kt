@@ -11,11 +11,16 @@ data class ApiResponse(
 data class LeaderboardEntry(
     val name: String?,
     @SerializedName("highest_score")
-    val highestScore: Int?,
+    val highestScore: Int? = null,
     @SerializedName("highest_iq")
-    val highestIq: Int?,
-    val score: Int?,
-    val rank: Int?
+    val highestIq: Int? = null,
+    val score: Int? = null,
+    val rank: Int? = null,
+    @SerializedName("total_played")
+    val totalPlayed: Int? = null,
+    @SerializedName("total_correct")
+    val totalCorrect: Int? = null,
+    val level: Int? = null
 )
 
 data class LeaderboardResponse(
@@ -154,12 +159,13 @@ data class LogicalFinishResponse(
 
 data class LogicalStatisticsResponse(
     val status: String?,
-    @SerializedName("total_matches")
+    val name: String? = null,
+    @SerializedName("total_match")
     val totalMatches: Int?,
     @SerializedName("highest_iq")
     val highestIq: Int?,
-    @SerializedName("average_iq")
-    val averageIq: Double?
+    @SerializedName("last_iq")
+    val lastIq: Int?
 )
 
 // Intuition
@@ -265,11 +271,20 @@ data class TarotCardDetail(
 
 data class TarotHistoryItem(
     val id: Int,
+    @SerializedName("user_id")
+    val userId: Int? = null,
+    @SerializedName("session_date")
+    val sessionDate: String? = null,
+    val readings: List<TarotReading>? = null
+)
+
+data class TarotReading(
+    val id: Int? = null,
     @SerializedName("session_id")
-    val sessionId: String?,
-    val reading: String?,
+    val sessionId: String? = null,
+    val reading: String? = null,
     @SerializedName("created_at")
-    val createdAt: String?
+    val createdAt: String? = null
 )
 
 // Ulartangga

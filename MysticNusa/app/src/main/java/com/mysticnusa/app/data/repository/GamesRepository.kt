@@ -74,7 +74,7 @@ class GamesRepository {
         }
     }
 
-    suspend fun getTriviaLeaderboard(): Result<LeaderboardResponse> {
+    suspend fun getTriviaLeaderboard(): Result<List<LeaderboardEntry>> {
         return try {
             val response = api.getTriviaLeaderboard()
             if (response.isSuccessful) {
@@ -147,7 +147,7 @@ class GamesRepository {
         }
     }
 
-    suspend fun getLogicalLeaderboard(): Result<LeaderboardResponse> {
+    suspend fun getLogicalLeaderboard(): Result<List<LeaderboardEntry>> {
         return try {
             val response = api.getLogicalLeaderboard()
             if (response.isSuccessful) {
@@ -238,7 +238,7 @@ class GamesRepository {
         }
     }
 
-    suspend fun getIntuitionLeaderboard(): Result<LeaderboardResponse> {
+    suspend fun getIntuitionLeaderboard(): Result<List<LeaderboardEntry>> {
         return try {
             val response = api.getIntuitionLeaderboard()
             if (response.isSuccessful) {
