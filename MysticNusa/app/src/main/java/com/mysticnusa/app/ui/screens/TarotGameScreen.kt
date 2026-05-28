@@ -280,6 +280,29 @@ fun TarotGameScreen(navController: NavController) {
                         ) {
                             Text("\uD83C\uDCCF", fontSize = 48.sp)
                             Spacer(modifier = Modifier.height(16.dp))
+
+                            // Oracle info
+                            uiState.oracleName?.let { oracle ->
+                                Text(
+                                    text = oracle,
+                                    color = MysticPurpleLight,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                            uiState.oracleMessage?.let { message ->
+                                Text(
+                                    text = "\"$message\"",
+                                    color = TextSecondary,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                    ),
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+
                             Text(
                                 text = "Kartu Terpilih",
                                 color = MysticGold,
@@ -314,8 +337,13 @@ fun TarotGameScreen(navController: NavController) {
 
                             MysticButton(
                                 text = "Minta Ramalan AI",
-                                onClick = { viewModel.getReading(null) }
+                                onClick = { viewModel.getReading() }
                             )
+
+                            uiState.error?.let {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(text = it, color = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
 

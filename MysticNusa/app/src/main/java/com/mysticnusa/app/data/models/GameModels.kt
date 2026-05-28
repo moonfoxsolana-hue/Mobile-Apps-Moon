@@ -224,7 +224,8 @@ data class TarotStartResponse(
     val status: String?,
     @SerializedName("session_id")
     val sessionId: String?,
-    val cards: List<TarotCardOption>?
+    val cards: List<TarotCardOption>?,
+    val message: String? = null
 )
 
 data class TarotCardOption(
