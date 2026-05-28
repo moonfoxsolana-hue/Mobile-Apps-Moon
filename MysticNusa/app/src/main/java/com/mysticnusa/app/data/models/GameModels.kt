@@ -109,12 +109,14 @@ data class LogicalStartResponse(
 
 data class LogicalQuestion(
     val id: String,
+    @SerializedName("question_text")
     val question: String?,
     val answers: List<LogicalAnswer>?
 )
 
 data class LogicalAnswer(
     val id: String,
+    @SerializedName("answer_text")
     val text: String?,
     val value: Int?,
     @SerializedName("question_id")
@@ -183,6 +185,7 @@ data class IntuitionStartResponse(
 data class IntuitionRoundItem(
     val id: String,
     val name: String?,
+    @SerializedName("image_url")
     val image: String?,
     val description: String?
 )
