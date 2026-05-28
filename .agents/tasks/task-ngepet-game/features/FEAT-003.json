@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Rewrite NgepetGameScreen.kt as a comprehensive multi-phase Compose UI that handles all game screens: Lobby (list of open matches with tier-colored glow, refresh, create button), Create Match form, Join Match form, Match Room (role-based host/intruder views with items grid, intruders list, events log, action buttons), Avatar Shop, Leaderboard tabs, and History. Follow the pattern from TarotGameScreen.kt with phase-based rendering inside a single Scaffold.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Restructure NgepetGameScreen.kt to use the NgepetPhase enum from the ViewModel. Wrap content in a Scaffold with TopAppBar showing 'Ngepet Online' title and back button. Use a when(phase) block to render each screen.",
     "Implement LOBBY phase: Show a LazyColumn of open matches. Each match card displays house avatar image (using Coil AsyncImage with URL prepended with https://mystical-nusa.web.id/), host_name, difficulty badge, token_pool, intruder count/max. Apply tier-based border glow: common=#00f0ff, uncommon=#1eff00, rare=#0070dd, mythical=#a335ee, legendary=#ff6200. Add top row with 'Buka Rumah' button, refresh button (icon), history button, leaderboard button, and avatar shop button. Tapping a match opens a detail dialog/bottom sheet showing full match info with 'Curi' (join) and 'Lihat' (view detail) buttons.",
