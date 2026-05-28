@@ -27,7 +27,7 @@ import com.mysticnusa.app.ui.viewmodels.ProfileViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
-    val tokenManager = remember { RetrofitInstance.tokenManager!! }
+    val tokenManager = RetrofitInstance.tokenManager ?: return
     val profileViewModel: ProfileViewModel = viewModel(
         factory = ProfileViewModel.Factory(ProfileRepository())
     )

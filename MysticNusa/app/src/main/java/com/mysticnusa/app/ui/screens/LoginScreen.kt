@@ -32,7 +32,7 @@ import com.mysticnusa.app.ui.viewmodels.AuthViewModel
 
 @Composable
 fun LoginScreen(navController: NavController) {
-    val tokenManager = remember { RetrofitInstance.tokenManager!! }
+    val tokenManager = RetrofitInstance.tokenManager ?: return
     val viewModel: AuthViewModel = viewModel(
         factory = AuthViewModel.Factory(AuthRepository(), tokenManager)
     )
