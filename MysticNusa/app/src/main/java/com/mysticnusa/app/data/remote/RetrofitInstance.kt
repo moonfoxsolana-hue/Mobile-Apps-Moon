@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
 
-    private const val BASE_URL = "https://mysticnusa.com/api/"
+    private const val BASE_URL = "https://mystical-nusa.web.id/api/"
 
     private var tokenManager: TokenManager? = null
 
