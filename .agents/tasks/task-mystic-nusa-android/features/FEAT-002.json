@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Implement full UI and business logic for all screens: Auth (Login/Register), Home (complete content with hero, tokenomics, utility cards, roadmap, FAQ, community links, partnership), Profile (with token history), Claim/Airdrop (first claim + daily code), News (paginated list + detail), Stories (paginated list + detail with audio), Staking (types, stake, view, claim, cancel), and all 6 Games (Trivia, Logical/IQ, Intuition, Tarot Ritual, Ular Tangga, Ngepet Online) with full game flows.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Implement LoginScreen with email/password fields, login button calling AuthViewModel.login(), error display, and navigation to Register. Implement RegisterScreen with name/email/password/confirm fields and register flow. On success, save token to DataStore and navigate to Home.",
     "Implement SplashScreen that checks DataStore for saved token - if exists navigate to Home, otherwise to Login.",
