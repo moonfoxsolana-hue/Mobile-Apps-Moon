@@ -1,0 +1,36 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Create the complete Android project structure with Gradle setup, dependencies, theme, navigation, and all screen scaffolds. This includes: project initialization, dependency configuration (Retrofit, DataStore, Navigation Compose, Material3, Hilt), custom dark mystic theme, MVVM architecture layers (data/domain/ui), API service interfaces, repository layer, ViewModels, and all screen composables with navigation graph.",
+  "status": "in_progress",
+  "steps": [
+    "Create Android project at /projects/sandbox/Mobile-Apps/MysticNusa/ with proper Gradle Kotlin DSL build files (settings.gradle.kts, root build.gradle.kts, app/build.gradle.kts). Use compileSdk 34, minSdk 26, targetSdk 34. Add dependencies: Retrofit + Gson converter, OkHttp logging interceptor, Jetpack Compose BOM, Navigation Compose, Material3, DataStore Preferences, Hilt, Coil for image loading, Kotlin Coroutines.",
+    "Create the app/src/main/AndroidManifest.xml with INTERNET permission and application setup.",
+    "Create the theme package at app/src/main/java/com/mysticnusa/app/ui/theme/ with Color.kt (MysticDarkBackground=#0e0e1a, MysticSurface=#1e293b, MysticGold=#facc15, MysticGoldDark=#ffd700, MysticPurple=#7c3aed, MysticPurpleLight=#a278ff, MysticPurpleSoft=#b88aff, TextPrimary=white, TextSecondary=#cccccc), Type.kt, and Theme.kt with dark Material3 color scheme.",
+    "Create the data layer: data/remote/ApiService.kt (Retrofit interface with ALL endpoints: POST /auth/register, POST /auth/login, POST /auth/logout, POST /auth/wallet, GET /profile, GET /profile/token-history, POST /airdrop/claim, POST /airdrop/claim-code, GET /news, GET /stories, GET /staking/types, POST /staking/stake, GET /staking, POST /staking/{id}/claim, POST /staking/{id}/cancel, POST /games/trivia/start, POST /games/trivia/answer, POST /games/trivia/finish, GET /games/trivia/leaderboard, POST /games/logical/start, POST /games/logical/answer, POST /games/logical/finish, GET /games/logical/leaderboard, GET /games/logical/statistics, POST /games/intuition/start, GET /games/intuition/{matchId}/round-items, POST /games/intuition/{matchId}/answer, GET /games/intuition/leaderboard, GET /games/intuition/statistics, POST /games/tarot/start, POST /games/tarot/pick-cards, POST /games/tarot/ai-reading, GET /games/tarot/history, and placeholder endpoints for ulartangga and ngepet).",
+    "Create data/remote/RetrofitInstance.kt with configurable BASE_URL, OkHttp client with auth interceptor that reads token from DataStore, and Gson converter.",
+    "Create data/local/TokenManager.kt using DataStore Preferences to store/retrieve auth token and basic user info.",
+    "Create data/models/ package with all data classes: AuthRequest, AuthResponse, UserProfile, TokenHistory, NewsItem, StoryItem, StakingType, StakingDuration, UserStaking, AirdropClaimRequest, AirdropCodeRequest, TriviaStartRequest, TriviaStartResponse, TriviaAnswerRequest, TriviaAnswerResponse, TriviaFinishResponse, LogicalStartResponse, LogicalAnswerRequest, LogicalAnswerResponse, LogicalFinishResponse, IntuitionStartResponse, IntuitionRoundResponse, IntuitionAnswerRequest, TarotStartResponse, TarotPickRequest, TarotReadingResponse, PaginatedResponse<T>.",
+    "Create data/repository/ with AuthRepository, ProfileRepository, AirdropRepository, NewsRepository, StoryRepository, StakingRepository, GamesRepository - each wrapping ApiService calls with error handling and returning Result<T>.",
+    "Create the navigation package: navigation/Screen.kt (sealed class with all routes: Splash, Login, Register, Home, Profile, TokenHistory, Claim, News, Stories, Games, TriviaGame, LogicalGame, IntuitionGame, TarotGame, UlartanggaGame, NgepetGame, Staking) and navigation/NavGraph.kt with NavHost composable wiring all screens.",
+    "Create ui/screens/ with scaffold composables for ALL screens: SplashScreen, LoginScreen, RegisterScreen, HomeScreen, ProfileScreen, TokenHistoryScreen, ClaimScreen, NewsScreen, NewsDetailScreen, StoriesScreen, StoryDetailScreen, GamesScreen (hub), TriviaGameScreen, LogicalGameScreen, IntuitionGameScreen, TarotGameScreen, UlartanggaGameScreen, NgepetGameScreen, StakingScreen. Each screen should have basic structure with TopAppBar and content placeholder.",
+    "Create ui/viewmodels/ with ViewModels for each feature: AuthViewModel, ProfileViewModel, AirdropViewModel, NewsViewModel, StoryViewModel, StakingViewModel, TriviaViewModel, LogicalViewModel, IntuitionViewModel, TarotViewModel.",
+    "Create ui/components/ with reusable composables: MysticButton, MysticCard, MysticTextField, LoadingIndicator, ErrorMessage, BottomNavBar (with Home, Games, Claim, Profile tabs).",
+    "Create MainActivity.kt that sets up the Compose content with theme and NavGraph, checking auth state on startup.",
+    "Create Application class with Hilt setup if using DI, or manual DI container."
+  ],
+  "acceptance_criteria": [
+    "Running ./gradlew assembleDebug from MysticNusa/ compiles successfully without errors",
+    "Project structure follows MVVM with clear separation: data/, ui/, navigation/ packages",
+    "All API endpoints from the reference controllers are defined in ApiService.kt",
+    "Custom dark mystic theme is properly defined with gold/purple accent colors",
+    "Navigation graph includes routes for all screens: auth, home, profile, claim, news, stories, games (6 game types), staking",
+    "Bottom navigation bar is present with Home, Games, Claim, Profile tabs"
+  ],
+  "verification": [
+    "Run: cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug",
+    "Verify compilation succeeds with exit code 0"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
