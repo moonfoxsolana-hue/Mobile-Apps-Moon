@@ -18,10 +18,10 @@ interface ApiService {
 
     // Profile
     @GET("profile")
-    suspend fun getProfile(): Response<ProfileResponse>
+    suspend fun getProfile(): Response<UserProfile>
 
     @GET("token-history")
-    suspend fun getTokenHistory(): Response<TokenHistoryResponse>
+    suspend fun getTokenHistory(): Response<List<TokenHistoryItem>>
 
     // Airdrop
     @POST("airdrop/claim")
@@ -40,13 +40,13 @@ interface ApiService {
 
     // Staking
     @GET("staking/types")
-    suspend fun getStakingTypes(): Response<StakingTypesResponse>
+    suspend fun getStakingTypes(): Response<List<StakingType>>
 
     @POST("staking")
     suspend fun stake(@Body request: StakeRequest): Response<ApiResponse>
 
     @GET("user/stakings")
-    suspend fun getUserStakings(): Response<UserStakingsResponse>
+    suspend fun getUserStakings(): Response<List<UserStaking>>
 
     @POST("staking/claim/{id}")
     suspend fun claimStakingReward(@Path("id") id: Int): Response<ApiResponse>
@@ -75,7 +75,7 @@ interface ApiService {
     suspend fun answerLogical(@Body request: LogicalAnswerRequest): Response<LogicalAnswerResponse>
 
     @POST("logical/finish")
-    suspend fun finishLogical(@Body request: TriviaFinishRequest): Response<LogicalFinishResponse>
+    suspend fun finishLogical(@Body request: LogicalFinishRequest): Response<LogicalFinishResponse>
 
     @GET("logical/leaderboard")
     suspend fun getLogicalLeaderboard(): Response<LeaderboardResponse>
@@ -107,7 +107,7 @@ interface ApiService {
     suspend fun startTarot(): Response<TarotStartResponse>
 
     @POST("tarot/pick-card")
-    suspend fun pickTarotCards(@Body request: TarotPickRequest): Response<ApiResponse>
+    suspend fun pickTarotCards(@Body request: TarotPickRequest): Response<TarotPickCardResponse>
 
     @POST("tarot/ai-reading")
     suspend fun getTarotReading(@Body request: TarotReadingRequest): Response<TarotReadingResponse>

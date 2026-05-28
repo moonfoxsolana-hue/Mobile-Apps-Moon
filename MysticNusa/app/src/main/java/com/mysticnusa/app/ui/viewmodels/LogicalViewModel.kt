@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 data class LogicalUiState(
     val isLoading: Boolean = false,
-    val matchId: String? = null,
+    val matchId: Int? = null,
     val currentQuestion: LogicalQuestion? = null,
     val currentQuestionNumber: Int = 0,
     val totalQuestions: Int = 0,
@@ -49,7 +49,7 @@ class LogicalViewModel(
         }
     }
 
-    fun answerQuestion(questionId: Int, answerId: Int) {
+    fun answerQuestion(questionId: String, answerId: String) {
         val matchId = _uiState.value.matchId ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)

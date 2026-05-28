@@ -19,7 +19,7 @@ class ProfileRepository {
         }
     }
 
-    suspend fun getProfile(): Result<ProfileResponse> {
+    suspend fun getProfile(): Result<UserProfile> {
         return try {
             val response = api.getProfile()
             if (response.isSuccessful) {
@@ -38,7 +38,7 @@ class ProfileRepository {
         }
     }
 
-    suspend fun getTokenHistory(): Result<TokenHistoryResponse> {
+    suspend fun getTokenHistory(): Result<List<TokenHistoryItem>> {
         return try {
             val response = api.getTokenHistory()
             if (response.isSuccessful) {

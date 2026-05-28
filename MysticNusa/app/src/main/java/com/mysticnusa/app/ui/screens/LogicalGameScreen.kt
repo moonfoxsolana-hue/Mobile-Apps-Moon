@@ -31,7 +31,7 @@ fun LogicalGameScreen(navController: NavController) {
     )
     val uiState by viewModel.uiState.collectAsState()
 
-    var selectedAnswerId by remember { mutableStateOf<Int?>(null) }
+    var selectedAnswerId by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {

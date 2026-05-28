@@ -6,7 +6,7 @@ data class StakingType(
     val id: Int,
     val name: String?,
     @SerializedName("amount_token")
-    val amountToken: Double?,
+    val amountToken: Int?,
     val apr: Double?,
     val durations: List<StakingDuration>?
 )
@@ -14,14 +14,16 @@ data class StakingType(
 data class StakingDuration(
     val id: Int,
     val days: Int?,
-    val apr: Double?
+    val apr: Double?,
+    @SerializedName("staking_type_id")
+    val stakingTypeId: Int? = null
 )
 
 data class UserStaking(
     val id: Int,
-    val amount: Double?,
+    val amount: String?,
     @SerializedName("expected_reward")
-    val expectedReward: Double?,
+    val expectedReward: String?,
     @SerializedName("start_date")
     val startDate: String?,
     @SerializedName("end_date")
@@ -35,14 +37,4 @@ data class StakeRequest(
     val typeId: Int,
     @SerializedName("duration_id")
     val durationId: Int
-)
-
-data class StakingTypesResponse(
-    val status: String?,
-    val types: List<StakingType>?
-)
-
-data class UserStakingsResponse(
-    val status: String?,
-    val stakings: List<UserStaking>?
 )

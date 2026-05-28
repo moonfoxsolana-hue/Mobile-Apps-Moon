@@ -39,7 +39,7 @@ fun TarotGameScreen(navController: NavController) {
     val uiState by viewModel.uiState.collectAsState()
 
     var phase by remember { mutableStateOf(TarotPhase.START) }
-    var selectedCardIds by remember { mutableStateOf(setOf<Int>()) }
+    var selectedCardIds by remember { mutableStateOf(setOf<String>()) }
     var name by remember { mutableStateOf("") }
     var energyChoice by remember { mutableStateOf("") }
 
@@ -254,10 +254,13 @@ fun TarotGameScreen(navController: NavController) {
                             MysticButton(
                                 text = "Kirim",
                                 onClick = {
+                                    val cardSelections = uiState.cards
+                                        .filter { it.id in selectedCardIds }
+                                        .map { com.mysticnusa.app.data.models.TarotCardSelection(it.id, it.orientation ?: "upright") }
                                     viewModel.pickCards(
                                         name.ifBlank { null },
                                         energyChoice.ifBlank { null },
-                                        selectedCardIds.toList()
+                                        cardSelections
                                     )
                                     phase = TarotPhase.ORACLE
                                 },
@@ -294,7 +297,7 @@ fun TarotGameScreen(navController: NavController) {
                                 MysticCard(modifier = Modifier.fillMaxWidth()) {
                                     Column(modifier = Modifier.padding(12.dp)) {
                                         Text(
-                                            text = card.name ?: "Kartu #${card.id}",
+                                            text = card.name ?: "Kartu",
                                             color = MysticGold,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -357,10 +360,6 @@ fun TarotGameScreen(navController: NavController) {
                                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                                 )
                                             }
-                                        }
-                                        card.meaning?.let {
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(text = it, color = TextSecondary, style = MaterialTheme.typography.bodySmall)
                                         }
                                     }
                                 }

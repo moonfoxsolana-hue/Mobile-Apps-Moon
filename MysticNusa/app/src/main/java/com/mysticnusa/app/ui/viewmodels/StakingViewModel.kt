@@ -34,7 +34,7 @@ class StakingViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    stakingTypes = response.types ?: emptyList()
+                    stakingTypes = response
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
@@ -52,7 +52,7 @@ class StakingViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    userStakings = response.stakings ?: emptyList()
+                    userStakings = response
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(

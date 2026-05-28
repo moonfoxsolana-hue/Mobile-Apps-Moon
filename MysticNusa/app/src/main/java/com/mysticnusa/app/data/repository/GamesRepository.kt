@@ -129,9 +129,9 @@ class GamesRepository {
         }
     }
 
-    suspend fun finishLogical(sessionId: String): Result<LogicalFinishResponse> {
+    suspend fun finishLogical(matchId: Int): Result<LogicalFinishResponse> {
         return try {
-            val response = api.finishLogical(TriviaFinishRequest(sessionId))
+            val response = api.finishLogical(LogicalFinishRequest(matchId))
             if (response.isSuccessful) {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
@@ -293,7 +293,7 @@ class GamesRepository {
         }
     }
 
-    suspend fun pickTarotCards(request: TarotPickRequest): Result<ApiResponse> {
+    suspend fun pickTarotCards(request: TarotPickRequest): Result<TarotPickCardResponse> {
         return try {
             val response = api.pickTarotCards(request)
             if (response.isSuccessful) {

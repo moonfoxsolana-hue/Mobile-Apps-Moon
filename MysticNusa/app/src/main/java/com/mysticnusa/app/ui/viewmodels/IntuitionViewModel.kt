@@ -54,7 +54,7 @@ class IntuitionViewModel(
             val result = gamesRepository.getIntuitionRoundItems(matchId)
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
-                    items = response.items ?: emptyList()
+                    items = response.options ?: emptyList()
                 )
             }
         }
@@ -70,11 +70,10 @@ class IntuitionViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    currentRound = response.currentRound ?: _uiState.value.currentRound,
-                    score = response.score ?: _uiState.value.score,
-                    isComplete = response.complete ?: false
+                    currentRound = response.nextRound ?: _uiState.value.currentRound,
+                    isComplete = response.matchCompleted ?: false
                 )
-                if (response.complete != true) {
+                if (response.matchCompleted != true) {
                     loadRoundItems(matchId)
                 }
             }.onFailure { error ->
