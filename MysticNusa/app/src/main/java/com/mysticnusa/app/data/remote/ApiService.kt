@@ -7,30 +7,27 @@ import retrofit2.http.*
 interface ApiService {
 
     // Auth
-    @POST("auth/register")
+    @POST("register")
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
 
-    @POST("auth/login")
+    @POST("login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
-    @POST("auth/logout")
+    @POST("logout")
     suspend fun logout(): Response<ApiResponse>
-
-    @POST("auth/wallet")
-    suspend fun updateWallet(@Body request: WalletRequest): Response<ApiResponse>
 
     // Profile
     @GET("profile")
     suspend fun getProfile(): Response<ProfileResponse>
 
-    @GET("profile/token-history")
+    @GET("token-history")
     suspend fun getTokenHistory(): Response<TokenHistoryResponse>
 
     // Airdrop
     @POST("airdrop/claim")
     suspend fun claimAirdrop(@Body request: AirdropClaimRequest): Response<AirdropClaimResponse>
 
-    @POST("airdrop/claim-code")
+    @POST("airdrop/claim-with-code")
     suspend fun claimWithCode(@Body request: AirdropCodeRequest): Response<AirdropClaimResponse>
 
     // News
@@ -45,114 +42,132 @@ interface ApiService {
     @GET("staking/types")
     suspend fun getStakingTypes(): Response<StakingTypesResponse>
 
-    @POST("staking/stake")
+    @POST("staking")
     suspend fun stake(@Body request: StakeRequest): Response<ApiResponse>
 
-    @GET("staking")
+    @GET("user/stakings")
     suspend fun getUserStakings(): Response<UserStakingsResponse>
 
-    @POST("staking/{id}/claim")
+    @POST("staking/claim/{id}")
     suspend fun claimStakingReward(@Path("id") id: Int): Response<ApiResponse>
 
-    @POST("staking/{id}/cancel")
+    @DELETE("staking/cancel/{id}")
     suspend fun cancelStaking(@Path("id") id: Int): Response<ApiResponse>
 
-    // Games - Trivia
-    @POST("games/trivia/start")
+    // Trivia
+    @POST("trivia/start")
     suspend fun startTrivia(@Body request: TriviaStartRequest): Response<TriviaStartResponse>
 
-    @POST("games/trivia/answer")
+    @POST("trivia/answer")
     suspend fun answerTrivia(@Body request: TriviaAnswerRequest): Response<TriviaAnswerResponse>
 
-    @POST("games/trivia/finish")
+    @POST("trivia/finish")
     suspend fun finishTrivia(@Body request: TriviaFinishRequest): Response<TriviaFinishResponse>
 
-    @GET("games/trivia/leaderboard")
+    @GET("trivia/leaderboard")
     suspend fun getTriviaLeaderboard(): Response<LeaderboardResponse>
 
-    // Games - Logical
-    @POST("games/logical/start")
+    // Logical
+    @POST("logical/start")
     suspend fun startLogical(): Response<LogicalStartResponse>
 
-    @POST("games/logical/answer")
+    @POST("logical/answer")
     suspend fun answerLogical(@Body request: LogicalAnswerRequest): Response<LogicalAnswerResponse>
 
-    @POST("games/logical/finish")
+    @POST("logical/finish")
     suspend fun finishLogical(@Body request: TriviaFinishRequest): Response<LogicalFinishResponse>
 
-    @GET("games/logical/leaderboard")
+    @GET("logical/leaderboard")
     suspend fun getLogicalLeaderboard(): Response<LeaderboardResponse>
 
-    @GET("games/logical/statistics")
+    @GET("logical/statistics")
     suspend fun getLogicalStatistics(): Response<LogicalStatisticsResponse>
 
-    // Games - Intuition
-    @POST("games/intuition/start")
+    // Intuition
+    @POST("intuition/start")
     suspend fun startIntuition(): Response<IntuitionStartResponse>
 
-    @GET("games/intuition/{matchId}/round-items")
+    @GET("intuition/round/{matchId}")
     suspend fun getIntuitionRoundItems(@Path("matchId") matchId: String): Response<IntuitionRoundItemsResponse>
 
-    @POST("games/intuition/{matchId}/answer")
+    @POST("intuition/answer/{matchId}")
     suspend fun answerIntuition(
         @Path("matchId") matchId: String,
         @Body request: IntuitionAnswerRequest
     ): Response<IntuitionAnswerResponse>
 
-    @GET("games/intuition/leaderboard")
+    @GET("intuition/leaderboard")
     suspend fun getIntuitionLeaderboard(): Response<LeaderboardResponse>
 
-    @GET("games/intuition/statistics")
+    @GET("intuition/statistics")
     suspend fun getIntuitionStatistics(): Response<IntuitionStatisticsResponse>
 
-    // Games - Tarot
-    @POST("games/tarot/start")
+    // Tarot
+    @POST("tarot/start")
     suspend fun startTarot(): Response<TarotStartResponse>
 
-    @POST("games/tarot/pick-cards")
+    @POST("tarot/pick-card")
     suspend fun pickTarotCards(@Body request: TarotPickRequest): Response<ApiResponse>
 
-    @POST("games/tarot/ai-reading")
+    @POST("tarot/ai-reading")
     suspend fun getTarotReading(@Body request: TarotReadingRequest): Response<TarotReadingResponse>
 
-    @GET("games/tarot/history")
+    @GET("tarot/history")
     suspend fun getTarotHistory(): Response<List<TarotHistoryItem>>
 
-    // Games - Ulartangga
-    @GET("games/ulartangga/matches")
+    // Ulartangga
+    @GET("ulartangga/list-match")
     suspend fun getUlartanggaMatches(): Response<List<UlartanggaMatch>>
 
-    @POST("games/ulartangga/create")
+    @GET("ulartangga/active-match")
+    suspend fun getUlartanggaActiveMatch(): Response<UlartanggaMatch>
+
+    @POST("ulartangga/create-match")
     suspend fun createUlartanggaMatch(): Response<UlartanggaCreateResponse>
 
-    @POST("games/ulartangga/join")
+    @POST("ulartangga/join-match")
     suspend fun joinUlartanggaMatch(@Body body: Map<String, Int>): Response<ApiResponse>
 
-    @POST("games/ulartangga/start")
+    @POST("ulartangga/match/start")
     suspend fun startUlartanggaMatch(@Body body: Map<String, Int>): Response<ApiResponse>
 
-    @POST("games/ulartangga/throw-dice")
+    @POST("ulartangga/match/throw-dice")
     suspend fun throwDice(@Body body: Map<String, Int>): Response<UlartanggaDiceResponse>
 
-    // Games - Ngepet
-    @GET("games/ngepet/matches")
+    @POST("ulartangga/match/ongoing-match")
+    suspend fun getUlartanggaOngoingMatch(@Body body: Map<String, Int>): Response<ApiResponse>
+
+    @GET("ulartangga/leaderboard")
+    suspend fun getUlartanggaLeaderboard(): Response<LeaderboardResponse>
+
+    @GET("ulartangga/statistics")
+    suspend fun getUlartanggaStatistics(): Response<ApiResponse>
+
+    // Ngepet
+    @GET("ngepet/match")
     suspend fun getNgepetMatches(): Response<NgepetMatchesResponse>
 
-    @POST("games/ngepet/create")
+    @POST("ngepet/match/create")
     suspend fun createNgepetMatch(): Response<ApiResponse>
 
-    @POST("games/ngepet/{id}/join")
+    @POST("ngepet/match/{id}/join")
     suspend fun joinNgepetMatch(@Path("id") id: Int): Response<ApiResponse>
 
-    @POST("games/ngepet/{id}/submit-choice")
+    @POST("ngepet/match/{id}/submit-choice")
     suspend fun submitNgepetChoice(
         @Path("id") id: Int,
         @Body request: NgepetChoiceRequest
     ): Response<ApiResponse>
 
-    @POST("games/ngepet/{id}/guess")
+    @POST("ngepet/match/{id}/guess")
     suspend fun guessNgepet(
         @Path("id") id: Int,
         @Body request: NgepetGuessRequest
     ): Response<ApiResponse>
+
+    @GET("ngepet/match/{id}")
+    suspend fun getNgepetMatch(@Path("id") id: Int): Response<ApiResponse>
+
+    @GET("ngepet/match/active")
+    suspend fun getNgepetActiveMatch(): Response<ApiResponse>
 }
