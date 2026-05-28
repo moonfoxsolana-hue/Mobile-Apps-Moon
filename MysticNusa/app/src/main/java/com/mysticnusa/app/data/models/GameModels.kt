@@ -173,13 +173,15 @@ data class IntuitionStartResponse(
     @SerializedName("current_round")
     val currentRound: Int?,
     @SerializedName("total_rounds")
-    val totalRounds: Int?
+    val totalRounds: Int?,
+    val message: String?
 )
 
 data class IntuitionRoundItem(
-    val id: Int,
+    val id: String,
     val name: String?,
-    val image: String?
+    val image: String?,
+    val description: String?
 )
 
 data class IntuitionRoundItemsResponse(
@@ -190,13 +192,13 @@ data class IntuitionRoundItemsResponse(
 
 data class IntuitionAnswerRequest(
     @SerializedName("chosen_item_id")
-    val chosenItemId: Int
+    val chosenItemId: String
 )
 
 data class IntuitionAnswerResponse(
     val correct: Boolean? = null,
     @SerializedName("correct_item_id")
-    val correctItemId: Int? = null,
+    val correctItemId: String? = null,
     @SerializedName("match_completed")
     val matchCompleted: Boolean? = null,
     @SerializedName("next_round")
@@ -205,10 +207,13 @@ data class IntuitionAnswerResponse(
 
 data class IntuitionStatisticsResponse(
     val status: String?,
-    @SerializedName("total_matches")
-    val totalMatches: Int?,
-    @SerializedName("highest_score")
-    val highestScore: Int?
+    @SerializedName("total_played")
+    val totalPlayed: Int?,
+    @SerializedName("total_correct")
+    val totalCorrect: Int?,
+    val level: Int?,
+    @SerializedName("token_reward")
+    val tokenReward: Int?
 )
 
 // Tarot
