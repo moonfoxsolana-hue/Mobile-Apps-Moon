@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "fix",
   "description": "Fix equip avatar bug: make avatarId nullable in NgepetOwnedAvatarItem since backend strips avatar_id via makeHidden, and use ownedItem.avatar?.id in the equip button click handler instead of ownedItem.avatarId.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "In GameModels.kt, change NgepetOwnedAvatarItem.avatarId from `val avatarId: Int` to `val avatarId: Int? = null`",
     "In NgepetGameScreen.kt, change `viewModel.equipAvatar(ownedItem.avatarId)` to `ownedItem.avatar?.id?.let { viewModel.equipAvatar(it) }`"
@@ -16,5 +16,5 @@
     "Run: export JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 && export PATH=$JAVA_HOME/bin:$PATH && cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "Both changes applied and build verified with assembleDebug. The avatarId field is now nullable with default null, and the equip button safely uses the nested avatar object's id via let."
 }
