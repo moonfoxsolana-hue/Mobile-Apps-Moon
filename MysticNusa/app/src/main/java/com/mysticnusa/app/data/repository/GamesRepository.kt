@@ -129,7 +129,7 @@ class GamesRepository {
         }
     }
 
-    suspend fun finishLogical(matchId: Int): Result<LogicalFinishResponse> {
+    suspend fun finishLogical(matchId: String): Result<LogicalFinishResponse> {
         return try {
             val response = api.finishLogical(LogicalFinishRequest(matchId))
             if (response.isSuccessful) {
@@ -421,7 +421,7 @@ class GamesRepository {
     }
 
     // Ngepet
-    suspend fun getNgepetMatches(): Result<NgepetMatchesResponse> {
+    suspend fun getNgepetMatches(): Result<NgepetMatchesListResponse> {
         return try {
             val response = api.getNgepetMatches()
             if (response.isSuccessful) {
@@ -439,9 +439,63 @@ class GamesRepository {
         }
     }
 
-    suspend fun createNgepetMatch(): Result<ApiResponse> {
+    suspend fun getNgepetActiveMatch(): Result<NgepetActiveMatchResponse> {
         return try {
-            val response = api.createNgepetMatch()
+            val response = api.getNgepetActiveMatch()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get active match: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getNgepetMatchHistory(): Result<NgepetHistoryResponse> {
+        return try {
+            val response = api.getNgepetMatchHistory()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get match history: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getNgepetMatchDetail(id: String): Result<NgepetMatchDetailResponse> {
+        return try {
+            val response = api.getNgepetMatchDetail(id)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get match detail: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun createNgepetMatch(request: NgepetCreateMatchRequest): Result<NgepetCreateMatchResponse> {
+        return try {
+            val response = api.createNgepetMatch(request)
             if (response.isSuccessful) {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
@@ -457,9 +511,63 @@ class GamesRepository {
         }
     }
 
-    suspend fun joinNgepetMatch(id: Int): Result<ApiResponse> {
+    suspend fun closeNgepetMatch(id: String): Result<ApiResponse> {
         return try {
-            val response = api.joinNgepetMatch(id)
+            val response = api.closeNgepetMatch(id)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to close ngepet match: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun hideTokenInItem(matchId: String, itemName: String): Result<ApiResponse> {
+        return try {
+            val response = api.hideTokenInItem(matchId, NgepetHiddenItemRequest(itemName))
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to hide token: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun hostGuess(matchId: String, request: NgepetHostGuessRequest): Result<NgepetGuessResponse> {
+        return try {
+            val response = api.hostGuessNgepet(matchId, request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to guess: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun joinNgepetMatch(matchId: String, request: NgepetJoinRequest): Result<ApiResponse> {
+        return try {
+            val response = api.joinNgepetMatch(matchId, request)
             if (response.isSuccessful) {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
@@ -475,9 +583,9 @@ class GamesRepository {
         }
     }
 
-    suspend fun submitNgepetChoice(id: Int, choice: String): Result<ApiResponse> {
+    suspend fun submitNgepetChoice(matchId: String, itemName: String): Result<ApiResponse> {
         return try {
-            val response = api.submitNgepetChoice(id, NgepetChoiceRequest(choice))
+            val response = api.submitNgepetChoice(matchId, NgepetSubmitChoiceRequest(itemName))
             if (response.isSuccessful) {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
@@ -493,16 +601,160 @@ class GamesRepository {
         }
     }
 
-    suspend fun guessNgepet(id: Int, guess: String): Result<ApiResponse> {
+    suspend fun intruderHiddenGuess(matchId: String, request: NgepetHiddenGuessRequest): Result<NgepetGuessResponse> {
         return try {
-            val response = api.guessNgepet(id, NgepetGuessRequest(guess))
+            val response = api.intruderHiddenGuess(matchId, request)
             if (response.isSuccessful) {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
                 val errorMsg = parseErrorMessage(
                     response.errorBody()?.string(),
-                    "Failed to guess ngepet: ${response.code()}"
+                    "Failed to guess hidden item: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun claimVictory(request: NgepetClaimVictoryRequest): Result<ApiResponse> {
+        return try {
+            val response = api.claimVictory(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to claim victory: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getAvatarShop(): Result<NgepetAvatarShopResponse> {
+        return try {
+            val response = api.getNgepetAvatarShop()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get avatar shop: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun buyAvatar(id: Int): Result<ApiResponse> {
+        return try {
+            val response = api.buyNgepetAvatar(id)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to buy avatar: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getOwnedAvatars(): Result<NgepetOwnedAvatarsResponse> {
+        return try {
+            val response = api.getNgepetOwnedAvatars()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get owned avatars: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun equipAvatar(id: Int): Result<ApiResponse> {
+        return try {
+            val response = api.equipNgepetAvatar(id)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to equip avatar: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getHouseLeaderboard(): Result<NgepetLeaderboardResponse> {
+        return try {
+            val response = api.getNgepetHouseLeaderboard()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get house leaderboard: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getHostLeaderboard(): Result<NgepetLeaderboardResponse> {
+        return try {
+            val response = api.getNgepetHostLeaderboard()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get host leaderboard: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getIntruderLeaderboard(): Result<NgepetLeaderboardResponse> {
+        return try {
+            val response = api.getNgepetIntruderLeaderboard()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get intruder leaderboard: ${response.code()}"
                 )
                 Result.failure(Exception(errorMsg))
             }

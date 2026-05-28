@@ -14,6 +14,8 @@ data class TarotUiState(
     val isLoading: Boolean = false,
     val sessionId: String? = null,
     val cards: List<TarotCardOption> = emptyList(),
+    val oracleName: String? = null,
+    val oracleMessage: String? = null,
     val reading: String? = null,
     val cardDetails: List<TarotCardDetail> = emptyList(),
     val error: String? = null
@@ -34,12 +36,13 @@ class TarotViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     sessionId = response.sessionId,
-                    cards = response.cards ?: emptyList()
+                    cards = response.cards ?: emptyList(),
+                    error = null
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = error.message ?: "Gagal memulai ritual"
                 )
             }
         }
@@ -55,19 +58,23 @@ class TarotViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    cardDetails = response.cards ?: emptyList()
+                    oracleName = response.oracle,
+                    oracleMessage = response.message,
+                    cardDetails = response.cards ?: emptyList(),
+                    error = null
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = error.message ?: "Gagal memilih kartu"
                 )
             }
         }
     }
 
-    fun getReading(oracleName: String?) {
+    fun getReading() {
         val sessionId = _uiState.value.sessionId ?: return
+        val oracleName = _uiState.value.oracleName ?: "The Oracle of Nusa"
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             val result = gamesRepository.getTarotReading(
@@ -76,15 +83,20 @@ class TarotViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    reading = response.reading
+                    reading = response.reading,
+                    error = null
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = error.message ?: "Gagal mendapatkan ramalan"
                 )
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
     }
 
     class Factory(

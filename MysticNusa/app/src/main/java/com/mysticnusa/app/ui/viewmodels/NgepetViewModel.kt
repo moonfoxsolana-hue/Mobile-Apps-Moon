@@ -3,19 +3,49 @@ package com.mysticnusa.app.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.mysticnusa.app.data.models.NgepetMatch
+import com.mysticnusa.app.data.models.*
 import com.mysticnusa.app.data.repository.GamesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+enum class NgepetPhase {
+    LOBBY, CREATE_MATCH, JOIN_MATCH, MATCH_ROOM, AVATAR_SHOP, LEADERBOARD, HISTORY
+}
+
 data class NgepetUiState(
     val isLoading: Boolean = false,
-    val matches: List<NgepetMatch> = emptyList(),
-    val currentMatchId: Int? = null,
+    val phase: NgepetPhase = NgepetPhase.LOBBY,
+    val matches: List<NgepetLobbyMatch> = emptyList(),
+    val activeMatchData: NgepetActiveMatchData? = null,
+    val matchDetail: NgepetMatchDetailResponse? = null,
+    val ownedAvatars: List<NgepetOwnedAvatarItem> = emptyList(),
+    val avatarShop: List<NgepetAvatar> = emptyList(),
+    val history: List<NgepetHistoryItem> = emptyList(),
+    val leaderboard: List<NgepetLeaderboardEntry> = emptyList(),
+    val leaderboardType: String = "house",
+    val currentRole: String? = null,
+    val currentMatchId: String? = null,
+    val currentIntruderMatchId: String? = null,
+    val guessResult: NgepetGuessResponse? = null,
     val message: String? = null,
-    val error: String? = null
+    val error: String? = null,
+    val selectedMatchForJoin: NgepetLobbyMatch? = null,
+    val showMatchDetailDialog: Boolean = false,
+    // Create form fields
+    val createHostName: String = "",
+    val createDifficulty: String = "easy",
+    val createDuration: Int = 3,
+    val createMaxIntruders: Int = 1,
+    val createTokenPool: String = "",
+    val createMinToken: String = "",
+    val createMaxToken: String = "",
+    val createHouseAvatarId: Int? = null,
+    // Join form fields
+    val joinName: String = "",
+    val joinTokenAmount: String = "",
+    val joinPlayerAvatarId: Int? = null
 )
 
 class NgepetViewModel(
@@ -24,6 +54,115 @@ class NgepetViewModel(
 
     private val _uiState = MutableStateFlow(NgepetUiState())
     val uiState: StateFlow<NgepetUiState> = _uiState.asStateFlow()
+
+    init {
+        checkActiveMatch()
+        loadMatches()
+    }
+
+    // Navigation
+
+    fun goToPhase(phase: NgepetPhase) {
+        _uiState.value = _uiState.value.copy(phase = phase, error = null)
+        when (phase) {
+            NgepetPhase.LOBBY -> loadMatches()
+            NgepetPhase.AVATAR_SHOP -> {
+                loadAvatarShop()
+                loadOwnedAvatars()
+            }
+            NgepetPhase.LEADERBOARD -> loadLeaderboard(_uiState.value.leaderboardType)
+            NgepetPhase.HISTORY -> loadHistory()
+            else -> {}
+        }
+    }
+
+    fun goBack() {
+        val current = _uiState.value.phase
+        val target = when (current) {
+            NgepetPhase.MATCH_ROOM -> NgepetPhase.LOBBY
+            NgepetPhase.CREATE_MATCH -> NgepetPhase.LOBBY
+            NgepetPhase.JOIN_MATCH -> NgepetPhase.LOBBY
+            NgepetPhase.AVATAR_SHOP -> NgepetPhase.LOBBY
+            NgepetPhase.LEADERBOARD -> NgepetPhase.LOBBY
+            NgepetPhase.HISTORY -> NgepetPhase.LOBBY
+            else -> NgepetPhase.LOBBY
+        }
+        goToPhase(target)
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
+    }
+
+    fun clearMessage() {
+        _uiState.value = _uiState.value.copy(message = null)
+    }
+
+    fun clearGuessResult() {
+        _uiState.value = _uiState.value.copy(guessResult = null)
+    }
+
+    fun showMatchDetail(match: NgepetLobbyMatch) {
+        _uiState.value = _uiState.value.copy(
+            selectedMatchForJoin = match,
+            showMatchDetailDialog = true
+        )
+    }
+
+    fun dismissMatchDetail() {
+        _uiState.value = _uiState.value.copy(
+            selectedMatchForJoin = null,
+            showMatchDetailDialog = false
+        )
+    }
+
+    // Form state updates
+
+    fun updateCreateHostName(value: String) {
+        _uiState.value = _uiState.value.copy(createHostName = value)
+    }
+
+    fun updateCreateDifficulty(value: String) {
+        _uiState.value = _uiState.value.copy(createDifficulty = value)
+    }
+
+    fun updateCreateDuration(value: Int) {
+        _uiState.value = _uiState.value.copy(createDuration = value)
+    }
+
+    fun updateCreateMaxIntruders(value: Int) {
+        _uiState.value = _uiState.value.copy(createMaxIntruders = value)
+    }
+
+    fun updateCreateTokenPool(value: String) {
+        _uiState.value = _uiState.value.copy(createTokenPool = value)
+    }
+
+    fun updateCreateMinToken(value: String) {
+        _uiState.value = _uiState.value.copy(createMinToken = value)
+    }
+
+    fun updateCreateMaxToken(value: String) {
+        _uiState.value = _uiState.value.copy(createMaxToken = value)
+    }
+
+    fun updateCreateHouseAvatar(id: Int?) {
+        _uiState.value = _uiState.value.copy(createHouseAvatarId = id)
+    }
+
+    fun updateJoinName(value: String) {
+        _uiState.value = _uiState.value.copy(joinName = value)
+    }
+
+    fun updateJoinTokenAmount(value: String) {
+        _uiState.value = _uiState.value.copy(joinTokenAmount = value)
+    }
+
+    fun updateJoinPlayerAvatar(id: Int?) {
+        _uiState.value = _uiState.value.copy(joinPlayerAvatarId = id)
+    }
+
+    // Data loading
 
     fun loadMatches() {
         viewModelScope.launch {
@@ -34,84 +173,425 @@ class NgepetViewModel(
                     isLoading = false,
                     matches = response.matches ?: emptyList()
                 )
-            }.onFailure { error ->
+            }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message
                 )
             }
         }
     }
 
-    fun createMatch() {
+    fun checkActiveMatch() {
+        viewModelScope.launch {
+            val result = gamesRepository.getNgepetActiveMatch()
+            result.onSuccess { response ->
+                val data = response.data
+                if (data != null && data.matchId != null) {
+                    _uiState.value = _uiState.value.copy(
+                        activeMatchData = data,
+                        currentMatchId = data.matchId,
+                        currentRole = data.role,
+                        currentIntruderMatchId = data.intruderMatchId
+                    )
+                    loadMatchDetail(data.matchId)
+                    _uiState.value = _uiState.value.copy(phase = NgepetPhase.MATCH_ROOM)
+                }
+            }.onFailure { /* silently ignore - user may not have active match */ }
+        }
+    }
+
+    fun loadMatchDetail(matchId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = gamesRepository.createNgepetMatch()
+            val result = gamesRepository.getNgepetMatchDetail(matchId)
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    matchDetail = response
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun refreshMatchDetail() {
+        val matchId = _uiState.value.currentMatchId ?: return
+        loadMatchDetail(matchId)
+    }
+
+    fun loadAvatarShop() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val result = gamesRepository.getAvatarShop()
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    avatarShop = response.data ?: emptyList()
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun loadOwnedAvatars() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val result = gamesRepository.getOwnedAvatars()
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    ownedAvatars = response.data ?: emptyList()
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun loadLeaderboard(type: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, leaderboardType = type)
+            val result = when (type) {
+                "host" -> gamesRepository.getHostLeaderboard()
+                "intruders" -> gamesRepository.getIntruderLeaderboard()
+                else -> gamesRepository.getHouseLeaderboard()
+            }
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    leaderboard = response.data ?: emptyList()
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun loadHistory() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val result = gamesRepository.getNgepetMatchHistory()
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    history = response.data ?: emptyList()
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    // Host actions
+
+    fun createMatch() {
+        val state = _uiState.value
+        if (state.createHostName.isBlank()) {
+            _uiState.value = state.copy(error = "Host name is required")
+            return
+        }
+        val tokenPool = state.createTokenPool.toIntOrNull()
+        if (tokenPool == null || tokenPool <= 0) {
+            _uiState.value = state.copy(error = "Token pool must be a positive number")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val request = NgepetCreateMatchRequest(
+                hostName = state.createHostName,
+                difficulty = state.createDifficulty,
+                guessDurationHours = state.createDuration,
+                maxIntruders = state.createMaxIntruders,
+                tokenPool = tokenPool,
+                minIntruderToken = state.createMinToken.toIntOrNull(),
+                maxIntruderToken = state.createMaxToken.toIntOrNull(),
+                houseAvatarId = state.createHouseAvatarId
+            )
+            val result = gamesRepository.createNgepetMatch(request)
+            result.onSuccess { response ->
+                val matchId = response.id
+                if (matchId != null) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        currentMatchId = matchId,
+                        currentRole = "host",
+                        message = response.message
+                    )
+                    loadMatchDetail(matchId)
+                    _uiState.value = _uiState.value.copy(phase = NgepetPhase.MATCH_ROOM)
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Match created but no ID returned"
+                    )
+                }
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun hideToken(itemName: String) {
+        val matchId = _uiState.value.currentMatchId ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val result = gamesRepository.hideTokenInItem(matchId, itemName)
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    message = response.message
+                )
+                refreshMatchDetail()
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun hostGuess(intruderId: String, itemName: String) {
+        val matchId = _uiState.value.currentMatchId ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val request = NgepetHostGuessRequest(
+                matchIntruderId = intruderId,
+                itemName = itemName
+            )
+            val result = gamesRepository.hostGuess(matchId, request)
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    guessResult = response
+                )
+                refreshMatchDetail()
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun closeMatch() {
+        val matchId = _uiState.value.currentMatchId ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val result = gamesRepository.closeNgepetMatch(matchId)
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     message = response.message,
-                    currentMatchId = 0
+                    currentMatchId = null,
+                    currentRole = null,
+                    currentIntruderMatchId = null,
+                    matchDetail = null,
+                    activeMatchData = null
                 )
-            }.onFailure { error ->
+                goToPhase(NgepetPhase.LOBBY)
+            }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message
                 )
             }
         }
     }
 
-    fun joinMatch(matchId: Int) {
+    // Intruder actions
+
+    fun joinMatch() {
+        val state = _uiState.value
+        val matchId = state.selectedMatchForJoin?.id ?: return
+        if (state.joinName.isBlank()) {
+            _uiState.value = state.copy(error = "Name is required")
+            return
+        }
+        val tokenAmount = state.joinTokenAmount.toIntOrNull()
+        if (tokenAmount == null || tokenAmount <= 0) {
+            _uiState.value = state.copy(error = "Token amount must be a positive number")
+            return
+        }
+        // Validate token range against match limits
+        val minToken = state.selectedMatchForJoin?.minIntruderToken
+        val maxToken = state.selectedMatchForJoin?.maxIntruderToken
+        if (minToken != null && tokenAmount < minToken) {
+            _uiState.value = state.copy(error = "Token minimum is $minToken")
+            return
+        }
+        if (maxToken != null && tokenAmount > maxToken) {
+            _uiState.value = state.copy(error = "Token maximum is $maxToken")
+            return
+        }
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = gamesRepository.joinNgepetMatch(matchId)
+            val request = NgepetJoinRequest(
+                name = state.joinName,
+                tokenAmount = tokenAmount,
+                avatarId = state.joinPlayerAvatarId
+            )
+            val result = gamesRepository.joinNgepetMatch(matchId, request)
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     currentMatchId = matchId,
-                    message = response.message
+                    currentRole = "intruder",
+                    message = response.message ?: response.success,
+                    showMatchDetailDialog = false,
+                    selectedMatchForJoin = null
                 )
-            }.onFailure { error ->
+                // Load active match to get intruder_match_id
+                val activeResult = gamesRepository.getNgepetActiveMatch()
+                activeResult.onSuccess { activeResponse ->
+                    val data = activeResponse.data
+                    if (data != null) {
+                        _uiState.value = _uiState.value.copy(
+                            currentIntruderMatchId = data.intruderMatchId,
+                            activeMatchData = data
+                        )
+                    }
+                }.onFailure {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Berhasil join, tapi gagal memuat data match. Silakan refresh."
+                    )
+                }
+                loadMatchDetail(matchId)
+                _uiState.value = _uiState.value.copy(phase = NgepetPhase.MATCH_ROOM)
+            }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message
                 )
             }
         }
     }
 
-    fun submitChoice(matchId: Int, choice: String) {
+    fun submitChoice(itemName: String) {
+        val matchId = _uiState.value.currentMatchId ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = gamesRepository.submitNgepetChoice(matchId, choice)
+            val result = gamesRepository.submitNgepetChoice(matchId, itemName)
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    message = response.message
+                    message = response.message ?: response.success
                 )
-            }.onFailure { error ->
+                refreshMatchDetail()
+            }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message
                 )
             }
         }
     }
 
-    fun guess(matchId: Int, guess: String) {
+    fun intruderGuessHidden(itemName: String) {
+        val intruderMatchId = _uiState.value.currentIntruderMatchId ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = gamesRepository.guessNgepet(matchId, guess)
+            val request = NgepetHiddenGuessRequest(
+                matchIntruderId = intruderMatchId,
+                itemName = itemName
+            )
+            val matchId = _uiState.value.currentMatchId ?: return@launch
+            val result = gamesRepository.intruderHiddenGuess(matchId, request)
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    guessResult = response
+                )
+                refreshMatchDetail()
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun claimVictory() {
+        val intruderMatchId = _uiState.value.currentIntruderMatchId ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val request = NgepetClaimVictoryRequest(matchIntruderId = intruderMatchId)
+            val result = gamesRepository.claimVictory(request)
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     message = response.message
                 )
-            }.onFailure { error ->
+                refreshMatchDetail()
+            }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    // Avatar actions
+
+    fun buyAvatar(id: Int) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val result = gamesRepository.buyAvatar(id)
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    message = response.message
+                )
+                loadAvatarShop()
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+
+    fun equipAvatar(id: Int) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val result = gamesRepository.equipAvatar(id)
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    message = response.message
+                )
+                loadOwnedAvatars()
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
                 )
             }
         }

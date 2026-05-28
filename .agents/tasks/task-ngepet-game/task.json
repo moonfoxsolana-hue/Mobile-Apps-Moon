@@ -1,0 +1,7 @@
+{
+  "task_id": "task-ngepet-game",
+  "task_description": "Implement the complete Ngepet Online game in the Mystic Nusa Android app. Rewrite data models, API endpoints, repository, ViewModel, and UI screen to support the full multiplayer token-based strategy game flow with host/intruder roles, avatar system, leaderboards, and match history.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}

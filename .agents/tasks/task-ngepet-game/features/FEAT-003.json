@@ -1,0 +1,36 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Rewrite NgepetGameScreen.kt as a comprehensive multi-phase Compose UI that handles all game screens: Lobby (list of open matches with tier-colored glow, refresh, create button), Create Match form, Join Match form, Match Room (role-based host/intruder views with items grid, intruders list, events log, action buttons), Avatar Shop, Leaderboard tabs, and History. Follow the pattern from TarotGameScreen.kt with phase-based rendering inside a single Scaffold.",
+  "status": "completed",
+  "steps": [
+    "Restructure NgepetGameScreen.kt to use the NgepetPhase enum from the ViewModel. Wrap content in a Scaffold with TopAppBar showing 'Ngepet Online' title and back button. Use a when(phase) block to render each screen.",
+    "Implement LOBBY phase: Show a LazyColumn of open matches. Each match card displays house avatar image (using Coil AsyncImage with URL prepended with https://mystical-nusa.web.id/), host_name, difficulty badge, token_pool, intruder count/max. Apply tier-based border glow: common=#00f0ff, uncommon=#1eff00, rare=#0070dd, mythical=#a335ee, legendary=#ff6200. Add top row with 'Buka Rumah' button, refresh button (icon), history button, leaderboard button, and avatar shop button. Tapping a match opens a detail dialog/bottom sheet showing full match info with 'Curi' (join) and 'Lihat' (view detail) buttons.",
+    "Implement CREATE_MATCH phase: Form with MysticTextField for host_name, token pool input (number), difficulty selection as radio/chips (easy/medium/hard), duration chips (3/6/12/24 hours), max intruders chips (1-5), optional min/max intruder token inputs. Show owned house avatars in a horizontal scrollable row for selection (fetch from getOwnedAvatars filtered by type=house). Submit button calls viewModel.createMatch().",
+    "Implement JOIN_MATCH phase: Form with MysticTextField for intruder name, token amount input (show min/max from match), owned player avatars in horizontal scroll for selection (filtered by type=player). Submit calls viewModel.joinMatch(matchId).",
+    "Implement MATCH_ROOM phase - HOST view (when currentRole==host): Show match info header (avatar, host name, token pool, difficulty, intruder count). Show items grid (2 columns) with item images from match detail. Section for 'Sembunyikan Token' - host taps an item to hide token there. Section showing intruders list with their status, avatar, name, token staked - each intruder has a 'Tebak' button to guess their hiding spot. When guessing, show items grid for selection. Show events log at bottom. 'Tutup Rumah' button to close match.",
+    "Implement MATCH_ROOM phase - INTRUDER view (when currentRole==intruder): If not yet picked choice (is_pick_choice==false), show items grid to pick hiding spot with 'Pilih' button. After picking, show waiting state with countdown to guess_deadline. Show 'Tebak Token' button to guess where host hid tokens (intruder hidden guess). Show events log. If deadline passed, show 'Klaim Kemenangan' button.",
+    "Implement AVATAR_SHOP phase: Two tabs - 'Toko' (shop) and 'Koleksi' (owned). Shop tab shows grid of avatars with image, name, price, tier badge, stock count, own status. Buy button for unowned. Owned tab shows equipped status with equip button.",
+    "Implement LEADERBOARD phase: Three tabs (Rumah, Host, Babi). Each shows a list of leaderboard entries.",
+    "Implement HISTORY phase: List of past matches with role badge, result, host name, date.",
+    "Handle guess result display: When hostGuess or intruderGuessHidden returns, show a dialog/overlay with is_correct result, answer_item if revealed, and appropriate success/failure messaging. If is_end==true, show final result and option to return to lobby.",
+    "Add proper loading states (CircularProgressIndicator with MysticGold), error display (Snackbar or inline text in red), and empty states for lists."
+  ],
+  "acceptance_criteria": [
+    "NgepetGameScreen renders all phases without compilation errors",
+    "Lobby shows matches with tier-colored borders and all required info",
+    "Create match form has all required fields (host_name, token, difficulty, duration, max_intruders, avatar selection)",
+    "Join match form has name, token amount, avatar selection",
+    "Match room differentiates between host and intruder views",
+    "Host can hide tokens, guess intruder locations, and close match",
+    "Intruder can pick hiding spot, guess hidden tokens, and claim victory",
+    "Avatar shop shows buy/equip functionality",
+    "Images use full URL with https://mystical-nusa.web.id/ prefix",
+    "Project compiles with assembleDebug"
+  ],
+  "verification": [
+    "Run: export JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 && export PATH=$JAVA_HOME/bin:$PATH && cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug"
+  ],
+  "blocked_reason": null,
+  "findings": "Build verified with assembleDebug. File is 1866 lines with all phases implemented. Uses NgepetPhase from ViewModel package, removes old local enum. All AsyncImage URLs prepend BASE_URL. mutableIntStateOf resolved through runtime wildcard import."
+}
