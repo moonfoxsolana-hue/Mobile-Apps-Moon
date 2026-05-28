@@ -13,7 +13,8 @@ object RetrofitInstance {
 
     private const val BASE_URL = "https://mystical-nusa.web.id/api/"
 
-    private var tokenManager: TokenManager? = null
+    var tokenManager: TokenManager? = null
+        private set
 
     fun init(tokenManager: TokenManager) {
         this.tokenManager = tokenManager

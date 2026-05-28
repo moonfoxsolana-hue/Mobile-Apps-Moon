@@ -2,11 +2,16 @@ package com.mysticnusa.app.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.mysticnusa.app.ui.theme.MysticGold
 import com.mysticnusa.app.ui.theme.MysticPurple
@@ -31,8 +36,12 @@ fun MysticTextField(
             unfocusedBorderColor = MysticPurple,
             focusedLabelColor = MysticGold,
             unfocusedLabelColor = TextSecondary,
-            cursorColor = MysticGold
+            cursorColor = MysticGold,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White
         ),
-        singleLine = true
+        singleLine = true,
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default
     )
 }

@@ -32,12 +32,12 @@ fun StakingScreen(navController: NavController) {
         factory = StakingViewModel.Factory(StakingRepository())
     )
     val uiState by viewModel.uiState.collectAsState()
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedTab by remember { mutableStateOf(0) }
     var showStakeDialog by remember { mutableStateOf(false) }
-    var selectedTypeId by remember { mutableIntStateOf(0) }
-    var selectedDurationId by remember { mutableIntStateOf(0) }
+    var selectedTypeId by remember { mutableStateOf(0) }
+    var selectedDurationId by remember { mutableStateOf(0) }
     var selectedTypeName by remember { mutableStateOf("") }
-    var selectedDurationDays by remember { mutableIntStateOf(0) }
+    var selectedDurationDays by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         viewModel.loadStakingTypes()

@@ -33,7 +33,7 @@ fun TriviaGameScreen(navController: NavController) {
     val uiState by viewModel.uiState.collectAsState()
 
     var category by remember { mutableStateOf("") }
-    var questionCount by remember { mutableFloatStateOf(10f) }
+    var questionCount by remember { mutableStateOf(10f) }
     var selectedAnswer by remember { mutableStateOf<String?>(null) }
     var showFeedback by remember { mutableStateOf(false) }
 
