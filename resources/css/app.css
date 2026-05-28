@@ -1,0 +1,177 @@
+/* Palet Warna Elegan */
+:root {
+    --color-primary: #4A90E2; /* Biru Elegan untuk Aksen */
+    --color-background: #F4F7F9; /* Putih Gading Pucat */
+    --color-card-bg: #FFFFFF; /* Putih Bersih untuk Kartu */
+    --color-text-dark: #333333; /* Teks Gelap */
+    --color-text-light: #6A7F93; /* Teks Sekunder/Placeholder */
+    --color-border: #E0E6ED; /* Garis Tipis */
+    --color-shadow: rgba(0, 0, 0, 0.05); /* Bayangan Halus */
+    --color-hover: #3C7DC8; /* Hover untuk Biru */
+}
+
+/* Reset Dasar */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text-dark);
+    line-height: 1.6;
+    padding: 40px 20px;
+}
+
+/* Struktur Kontainer */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    color: var(--color-text-dark);
+    margin-bottom: 10px;
+    font-weight: 300;
+}
+
+.highlight {
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+header p {
+    font-size: 1.1em;
+    color: var(--color-text-light);
+}
+
+/* Kartu Utama (Main Card) */
+.card {
+    background-color: var(--color-card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px var(--color-shadow);
+    margin-bottom: 40px;
+    border-top: 5px solid var(--color-primary);
+}
+
+/* Area Unggah Dokumen */
+.upload-area {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 30px;
+    border: 2px dashed var(--color-border);
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: var(--color-primary);
+}
+
+.upload-button {
+    display: inline-block;
+    background-color: var(--color-primary);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin-bottom: 10px;
+    user-select: none;
+}
+
+.upload-button:hover {
+    background-color: var(--color-hover);
+}
+
+.upload-button:active {
+    transform: scale(0.98);
+}
+
+.upload-button .icon {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
+.file-info {
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    margin-top: 5px;
+}
+
+.file-name-display {
+    margin-top: 15px;
+    font-style: italic;
+    color: var(--color-text-light);
+    padding: 8px;
+    background-color: var(--color-background);
+    border-radius: 4px;
+}
+
+/* Tombol Aksi */
+.action-section {
+    text-align: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-border);
+}
+
+.analyze-button {
+    background-color: #AAAAAA; /* Warna abu-abu saat dinonaktifkan */
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: not-allowed;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.analyze-button.ready {
+    background-color: #2ECC71; /* Hijau saat siap */
+    cursor: pointer;
+}
+
+.analyze-button.ready:hover {
+    background-color: #27AE60;
+}
+
+.analyze-button.ready:active {
+    transform: scale(0.98);
+}
+
+/* Bagian Placeholder Hasil */
+.results-placeholder h2 {
+    font-size: 1.8em;
+    color: var(--color-text-dark);
+    margin-bottom: 15px;
+    font-weight: 400;
+}
+
+.placeholder-box {
+    background-color: var(--color-card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.placeholder-box p {
+    color: var(--color-text-light);
+    font-style: italic;
+}
