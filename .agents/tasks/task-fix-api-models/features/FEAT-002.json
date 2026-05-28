@@ -1,0 +1,25 @@
+{
+  "id": "FEAT-002",
+  "type": "fix",
+  "description": "Address 4 review issues: leaderboard response wrapper mismatch, LogicalStatisticsResponse field name mismatch, intuition leaderboard field mismatch, and tarot history response shape",
+  "status": "in_progress",
+  "steps": [
+    "Step 1: Fix leaderboard endpoints - Change ApiService to return Response<List<LeaderboardEntry>> instead of Response<LeaderboardResponse> for trivia, logical, and intuition leaderboards. Update GamesRepository to return Result<List<LeaderboardEntry>> directly.",
+    "Step 2: Fix LogicalStatisticsResponse - Change @SerializedName from total_matches to total_match, change averageIq to lastIq with @SerializedName last_iq, add name field.",
+    "Step 3: Fix LeaderboardEntry - Add intuition-specific fields: totalPlayed, totalCorrect, level with appropriate @SerializedName annotations.",
+    "Step 4: Fix TarotHistoryItem - Restructure to match backend response with nested readings array. Add TarotReading data class."
+  ],
+  "acceptance_criteria": [
+    "Running ./gradlew assembleDebug compiles without errors",
+    "ApiService leaderboard endpoints return Response<List<LeaderboardEntry>>",
+    "GamesRepository leaderboard methods return Result<List<LeaderboardEntry>>",
+    "LogicalStatisticsResponse uses total_match and last_iq field names",
+    "LeaderboardEntry includes totalPlayed, totalCorrect, level fields",
+    "TarotHistoryItem has nested readings: List<TarotReading> structure"
+  ],
+  "verification": [
+    "Run: export JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 && export PATH=$JAVA_HOME/bin:$PATH && cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}

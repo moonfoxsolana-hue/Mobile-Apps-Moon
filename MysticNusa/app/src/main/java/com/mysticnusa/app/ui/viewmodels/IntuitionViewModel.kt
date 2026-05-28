@@ -14,10 +14,12 @@ data class IntuitionUiState(
     val isLoading: Boolean = false,
     val matchId: String? = null,
     val currentRound: Int = 0,
-    val totalRounds: Int = 0,
+    val totalRounds: Int = 10,
     val items: List<IntuitionRoundItem> = emptyList(),
     val score: Int = 0,
     val isComplete: Boolean = false,
+    val lastAnswerCorrect: Boolean? = null,
+    val showFeedback: Boolean = false,
     val error: String? = null
 )
 
@@ -31,19 +33,29 @@ class IntuitionViewModel(
     fun startGame() {
         viewModelScope.launch {
             _uiState.value = IntuitionUiState(isLoading = true)
-            val result = gamesRepository.startIntuition()
-            result.onSuccess { response ->
+            try {
+                val result = gamesRepository.startIntuition()
+                result.onSuccess { response ->
+                    val matchId = response.matchId
+                    val currentRound = response.currentRound ?: 0
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        matchId = matchId,
+                        currentRound = currentRound + 1,
+                        totalRounds = response.totalRounds ?: 10,
+                        error = null
+                    )
+                    matchId?.let { loadRoundItems(it) }
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Gagal memulai permainan"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    matchId = response.matchId,
-                    currentRound = response.currentRound ?: 1,
-                    totalRounds = response.totalRounds ?: 0
-                )
-                response.matchId?.let { loadRoundItems(it) }
-            }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
@@ -51,39 +63,71 @@ class IntuitionViewModel(
 
     private fun loadRoundItems(matchId: String) {
         viewModelScope.launch {
-            val result = gamesRepository.getIntuitionRoundItems(matchId)
-            result.onSuccess { response ->
+            try {
+                val result = gamesRepository.getIntuitionRoundItems(matchId)
+                result.onSuccess { response ->
+                    _uiState.value = _uiState.value.copy(
+                        items = response.options ?: emptyList(),
+                        currentRound = response.round ?: _uiState.value.currentRound,
+                        showFeedback = false,
+                        lastAnswerCorrect = null
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isComplete = true,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    items = response.items ?: emptyList()
+                    error = e.message ?: "Gagal memuat item"
                 )
             }
         }
     }
 
-    fun answerRound(chosenItemId: Int) {
+    fun answerRound(chosenItemId: String) {
         val matchId = _uiState.value.matchId ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            val result = gamesRepository.answerIntuition(
-                matchId, IntuitionAnswerRequest(chosenItemId)
-            )
-            result.onSuccess { response ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    currentRound = response.currentRound ?: _uiState.value.currentRound,
-                    score = response.score ?: _uiState.value.score,
-                    isComplete = response.complete ?: false
+            try {
+                val result = gamesRepository.answerIntuition(
+                    matchId, IntuitionAnswerRequest(chosenItemId)
                 )
-                if (response.complete != true) {
-                    loadRoundItems(matchId)
+                result.onSuccess { response ->
+                    val isCorrect = response.correct ?: false
+                    val newScore = if (isCorrect) _uiState.value.score + 1 else _uiState.value.score
+                    val isComplete = response.matchCompleted ?: false
+
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        score = newScore,
+                        lastAnswerCorrect = isCorrect,
+                        showFeedback = true,
+                        isComplete = isComplete
+                    )
+
+                    if (!isComplete) {
+                        kotlinx.coroutines.delay(1200)
+                        loadRoundItems(matchId)
+                    }
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Gagal mengirim jawaban"
+                    )
                 }
-            }.onFailure { error ->
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
     }
 
     class Factory(

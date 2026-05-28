@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 data class TriviaUiState(
     val isLoading: Boolean = false,
-    val sessionId: String? = null,
+    val sessionId: Int? = null,
     val currentQuestion: TriviaQuestion? = null,
     val currentQuestionNumber: Int = 0,
     val totalQuestions: Int = 0,

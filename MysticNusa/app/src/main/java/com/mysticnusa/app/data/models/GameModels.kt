@@ -11,17 +11,19 @@ data class ApiResponse(
 data class LeaderboardEntry(
     val name: String?,
     @SerializedName("highest_score")
-    val highestScore: Int?,
+    val highestScore: Int? = null,
     @SerializedName("highest_iq")
-    val highestIq: Int?,
-    val score: Int?,
-    val rank: Int?
+    val highestIq: Int? = null,
+    val score: Int? = null,
+    val rank: Int? = null,
+    @SerializedName("total_played")
+    val totalPlayed: Int? = null,
+    @SerializedName("total_correct")
+    val totalCorrect: Int? = null,
+    val level: Int? = null
 )
 
-data class LeaderboardResponse(
-    val status: String?,
-    val leaderboard: List<LeaderboardEntry>?
-)
+
 
 // Trivia
 data class TriviaStartRequest(
@@ -42,7 +44,7 @@ data class TriviaQuestion(
 data class TriviaStartResponse(
     val status: String?,
     @SerializedName("session_id")
-    val sessionId: String?,
+    val sessionId: Int?,
     val question: TriviaQuestion?,
     @SerializedName("current_question")
     val currentQuestion: Int?,
@@ -53,7 +55,7 @@ data class TriviaStartResponse(
 
 data class TriviaAnswerRequest(
     @SerializedName("session_id")
-    val sessionId: String,
+    val sessionId: Int,
     @SerializedName("question_id")
     val questionId: Int,
     @SerializedName("selected_answer")
@@ -78,7 +80,7 @@ data class TriviaAnswerResponse(
 
 data class TriviaFinishRequest(
     @SerializedName("session_id")
-    val sessionId: String
+    val sessionId: Int
 )
 
 data class TriviaFinishResponse(
@@ -86,14 +88,15 @@ data class TriviaFinishResponse(
     val score: Int?,
     val streak: Int?,
     @SerializedName("duration_seconds")
-    val durationSeconds: Int?
+    val durationSeconds: Int?,
+    val category: String? = null
 )
 
 // Logical
 data class LogicalStartResponse(
     val status: String?,
     @SerializedName("match_id")
-    val matchId: String?,
+    val matchId: Int?,
     val question: LogicalQuestion?,
     @SerializedName("current_question")
     val currentQuestion: Int?,
@@ -102,24 +105,31 @@ data class LogicalStartResponse(
 )
 
 data class LogicalQuestion(
-    val id: Int,
+    val id: String,
     val question: String?,
     val answers: List<LogicalAnswer>?
 )
 
 data class LogicalAnswer(
-    val id: Int,
+    val id: String,
     val text: String?,
-    val value: Int?
+    val value: Int?,
+    @SerializedName("question_id")
+    val questionId: String? = null
 )
 
 data class LogicalAnswerRequest(
     @SerializedName("match_id")
-    val matchId: String,
+    val matchId: Int,
     @SerializedName("question_id")
-    val questionId: Int,
+    val questionId: String,
     @SerializedName("answer_id")
-    val answerId: Int
+    val answerId: String
+)
+
+data class LogicalFinishRequest(
+    @SerializedName("match_id")
+    val matchId: Int
 )
 
 data class LogicalAnswerResponse(
@@ -146,12 +156,13 @@ data class LogicalFinishResponse(
 
 data class LogicalStatisticsResponse(
     val status: String?,
-    @SerializedName("total_matches")
+    val name: String? = null,
+    @SerializedName("total_match")
     val totalMatches: Int?,
     @SerializedName("highest_iq")
     val highestIq: Int?,
-    @SerializedName("average_iq")
-    val averageIq: Double?
+    @SerializedName("last_iq")
+    val lastIq: Int?
 )
 
 // Intuition
@@ -162,45 +173,47 @@ data class IntuitionStartResponse(
     @SerializedName("current_round")
     val currentRound: Int?,
     @SerializedName("total_rounds")
-    val totalRounds: Int?
+    val totalRounds: Int?,
+    val message: String?
 )
 
 data class IntuitionRoundItem(
-    val id: Int,
+    val id: String,
     val name: String?,
-    val image: String?
+    val image: String?,
+    val description: String?
 )
 
 data class IntuitionRoundItemsResponse(
-    val status: String?,
-    val items: List<IntuitionRoundItem>?
+    @SerializedName("options")
+    val options: List<IntuitionRoundItem>?,
+    val round: Int? = null
 )
 
 data class IntuitionAnswerRequest(
     @SerializedName("chosen_item_id")
-    val chosenItemId: Int
+    val chosenItemId: String
 )
 
 data class IntuitionAnswerResponse(
-    val status: String?,
-    @SerializedName("is_correct")
-    val isCorrect: Boolean?,
-    @SerializedName("correct_item")
-    val correctItem: IntuitionRoundItem?,
-    @SerializedName("current_round")
-    val currentRound: Int?,
-    @SerializedName("total_rounds")
-    val totalRounds: Int?,
-    val complete: Boolean?,
-    val score: Int?
+    val correct: Boolean? = null,
+    @SerializedName("correct_item_id")
+    val correctItemId: String? = null,
+    @SerializedName("match_completed")
+    val matchCompleted: Boolean? = null,
+    @SerializedName("next_round")
+    val nextRound: Int? = null
 )
 
 data class IntuitionStatisticsResponse(
     val status: String?,
-    @SerializedName("total_matches")
-    val totalMatches: Int?,
-    @SerializedName("highest_score")
-    val highestScore: Int?
+    @SerializedName("total_played")
+    val totalPlayed: Int?,
+    @SerializedName("total_correct")
+    val totalCorrect: Int?,
+    val level: Int?,
+    @SerializedName("token_reward")
+    val tokenReward: Int?
 )
 
 // Tarot
@@ -212,8 +225,13 @@ data class TarotStartResponse(
 )
 
 data class TarotCardOption(
-    val id: Int,
+    val id: String,
     val orientation: String?
+)
+
+data class TarotCardSelection(
+    val id: String,
+    val orientation: String
 )
 
 data class TarotPickRequest(
@@ -222,7 +240,16 @@ data class TarotPickRequest(
     val name: String?,
     @SerializedName("energy_choice")
     val energyChoice: String?,
-    val cards: List<Int>
+    val cards: List<TarotCardSelection>
+)
+
+data class TarotPickCardResponse(
+    val status: String? = null,
+    val message: String? = null,
+    val oracle: String? = null,
+    @SerializedName("session_id")
+    val sessionId: String? = null,
+    val cards: List<TarotCardDetail>? = null
 )
 
 data class TarotReadingRequest(
@@ -234,24 +261,32 @@ data class TarotReadingRequest(
 
 data class TarotReadingResponse(
     val status: String?,
-    val reading: String?,
-    val cards: List<TarotCardDetail>?
+    @SerializedName("message")
+    val reading: String?
 )
 
 data class TarotCardDetail(
-    val id: Int,
     val name: String?,
     val orientation: String?,
-    val meaning: String?
+    val image: String? = null
 )
 
 data class TarotHistoryItem(
     val id: Int,
+    @SerializedName("user_id")
+    val userId: Int? = null,
+    @SerializedName("session_date")
+    val sessionDate: String? = null,
+    val readings: List<TarotReading>? = null
+)
+
+data class TarotReading(
+    val id: Int? = null,
     @SerializedName("session_id")
-    val sessionId: String?,
-    val reading: String?,
+    val sessionId: String? = null,
+    val reading: String? = null,
     @SerializedName("created_at")
-    val createdAt: String?
+    val createdAt: String? = null
 )
 
 // Ulartangga

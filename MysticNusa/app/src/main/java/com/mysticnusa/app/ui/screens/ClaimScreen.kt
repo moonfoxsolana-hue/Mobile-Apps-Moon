@@ -149,8 +149,8 @@ fun ClaimScreen(navController: NavController) {
                 MysticCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = if (response.status == "success") "Berhasil!" else "Info",
-                            color = if (response.status == "success") Color(0xFF22c55e) else MysticGold,
+                            text = if (response.message != null) "Berhasil!" else "Info",
+                            color = if (response.message != null) Color(0xFF22c55e) else MysticGold,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -159,7 +159,7 @@ fun ClaimScreen(navController: NavController) {
                             color = TextSecondary,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        response.tokensReceived?.let {
+                        response.amount?.let {
                             Text(
                                 text = "+$it MYNU",
                                 color = MysticGold,

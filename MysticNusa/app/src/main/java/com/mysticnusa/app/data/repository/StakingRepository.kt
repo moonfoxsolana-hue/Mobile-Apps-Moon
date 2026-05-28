@@ -19,7 +19,7 @@ class StakingRepository {
         }
     }
 
-    suspend fun getTypes(): Result<StakingTypesResponse> {
+    suspend fun getTypes(): Result<List<StakingType>> {
         return try {
             val response = api.getStakingTypes()
             if (response.isSuccessful) {
@@ -57,7 +57,7 @@ class StakingRepository {
         }
     }
 
-    suspend fun getUserStakings(): Result<UserStakingsResponse> {
+    suspend fun getUserStakings(): Result<List<UserStaking>> {
         return try {
             val response = api.getUserStakings()
             if (response.isSuccessful) {

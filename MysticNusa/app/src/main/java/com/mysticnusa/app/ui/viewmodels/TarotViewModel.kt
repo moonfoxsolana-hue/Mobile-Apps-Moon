@@ -45,15 +45,18 @@ class TarotViewModel(
         }
     }
 
-    fun pickCards(name: String?, energyChoice: String?, cardIds: List<Int>) {
+    fun pickCards(name: String?, energyChoice: String?, cards: List<TarotCardSelection>) {
         val sessionId = _uiState.value.sessionId ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             val result = gamesRepository.pickTarotCards(
-                TarotPickRequest(sessionId, name, energyChoice, cardIds)
+                TarotPickRequest(sessionId, name, energyChoice, cards)
             )
-            result.onSuccess {
-                _uiState.value = _uiState.value.copy(isLoading = false)
+            result.onSuccess { response ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    cardDetails = response.cards ?: emptyList()
+                )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -73,8 +76,7 @@ class TarotViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    reading = response.reading,
-                    cardDetails = response.cards ?: emptyList()
+                    reading = response.reading
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(

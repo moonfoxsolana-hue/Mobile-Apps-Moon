@@ -26,6 +26,16 @@ class StoryRepository {
                 response.body()?.let {
                     Result.success(it)
                 } ?: Result.failure(Exception("Empty response body"))
+            } else if (response.code() == 404) {
+                Result.success(
+                    PaginatedResponse(
+                        currentPage = 1,
+                        data = emptyList(),
+                        lastPage = 1,
+                        perPage = 10,
+                        total = 0
+                    )
+                )
             } else {
                 val errorMsg = parseErrorMessage(
                     response.errorBody()?.string(),

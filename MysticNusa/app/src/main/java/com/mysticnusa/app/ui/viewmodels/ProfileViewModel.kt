@@ -32,7 +32,7 @@ class ProfileViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    profile = response.user
+                    profile = response
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
@@ -50,7 +50,7 @@ class ProfileViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    tokenHistory = response.history ?: emptyList()
+                    tokenHistory = response
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
