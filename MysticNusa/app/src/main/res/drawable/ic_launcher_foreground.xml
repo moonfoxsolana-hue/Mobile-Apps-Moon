@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Background circle -->
+    <path
+        android:fillColor="#1A0A2E"
+        android:pathData="M54,54m-54,0a54,54 0,1 1,108 0a54,54 0,1 1,-108 0"/>
+    <!-- Mystic star/crystal shape -->
+    <path
+        android:fillColor="#FACC15"
+        android:pathData="M54,24L60.5,44.5L81,44.5L64.5,57L70.5,78L54,65L37.5,78L43.5,57L27,44.5L47.5,44.5Z"/>
+    <!-- Inner glow -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M54,34L58,46L69,46L60,53.5L63.5,66L54,58.5L44.5,66L48,53.5L39,46L50,46Z"/>
+    <!-- "M" letter for Mystic -->
+    <path
+        android:fillColor="#1A0A2E"
+        android:pathData="M47,48L50,42L54,48L58,42L61,48L61,56L58,56L58,50L54,54L50,50L50,56L47,56Z"/>
+</vector>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#0e0e1a</color>
-    <color name="ic_launcher_foreground">#facc15</color>
+    <color name="ic_launcher_background">#1A0A2E</color>
+    <color name="ic_launcher_foreground">#FACC15</color>
+    <color name="mystic_dark">#0e0e1a</color>
+    <color name="mystic_purple">#7c3aed</color>
+    <color name="mystic_gold">#facc15</color>
 </resources>
