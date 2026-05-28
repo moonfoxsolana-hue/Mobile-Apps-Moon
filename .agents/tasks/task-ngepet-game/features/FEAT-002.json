@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Rewrite NgepetViewModel.kt with comprehensive state management to handle all game phases: lobby browsing, match creation (host), joining (intruder), active match room with role-based actions, avatar selection, leaderboards, and history. Use a phase-based approach similar to TarotViewModel/TarotPhase pattern.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Create an enum NgepetPhase with states: LOBBY, CREATE_MATCH, JOIN_MATCH, MATCH_ROOM, AVATAR_SHOP, LEADERBOARD, HISTORY. The MATCH_ROOM phase handles both host and intruder sub-states internally.",
     "Define NgepetUiState data class with fields: isLoading:Boolean, phase:NgepetPhase, matches:List<NgepetLobbyMatch>, activeMatch:NgepetActiveMatchData?, matchDetail:NgepetMatchDetailWrapper? (the full show response), ownedAvatars:List<NgepetOwnedAvatarItem>, avatarShop:List<NgepetAvatar>, history:List<NgepetHistoryItem>, leaderboard:List<Any> (generic for different boards), leaderboardType:String, currentRole:String? (host/intruder), guessResult:NgepetGuessResponse?, message:String?, error:String?. Add sub-fields for create form state (hostName, difficulty, duration, maxIntruders, tokenPool, minToken, maxToken, selectedHouseAvatarId) and join form state (intruderName, tokenAmount, selectedPlayerAvatarId).",

@@ -178,9 +178,7 @@ fun NgepetGameScreen(navController: NavController) {
                                 text = "Konfirmasi",
                                 onClick = {
                                     selectedItem?.let { choice ->
-                                        uiState.currentMatchId?.let { matchId ->
-                                            viewModel.submitChoice(matchId, choice)
-                                        }
+                                        viewModel.submitChoice(choice)
                                     }
                                     phase = NgepetPhase.WAITING
                                 }
