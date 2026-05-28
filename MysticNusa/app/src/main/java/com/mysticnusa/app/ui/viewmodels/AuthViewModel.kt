@@ -30,19 +30,32 @@ class AuthViewModel(
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = authRepository.login(LoginRequest(email, password))
-            result.onSuccess { response ->
-                response.accessToken?.let { tokenManager.saveToken(it) }
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+                val result = authRepository.login(LoginRequest(email, password))
+                result.onSuccess { response ->
+                    response.accessToken?.let {
+                        try {
+                            tokenManager.saveToken(it)
+                        } catch (e: Exception) {
+                            // Token save failed, but login still succeeded
+                        }
+                    }
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        authResponse = response,
+                        isLoggedIn = true
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Login gagal"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    authResponse = response,
-                    isLoggedIn = true
-                )
-            }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
@@ -50,22 +63,39 @@ class AuthViewModel(
 
     fun register(name: String, email: String, password: String, passwordConfirmation: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = authRepository.register(
-                RegisterRequest(name, email, password, passwordConfirmation)
-            )
-            result.onSuccess { response ->
-                response.accessToken?.let { tokenManager.saveToken(it) }
-                tokenManager.saveUserName(name)
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    authResponse = response,
-                    isLoggedIn = true
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+                val result = authRepository.register(
+                    RegisterRequest(name, email, password, passwordConfirmation)
                 )
-            }.onFailure { error ->
+                result.onSuccess { response ->
+                    response.accessToken?.let {
+                        try {
+                            tokenManager.saveToken(it)
+                        } catch (e: Exception) {
+                            // Token save failed
+                        }
+                    }
+                    try {
+                        tokenManager.saveUserName(name)
+                    } catch (e: Exception) {
+                        // Username save failed
+                    }
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        authResponse = response,
+                        isLoggedIn = true
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Registrasi gagal"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
@@ -73,8 +103,16 @@ class AuthViewModel(
 
     fun logout() {
         viewModelScope.launch {
-            authRepository.logout()
-            tokenManager.clearAll()
+            try {
+                authRepository.logout()
+            } catch (e: Exception) {
+                // Ignore logout API failure
+            }
+            try {
+                tokenManager.clearAll()
+            } catch (e: Exception) {
+                // Ignore clear failure
+            }
             _uiState.value = AuthUiState()
         }
     }

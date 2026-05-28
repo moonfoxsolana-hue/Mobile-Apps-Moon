@@ -27,7 +27,14 @@ import com.mysticnusa.app.ui.viewmodels.ProfileViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
-    val tokenManager = remember { RetrofitInstance.tokenManager!! }
+    val tokenManager = RetrofitInstance.tokenManager
+    if (tokenManager == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = MysticGold)
+        }
+        return
+    }
+
     val profileViewModel: ProfileViewModel = viewModel(
         factory = ProfileViewModel.Factory(ProfileRepository())
     )
