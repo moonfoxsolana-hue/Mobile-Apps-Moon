@@ -23,10 +23,7 @@ data class LeaderboardEntry(
     val level: Int? = null
 )
 
-data class LeaderboardResponse(
-    val status: String?,
-    val leaderboard: List<LeaderboardEntry>?
-)
+
 
 // Trivia
 data class TriviaStartRequest(
