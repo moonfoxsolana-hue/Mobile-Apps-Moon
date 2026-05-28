@@ -1,11 +1,23 @@
 package com.mysticnusa.app.data.repository
 
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.mysticnusa.app.data.models.*
 import com.mysticnusa.app.data.remote.RetrofitInstance
 
 class GamesRepository {
 
     private val api = RetrofitInstance.api
+
+    private fun parseErrorMessage(errorBody: String?, fallback: String): String {
+        if (errorBody.isNullOrBlank()) return fallback
+        return try {
+            val json = Gson().fromJson(errorBody, JsonObject::class.java)
+            json.get("message")?.asString ?: fallback
+        } catch (e: Exception) {
+            fallback
+        }
+    }
 
     // Trivia
     suspend fun startTrivia(request: TriviaStartRequest): Result<TriviaStartResponse> {
@@ -15,7 +27,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to start trivia: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to start trivia: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -29,7 +45,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to answer trivia: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to answer trivia: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -43,7 +63,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to finish trivia: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to finish trivia: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -57,7 +81,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get leaderboard: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get leaderboard: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -72,7 +100,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to start logical: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to start logical: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -86,7 +118,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to answer logical: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to answer logical: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -100,7 +136,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to finish logical: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to finish logical: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -114,7 +154,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get logical leaderboard: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get logical leaderboard: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -128,7 +172,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get logical statistics: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get logical statistics: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -143,7 +191,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to start intuition: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to start intuition: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -157,7 +209,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get round items: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get round items: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -171,7 +227,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to answer intuition: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to answer intuition: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -185,7 +245,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get intuition leaderboard: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get intuition leaderboard: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -199,7 +263,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get intuition statistics: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get intuition statistics: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -214,7 +282,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to start tarot: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to start tarot: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -228,7 +300,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to pick tarot cards: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to pick tarot cards: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -242,7 +318,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get tarot reading: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get tarot reading: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -256,7 +336,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get tarot history: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get tarot history: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -271,7 +355,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get ulartangga matches: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get ulartangga matches: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -285,7 +373,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to create ulartangga match: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to create ulartangga match: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -299,7 +391,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to join ulartangga match: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to join ulartangga match: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -313,7 +409,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to throw dice: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to throw dice: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -328,7 +428,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to get ngepet matches: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get ngepet matches: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -342,7 +446,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to create ngepet match: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to create ngepet match: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -356,7 +464,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to join ngepet match: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to join ngepet match: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -370,7 +482,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to submit ngepet choice: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to submit ngepet choice: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -384,7 +500,11 @@ class GamesRepository {
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Failed to guess ngepet: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to guess ngepet: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)

@@ -9,6 +9,11 @@ data class AirdropClaimResponse(
     val tokensReceived: Double?
 )
 
+data class AirdropClaimRequest(
+    @SerializedName("wallet_address")
+    val walletAddress: String
+)
+
 data class AirdropCodeRequest(
     val code: String
 )

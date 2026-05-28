@@ -93,10 +93,10 @@ fun ClaimScreen(navController: NavController) {
                             if (!solanaAddressRegex.matches(walletAddress)) {
                                 walletError = "Alamat wallet Solana tidak valid"
                             } else {
-                                viewModel.claimFirst()
+                                viewModel.claimFirst(walletAddress)
                             }
                         },
-                        enabled = walletAddress.isNotBlank() && !uiState.isLoading
+                        enabled = walletAddress.isNotBlank() && !uiState.isLoading && !uiState.hasClaimed
                     )
                 }
             }

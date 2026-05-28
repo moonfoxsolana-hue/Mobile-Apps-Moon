@@ -28,7 +28,7 @@ interface ApiService {
 
     // Airdrop
     @POST("airdrop/claim")
-    suspend fun claimAirdrop(): Response<AirdropClaimResponse>
+    suspend fun claimAirdrop(@Body request: AirdropClaimRequest): Response<AirdropClaimResponse>
 
     @POST("airdrop/claim-code")
     suspend fun claimWithCode(@Body request: AirdropCodeRequest): Response<AirdropClaimResponse>

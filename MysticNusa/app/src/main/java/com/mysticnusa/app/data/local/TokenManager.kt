@@ -19,6 +19,10 @@ class TokenManager(private val context: Context) {
         private val USER_NAME_KEY = stringPreferencesKey("user_name")
     }
 
+    @Volatile
+    var cachedToken: String? = null
+        private set
+
     val tokenFlow: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[TOKEN_KEY]
     }
@@ -32,6 +36,7 @@ class TokenManager(private val context: Context) {
     }
 
     suspend fun saveToken(token: String) {
+        cachedToken = token
         context.dataStore.edit { preferences ->
             preferences[TOKEN_KEY] = token
         }
@@ -43,9 +48,18 @@ class TokenManager(private val context: Context) {
         }
     }
 
+    fun clearCachedToken() {
+        cachedToken = null
+    }
+
     suspend fun clearAll() {
+        cachedToken = null
         context.dataStore.edit { preferences ->
             preferences.clear()
         }
+    }
+
+    suspend fun loadCachedToken() {
+        cachedToken = getToken()
     }
 }

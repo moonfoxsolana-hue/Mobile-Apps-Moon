@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 data class AirdropUiState(
     val isLoading: Boolean = false,
     val claimResponse: AirdropClaimResponse? = null,
-    val error: String? = null
+    val error: String? = null,
+    val hasClaimed: Boolean = false
 )
 
 class AirdropViewModel(
@@ -23,14 +24,15 @@ class AirdropViewModel(
     private val _uiState = MutableStateFlow(AirdropUiState())
     val uiState: StateFlow<AirdropUiState> = _uiState.asStateFlow()
 
-    fun claimFirst() {
+    fun claimFirst(walletAddress: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = airdropRepository.claimFirst()
+            val result = airdropRepository.claimFirst(walletAddress)
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    claimResponse = response
+                    claimResponse = response,
+                    hasClaimed = true
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(

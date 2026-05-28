@@ -1,11 +1,23 @@
 package com.mysticnusa.app.data.repository
 
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.mysticnusa.app.data.models.*
 import com.mysticnusa.app.data.remote.RetrofitInstance
 
 class AuthRepository {
 
     private val api = RetrofitInstance.api
+
+    private fun parseErrorMessage(errorBody: String?, fallback: String): String {
+        if (errorBody.isNullOrBlank()) return fallback
+        return try {
+            val json = Gson().fromJson(errorBody, JsonObject::class.java)
+            json.get("message")?.asString ?: fallback
+        } catch (e: Exception) {
+            fallback
+        }
+    }
 
     suspend fun register(request: RegisterRequest): Result<AuthResponse> {
         return try {
@@ -15,7 +27,11 @@ class AuthRepository {
                     Result.success(it)
                 } ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Registration failed: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Registration failed: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -30,7 +46,11 @@ class AuthRepository {
                     Result.success(it)
                 } ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Login failed: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Login failed: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -45,7 +65,11 @@ class AuthRepository {
                     Result.success(it)
                 } ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Logout failed: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Logout failed: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -60,7 +84,11 @@ class AuthRepository {
                     Result.success(it)
                 } ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("Wallet update failed: ${response.code()}"))
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Wallet update failed: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
