@@ -96,12 +96,14 @@ data class TriviaFinishResponse(
 data class LogicalStartResponse(
     val status: String?,
     @SerializedName("match_id")
-    val matchId: Int?,
+    val matchId: String?,
     val question: LogicalQuestion?,
     @SerializedName("current_question")
     val currentQuestion: Int?,
     @SerializedName("total_question")
-    val totalQuestion: Int?
+    val totalQuestion: Int?,
+    val complete: Boolean?,
+    val message: String?
 )
 
 data class LogicalQuestion(
@@ -120,7 +122,7 @@ data class LogicalAnswer(
 
 data class LogicalAnswerRequest(
     @SerializedName("match_id")
-    val matchId: Int,
+    val matchId: String,
     @SerializedName("question_id")
     val questionId: String,
     @SerializedName("answer_id")
@@ -129,7 +131,7 @@ data class LogicalAnswerRequest(
 
 data class LogicalFinishRequest(
     @SerializedName("match_id")
-    val matchId: Int
+    val matchId: String
 )
 
 data class LogicalAnswerResponse(

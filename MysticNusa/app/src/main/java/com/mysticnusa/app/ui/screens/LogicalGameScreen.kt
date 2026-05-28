@@ -1,15 +1,21 @@
 package com.mysticnusa.app.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -19,7 +25,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mysticnusa.app.data.repository.GamesRepository
 import com.mysticnusa.app.ui.components.MysticButton
-import com.mysticnusa.app.ui.components.MysticCard
 import com.mysticnusa.app.ui.theme.*
 import com.mysticnusa.app.ui.viewmodels.LogicalViewModel
 
@@ -30,13 +35,12 @@ fun LogicalGameScreen(navController: NavController) {
         factory = LogicalViewModel.Factory(GamesRepository())
     )
     val uiState by viewModel.uiState.collectAsState()
-
     var selectedAnswerId by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Logical / IQ Test", color = MysticGold) },
+                title = { Text("Tes Logika / IQ", color = MysticGold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = MysticGold)
@@ -51,104 +55,121 @@ fun LogicalGameScreen(navController: NavController) {
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             when {
-                // Finished
+                // Finished with results
                 uiState.isComplete && uiState.finishResponse != null -> {
+                    val finish = uiState.finishResponse!!
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                             .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("\uD83E\uDDEA", fontSize = 64.sp)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Tes Selesai!",
-                            color = MysticGold,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                                .background(Brush.radialGradient(listOf(MysticGold.copy(alpha = 0.3f), Color.Transparent))),
+                            contentAlignment = Alignment.Center
+                        ) { Text("\uD83E\uDDE0", fontSize = 56.sp) }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text("Tes Selesai!", color = MysticGold, fontSize = 26.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        MysticCard {
-                            Column(
-                                modifier = Modifier.padding(24.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text("IQ Score", color = TextSecondary)
+                        // IQ Score card
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(containerColor = MysticSurface)
+                        ) {
+                            Column(modifier = Modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("IQ Score", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "${uiState.finishResponse?.iq ?: 0}",
+                                    text = "${finish.iq ?: 100}",
                                     color = MysticGold,
-                                    fontSize = 56.sp,
+                                    fontSize = 64.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
+                                Surface(shape = RoundedCornerShape(20.dp), color = MysticPurple.copy(alpha = 0.2f)) {
+                                    Text(
+                                        text = finish.category ?: "Normal",
+                                        color = MysticPurpleLight,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
                                 Text(
-                                    text = uiState.finishResponse?.category ?: "",
-                                    color = MysticPurpleLight,
-                                    fontWeight = FontWeight.Medium,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = uiState.finishResponse?.message ?: "",
+                                    text = finish.message ?: "",
                                     color = TextSecondary,
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                HorizontalDivider(color = MysticPurple.copy(alpha = 0.2f))
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Divider(color = MysticPurple.copy(alpha = 0.3f))
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text("Total Poin: ${uiState.finishResponse?.totalPoint ?: 0}", color = TextSecondary)
-                                Text("Durasi: ${uiState.finishResponse?.durationSeconds ?: 0} detik", color = TextSecondary)
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text("${finish.totalPoint ?: 0}", color = MysticGold, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                                        Text("Poin", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                                    }
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text("${finish.durationSeconds ?: 0}s", color = MysticGold, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                                        Text("Durasi", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                                    }
+                                }
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
-                        MysticButton(
-                            text = "Main Lagi",
-                            onClick = {
-                                selectedAnswerId = null
-                                viewModel.startGame()
-                            }
-                        )
+                        Spacer(modifier = Modifier.height(32.dp))
+                        MysticButton(text = "Main Lagi", onClick = { selectedAnswerId = null; viewModel.startGame() })
                     }
                 }
-                // Auto-finish
+
+                // Auto-finish (all questions answered)
                 uiState.isComplete && uiState.finishResponse == null -> {
                     LaunchedEffect(Unit) { viewModel.finishGame() }
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = MysticGold)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = MysticGold)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("Menghitung skor IQ...", color = TextSecondary)
+                        }
                     }
                 }
+
                 // Playing
                 uiState.currentQuestion != null -> {
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
+                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = "Soal ${uiState.currentQuestionNumber}/${uiState.totalQuestions}",
-                                color = TextSecondary
-                            )
+                        // Progress header
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("Soal ${uiState.currentQuestionNumber}/${uiState.totalQuestions}", color = TextSecondary)
+                            Surface(shape = RoundedCornerShape(20.dp), color = MysticPurple.copy(alpha = 0.15f)) {
+                                Text(
+                                    text = "\uD83E\uDDE0 IQ Test",
+                                    color = MysticPurpleLight,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         LinearProgressIndicator(
-                            progress = uiState.currentQuestionNumber.toFloat() / uiState.totalQuestions.coerceAtLeast(1),
-                            modifier = Modifier.fillMaxWidth(),
+                            progress = { uiState.currentQuestionNumber.toFloat() / uiState.totalQuestions.coerceAtLeast(1) },
+                            modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
                             color = MysticGold,
                             trackColor = MysticSurface
                         )
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        MysticCard(modifier = Modifier.fillMaxWidth()) {
+                        // Question card
+                        Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MysticSurface)) {
                             Text(
                                 text = uiState.currentQuestion?.question ?: "",
                                 color = Color.White,
@@ -157,42 +178,45 @@ fun LogicalGameScreen(navController: NavController) {
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
+                        // Answer options
                         uiState.currentQuestion?.answers?.forEach { answer ->
                             val isSelected = selectedAnswerId == answer.id
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
+                                    .padding(vertical = 4.dp)
+                                    .then(if (isSelected) Modifier.border(2.dp, MysticGold, RoundedCornerShape(12.dp)) else Modifier),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) MysticPurple.copy(alpha = 0.3f) else MysticSurface
+                                    containerColor = if (isSelected) MysticPurple.copy(alpha = 0.2f) else MysticSurface
                                 ),
-                                onClick = {
-                                    if (!uiState.isLoading) {
-                                        selectedAnswerId = answer.id
+                                onClick = { if (!uiState.isLoading) selectedAnswerId = answer.id }
+                            ) {
+                                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = answer.text ?: "",
+                                        color = if (isSelected) MysticGold else TextSecondary,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    if (isSelected) {
+                                        Icon(Icons.Default.CheckCircle, "Selected", tint = MysticGold, modifier = Modifier.size(20.dp))
                                     }
                                 }
-                            ) {
-                                Text(
-                                    text = answer.text ?: "",
-                                    color = if (isSelected) MysticGold else TextSecondary,
-                                    modifier = Modifier.padding(16.dp),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         if (selectedAnswerId != null) {
                             MysticButton(
                                 text = "Jawab",
                                 onClick = {
                                     uiState.currentQuestion?.let { q ->
-                                        selectedAnswerId?.let { answerId ->
-                                            viewModel.answerQuestion(q.id, answerId)
+                                        selectedAnswerId?.let { aid ->
+                                            viewModel.answerQuestion(q.id, aid)
                                             selectedAnswerId = null
                                         }
                                     }
@@ -202,52 +226,74 @@ fun LogicalGameScreen(navController: NavController) {
                         }
 
                         if (uiState.isLoading) {
-                            Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                                 CircularProgressIndicator(color = MysticGold, modifier = Modifier.size(32.dp))
+                            }
+                        }
+
+                        uiState.error?.let {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Card(shape = RoundedCornerShape(8.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFef4444).copy(alpha = 0.1f))) {
+                                Text(text = it, color = Color(0xFFef4444), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
                             }
                         }
                     }
                 }
+
                 // Pre-game
                 uiState.matchId == null && !uiState.isLoading -> {
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
+                        modifier = Modifier.fillMaxSize().padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text("\uD83E\uDDEA", fontSize = 64.sp)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Tes Logika / IQ",
-                            color = MysticGold,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Box(
+                            modifier = Modifier.size(120.dp).clip(CircleShape)
+                                .background(Brush.radialGradient(listOf(MysticPurple.copy(alpha = 0.4f), MysticPurple.copy(alpha = 0.1f), Color.Transparent))),
+                            contentAlignment = Alignment.Center
+                        ) { Text("\uD83E\uDDE0", fontSize = 64.sp) }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text("Tes Logika / IQ", color = MysticGold, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "Jawab pertanyaan logika untuk mengukur IQ-mu. Terdiri dari 10 soal dengan berbagai tingkat kesulitan.",
-                            color = TextSecondary,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium
+                            text = "Uji kemampuan logikamu! Jawab 10 pertanyaan untuk mengukur skor IQ-mu.",
+                            color = TextSecondary, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MysticSurface)) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Tentang Tes:", color = MysticGold, fontWeight = FontWeight.SemiBold)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text("\u2022 10 soal logika dengan tingkat kesulitan bervariasi", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                                Text("\u2022 Skor dihitung berdasarkan jawaban benar", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                                Text("\u2022 Bonus poin jika selesai cepat (skor sempurna)", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                                Text("\u2022 Hasil IQ berdasarkan skala standar", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(32.dp))
-                        MysticButton(
-                            text = "Mulai Tes IQ",
-                            onClick = { viewModel.startGame() }
-                        )
+                        MysticButton(text = "Mulai Tes IQ", onClick = { viewModel.startGame() })
 
                         uiState.error?.let {
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text(text = it, color = MaterialTheme.colorScheme.error)
+                            Card(shape = RoundedCornerShape(8.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFef4444).copy(alpha = 0.1f))) {
+                                Text(text = it, color = Color(0xFFef4444), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
+                            }
                         }
                     }
                 }
+
                 // Loading
                 else -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = MysticGold)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = MysticGold)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("Mempersiapkan soal...", color = TextSecondary)
+                        }
                     }
                 }
             }

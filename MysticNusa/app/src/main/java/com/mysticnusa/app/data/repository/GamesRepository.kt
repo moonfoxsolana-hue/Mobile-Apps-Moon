@@ -129,7 +129,7 @@ class GamesRepository {
         }
     }
 
-    suspend fun finishLogical(matchId: Int): Result<LogicalFinishResponse> {
+    suspend fun finishLogical(matchId: String): Result<LogicalFinishResponse> {
         return try {
             val response = api.finishLogical(LogicalFinishRequest(matchId))
             if (response.isSuccessful) {

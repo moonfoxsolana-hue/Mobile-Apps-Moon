@@ -12,10 +12,10 @@ import kotlinx.coroutines.launch
 
 data class LogicalUiState(
     val isLoading: Boolean = false,
-    val matchId: Int? = null,
+    val matchId: String? = null,
     val currentQuestion: LogicalQuestion? = null,
     val currentQuestionNumber: Int = 0,
-    val totalQuestions: Int = 0,
+    val totalQuestions: Int = 10,
     val isComplete: Boolean = false,
     val finishResponse: LogicalFinishResponse? = null,
     val error: String? = null
@@ -31,19 +31,35 @@ class LogicalViewModel(
     fun startGame() {
         viewModelScope.launch {
             _uiState.value = LogicalUiState(isLoading = true)
-            val result = gamesRepository.startLogical()
-            result.onSuccess { response ->
+            try {
+                val result = gamesRepository.startLogical()
+                result.onSuccess { response ->
+                    if (response.complete == true) {
+                        // All questions answered, go straight to finish
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            matchId = response.matchId,
+                            isComplete = true
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            matchId = response.matchId,
+                            currentQuestion = response.question,
+                            currentQuestionNumber = response.currentQuestion ?: 1,
+                            totalQuestions = response.totalQuestion ?: 10
+                        )
+                    }
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Gagal memulai permainan"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    matchId = response.matchId,
-                    currentQuestion = response.question,
-                    currentQuestionNumber = response.currentQuestion ?: 1,
-                    totalQuestions = response.totalQuestion ?: 0
-                )
-            }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
@@ -53,20 +69,35 @@ class LogicalViewModel(
         val matchId = _uiState.value.matchId ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            val result = gamesRepository.answerLogical(
-                LogicalAnswerRequest(matchId, questionId, answerId)
-            )
-            result.onSuccess { response ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    currentQuestion = response.nextQuestion,
-                    currentQuestionNumber = response.currentQuestion ?: _uiState.value.currentQuestionNumber,
-                    isComplete = response.complete ?: false
+            try {
+                val result = gamesRepository.answerLogical(
+                    LogicalAnswerRequest(matchId, questionId, answerId)
                 )
-            }.onFailure { error ->
+                result.onSuccess { response ->
+                    if (response.complete == true) {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            currentQuestion = null,
+                            isComplete = true
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            currentQuestion = response.nextQuestion,
+                            currentQuestionNumber = response.currentQuestion ?: _uiState.value.currentQuestionNumber + 1,
+                            totalQuestions = response.totalQuestion ?: _uiState.value.totalQuestions
+                        )
+                    }
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Gagal mengirim jawaban"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
@@ -76,20 +107,31 @@ class LogicalViewModel(
         val matchId = _uiState.value.matchId ?: return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            val result = gamesRepository.finishLogical(matchId)
-            result.onSuccess { response ->
+            try {
+                val result = gamesRepository.finishLogical(matchId)
+                result.onSuccess { response ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        finishResponse = response,
+                        isComplete = true
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = error.message ?: "Gagal menyelesaikan permainan"
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    finishResponse = response,
-                    isComplete = true
-                )
-            }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = error.message
+                    error = e.message ?: "Terjadi kesalahan"
                 )
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
     }
 
     class Factory(
