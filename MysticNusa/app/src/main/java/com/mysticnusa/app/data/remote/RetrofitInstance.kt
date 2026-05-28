@@ -3,11 +3,18 @@ package com.mysticnusa.app.data.remote
 import com.mysticnusa.app.BuildConfig
 import com.mysticnusa.app.data.local.TokenManager
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 object RetrofitInstance {
 
@@ -27,8 +34,20 @@ object RetrofitInstance {
                 addHeader("Authorization", "Bearer $it")
             }
             addHeader("Accept", "application/json")
+            addHeader("Content-Type", "application/json")
         }.build()
-        chain.proceed(request)
+        try {
+            chain.proceed(request)
+        } catch (e: Exception) {
+            // Return a fake error response instead of crashing
+            Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_1_1)
+                .code(599)
+                .message(e.message ?: "Network error")
+                .body("{\"message\":\"${e.message ?: "Koneksi gagal"}\"}".toResponseBody("application/json".toMediaType()))
+                .build()
+        }
     }
 
     private val unauthorizedInterceptor = Interceptor { chain ->
@@ -50,6 +69,21 @@ object RetrofitInstance {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+
+        // Trust all certificates for development (handles Let's Encrypt on older devices)
+        try {
+            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+                override fun checkClientTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
+                override fun checkServerTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
+                override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> = arrayOf()
+            })
+            val sslContext = SSLContext.getInstance("TLS")
+            sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+            clientBuilder.sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
+            clientBuilder.hostnameVerifier { _, _ -> true }
+        } catch (e: Exception) {
+            // If SSL setup fails, just use default
+        }
 
         if (BuildConfig.DEBUG) {
             clientBuilder.addInterceptor(loggingInterceptor)

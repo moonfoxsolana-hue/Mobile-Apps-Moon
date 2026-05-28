@@ -7,16 +7,16 @@ import retrofit2.http.*
 interface ApiService {
 
     // Auth
-    @POST("auth/register")
+    @POST("register")
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
 
-    @POST("auth/login")
+    @POST("login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
-    @POST("auth/logout")
+    @POST("logout")
     suspend fun logout(): Response<ApiResponse>
 
-    @POST("auth/wallet")
+    @POST("wallet")
     suspend fun updateWallet(@Body request: WalletRequest): Response<ApiResponse>
 
     // Profile
