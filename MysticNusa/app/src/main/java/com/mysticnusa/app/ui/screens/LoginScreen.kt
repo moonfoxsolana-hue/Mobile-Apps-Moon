@@ -32,7 +32,15 @@ import com.mysticnusa.app.ui.viewmodels.AuthViewModel
 
 @Composable
 fun LoginScreen(navController: NavController) {
-    val tokenManager = RetrofitInstance.tokenManager ?: return
+    val tokenManager = RetrofitInstance.tokenManager
+    if (tokenManager == null) {
+        // Safety: if tokenManager not ready, show loading
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = MysticGold)
+        }
+        return
+    }
+
     val viewModel: AuthViewModel = viewModel(
         factory = AuthViewModel.Factory(AuthRepository(), tokenManager)
     )
@@ -133,7 +141,7 @@ fun LoginScreen(navController: NavController) {
 
             MysticButton(
                 text = "Masuk",
-                onClick = { viewModel.login(email, password) },
+                onClick = { viewModel.login(email.trim(), password) },
                 enabled = email.isNotBlank() && password.isNotBlank() && !uiState.isLoading
             )
 

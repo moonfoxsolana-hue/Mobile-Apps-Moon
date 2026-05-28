@@ -34,7 +34,14 @@ import com.mysticnusa.app.ui.viewmodels.AuthViewModel
 
 @Composable
 fun RegisterScreen(navController: NavController) {
-    val tokenManager = RetrofitInstance.tokenManager ?: return
+    val tokenManager = RetrofitInstance.tokenManager
+    if (tokenManager == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = MysticGold)
+        }
+        return
+    }
+
     val viewModel: AuthViewModel = viewModel(
         factory = AuthViewModel.Factory(AuthRepository(), tokenManager)
     )
