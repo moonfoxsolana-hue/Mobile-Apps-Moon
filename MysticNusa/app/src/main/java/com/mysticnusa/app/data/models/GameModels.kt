@@ -5,7 +5,8 @@ import com.google.gson.annotations.SerializedName
 // Common
 data class ApiResponse(
     val status: String?,
-    val message: String?
+    val message: String?,
+    val success: String? = null
 )
 
 data class LeaderboardEntry(
@@ -318,23 +319,275 @@ data class UlartanggaDiceResponse(
 )
 
 // Ngepet
-data class NgepetMatch(
+
+data class NgepetAvatar(
     val id: Int,
+    val name: String?,
+    @SerializedName("image_url")
+    val imageUrl: String?,
+    val tier: String?,
+    val type: String? = null,
+    val price: Int? = null,
+    val stock: Int? = null,
+    val own: Int? = null
+)
+
+data class NgepetLobbyMatch(
+    val id: String,
+    @SerializedName("host_name")
+    val hostName: String?,
+    @SerializedName("house_avatar_id")
+    val houseAvatarId: Int? = null,
+    @SerializedName("token_pool")
+    val tokenPool: Int?,
+    @SerializedName("total_token_pool")
+    val totalTokenPool: Int? = null,
+    @SerializedName("min_intruder_token")
+    val minIntruderToken: Int? = null,
+    @SerializedName("max_intruder_token")
+    val maxIntruderToken: Int? = null,
+    val difficulty: String?,
+    @SerializedName("guess_duration_hours")
+    val guessDurationHours: Int?,
+    @SerializedName("max_intruders")
+    val maxIntruders: Int?,
     val status: String?,
-    val players: List<String>?,
-    @SerializedName("max_players")
-    val maxPlayers: Int?
+    @SerializedName("intruders_count")
+    val intrudersCount: Int?,
+    @SerializedName("house_avatar")
+    val houseAvatar: NgepetAvatar? = null
 )
 
-data class NgepetMatchesResponse(
+data class NgepetMatchesListResponse(
     val status: String?,
-    val matches: List<NgepetMatch>?
+    val matches: List<NgepetLobbyMatch>?
 )
 
-data class NgepetChoiceRequest(
-    val choice: String
+data class NgepetActiveMatchData(
+    @SerializedName("match_id")
+    val matchId: String?,
+    val role: String?,
+    val status: String?,
+    @SerializedName("token_pool")
+    val tokenPool: Int? = null,
+    @SerializedName("host_name")
+    val hostName: String? = null,
+    @SerializedName("intruders_count")
+    val intrudersCount: Int? = null,
+    @SerializedName("max_intruders")
+    val maxIntruders: Int? = null,
+    @SerializedName("intruder_match_id")
+    val intruderMatchId: String? = null
 )
 
-data class NgepetGuessRequest(
-    val guess: String
+data class NgepetActiveMatchResponse(
+    val status: String?,
+    val data: NgepetActiveMatchData?,
+    val token: String? = null
+)
+
+data class NgepetMatchItem(
+    val name: String?,
+    @SerializedName("image_url")
+    val imageUrl: String? = null
+)
+
+data class NgepetIntruder(
+    val id: String,
+    @SerializedName("intruder_name")
+    val intruderName: String?,
+    @SerializedName("avatar_id")
+    val avatarId: Int? = null,
+    val status: String?,
+    @SerializedName("intruders_at")
+    val intrudersAt: String? = null,
+    @SerializedName("guess_deadline")
+    val guessDeadline: String? = null,
+    @SerializedName("is_pick_choice")
+    val isPickChoice: Int? = null,
+    val result: String? = null,
+    @SerializedName("token_pool")
+    val tokenPool: Int? = null,
+    val avatar: NgepetAvatar? = null
+)
+
+data class NgepetEvent(
+    val role: String?,
+    val details: String?,
+    @SerializedName("created_at")
+    val createdAt: String?
+)
+
+data class NgepetHiddenItem(
+    val id: Int?,
+    val status: String?,
+    val result: String? = null
+)
+
+data class NgepetMatchDetail(
+    val id: String,
+    @SerializedName("host_name")
+    val hostName: String?,
+    @SerializedName("token_pool")
+    val tokenPool: Int?,
+    @SerializedName("total_token_pool")
+    val totalTokenPool: Int? = null,
+    val difficulty: String?,
+    @SerializedName("guess_duration_hours")
+    val guessDurationHours: Int?,
+    @SerializedName("max_intruders")
+    val maxIntruders: Int?,
+    val status: String?,
+    @SerializedName("house_avatar")
+    val houseAvatar: NgepetAvatar? = null,
+    val items: List<NgepetMatchItem>? = null,
+    val intruders: List<NgepetIntruder>? = null,
+    @SerializedName("intruders_count")
+    val intrudersCount: Int? = null,
+    @SerializedName("hidden_tokens_count")
+    val hiddenTokensCount: Int? = null,
+    val events: List<NgepetEvent>? = null,
+    @SerializedName("hidden_items")
+    val hiddenItems: List<NgepetHiddenItem>? = null
+)
+
+data class NgepetMatchDetailResponse(
+    val match: NgepetMatchDetail?
+)
+
+data class NgepetCreateMatchRequest(
+    @SerializedName("host_name")
+    val hostName: String,
+    val difficulty: String,
+    @SerializedName("guess_duration_hours")
+    val guessDurationHours: Int,
+    @SerializedName("max_intruders")
+    val maxIntruders: Int,
+    @SerializedName("token_pool")
+    val tokenPool: Int,
+    @SerializedName("min_intruder_token")
+    val minIntruderToken: Int? = null,
+    @SerializedName("max_intruder_token")
+    val maxIntruderToken: Int? = null,
+    @SerializedName("house_avatar_id")
+    val houseAvatarId: Int? = null
+)
+
+data class NgepetCreateMatchResponse(
+    val status: String?,
+    val message: String?,
+    val id: String?
+)
+
+data class NgepetJoinRequest(
+    val name: String,
+    @SerializedName("token_amount")
+    val tokenAmount: Int,
+    @SerializedName("avatar_id")
+    val avatarId: Int? = null
+)
+
+data class NgepetSubmitChoiceRequest(
+    @SerializedName("item_name")
+    val itemName: String
+)
+
+data class NgepetHiddenItemRequest(
+    @SerializedName("item_name")
+    val itemName: String
+)
+
+data class NgepetHostGuessRequest(
+    @SerializedName("match_intruder_id")
+    val matchIntruderId: String,
+    @SerializedName("item_name")
+    val itemName: String
+)
+
+data class NgepetHiddenGuessRequest(
+    @SerializedName("match_intruder_id")
+    val matchIntruderId: String,
+    @SerializedName("item_name")
+    val itemName: String
+)
+
+data class NgepetGuessResponse(
+    val status: String?,
+    @SerializedName("is_correct")
+    val isCorrect: Boolean?,
+    @SerializedName("is_end")
+    val isEnd: Boolean?,
+    @SerializedName("answer_item")
+    val answerItem: String? = null
+)
+
+data class NgepetClaimVictoryRequest(
+    @SerializedName("match_intruder_id")
+    val matchIntruderId: String
+)
+
+data class NgepetAvatarShopResponse(
+    val status: String?,
+    val data: List<NgepetAvatar>?
+)
+
+data class NgepetOwnedAvatarItem(
+    val id: Int,
+    @SerializedName("avatar_id")
+    val avatarId: Int? = null,
+    @SerializedName("is_equipped")
+    val isEquipped: Boolean?,
+    val avatar: NgepetAvatar?
+)
+
+data class NgepetOwnedAvatarsResponse(
+    val status: String?,
+    val data: List<NgepetOwnedAvatarItem>?
+)
+
+data class NgepetHistoryItem(
+    @SerializedName("match_id")
+    val matchId: String?,
+    @SerializedName("host_name")
+    val hostName: String?,
+    val status: String?,
+    val role: String?,
+    @SerializedName("match_result")
+    val matchResult: String?,
+    @SerializedName("created_at")
+    val createdAt: String?
+)
+
+data class NgepetHistoryResponse(
+    val status: String?,
+    val data: List<NgepetHistoryItem>?
+)
+
+data class NgepetLeaderboardEntry(
+    val name: String?,
+    @SerializedName("host_name")
+    val hostName: String? = null,
+    @SerializedName("intruder_name")
+    val intruderName: String? = null,
+    val wins: Int? = null,
+    @SerializedName("total_wins")
+    val totalWins: Int? = null,
+    @SerializedName("total_matches")
+    val totalMatches: Int? = null,
+    @SerializedName("total_intruder_games")
+    val totalIntruderGames: Int? = null,
+    @SerializedName("total_games")
+    val totalGames: Int? = null,
+    @SerializedName("token_pool")
+    val tokenPool: Int? = null,
+    val winrate: Double? = null,
+    @SerializedName("winrate_percentage")
+    val winratePercentage: Double? = null,
+    @SerializedName("win_rate")
+    val winRate: Double? = null
+)
+
+data class NgepetLeaderboardResponse(
+    val status: String?,
+    val data: List<NgepetLeaderboardEntry>?
 )

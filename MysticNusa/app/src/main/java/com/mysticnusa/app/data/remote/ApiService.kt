@@ -145,29 +145,74 @@ interface ApiService {
 
     // Ngepet
     @GET("ngepet/match")
-    suspend fun getNgepetMatches(): Response<NgepetMatchesResponse>
+    suspend fun getNgepetMatches(): Response<NgepetMatchesListResponse>
+
+    @GET("ngepet/match/active")
+    suspend fun getNgepetActiveMatch(): Response<NgepetActiveMatchResponse>
+
+    @GET("ngepet/match/history")
+    suspend fun getNgepetMatchHistory(): Response<NgepetHistoryResponse>
+
+    @GET("ngepet/match/{id}")
+    suspend fun getNgepetMatchDetail(@Path("id") id: String): Response<NgepetMatchDetailResponse>
 
     @POST("ngepet/match/create")
-    suspend fun createNgepetMatch(): Response<ApiResponse>
+    suspend fun createNgepetMatch(@Body request: NgepetCreateMatchRequest): Response<NgepetCreateMatchResponse>
 
-    @POST("ngepet/match/{id}/join")
-    suspend fun joinNgepetMatch(@Path("id") id: Int): Response<ApiResponse>
+    @POST("ngepet/match/{id}/close")
+    suspend fun closeNgepetMatch(@Path("id") id: String): Response<ApiResponse>
 
-    @POST("ngepet/match/{id}/submit-choice")
-    suspend fun submitNgepetChoice(
-        @Path("id") id: Int,
-        @Body request: NgepetChoiceRequest
+    @POST("ngepet/match/{id}/hidden-item")
+    suspend fun hideTokenInItem(
+        @Path("id") id: String,
+        @Body request: NgepetHiddenItemRequest
     ): Response<ApiResponse>
 
     @POST("ngepet/match/{id}/guess")
-    suspend fun guessNgepet(
-        @Path("id") id: Int,
-        @Body request: NgepetGuessRequest
+    suspend fun hostGuessNgepet(
+        @Path("id") id: String,
+        @Body request: NgepetHostGuessRequest
+    ): Response<NgepetGuessResponse>
+
+    @POST("ngepet/match/{id}/join")
+    suspend fun joinNgepetMatch(
+        @Path("id") id: String,
+        @Body request: NgepetJoinRequest
     ): Response<ApiResponse>
 
-    @GET("ngepet/match/{id}")
-    suspend fun getNgepetMatch(@Path("id") id: Int): Response<ApiResponse>
+    @POST("ngepet/match/{id}/submit-choice")
+    suspend fun submitNgepetChoice(
+        @Path("id") id: String,
+        @Body request: NgepetSubmitChoiceRequest
+    ): Response<ApiResponse>
 
-    @GET("ngepet/match/active")
-    suspend fun getNgepetActiveMatch(): Response<ApiResponse>
+    @POST("ngepet/match/{id}/hidden-guess")
+    suspend fun intruderHiddenGuess(
+        @Path("id") id: String,
+        @Body request: NgepetHiddenGuessRequest
+    ): Response<NgepetGuessResponse>
+
+    @POST("ngepet/match/claim-victory")
+    suspend fun claimVictory(@Body request: NgepetClaimVictoryRequest): Response<ApiResponse>
+
+    @GET("ngepet/avatar")
+    suspend fun getNgepetAvatarShop(): Response<NgepetAvatarShopResponse>
+
+    @POST("ngepet/avatar/{id}/buy")
+    suspend fun buyNgepetAvatar(@Path("id") id: Int): Response<ApiResponse>
+
+    @GET("ngepet/avatar/own")
+    suspend fun getNgepetOwnedAvatars(): Response<NgepetOwnedAvatarsResponse>
+
+    @POST("ngepet/avatar/{id}/equip")
+    suspend fun equipNgepetAvatar(@Path("id") id: Int): Response<ApiResponse>
+
+    @GET("ngepet/leaderboard/house")
+    suspend fun getNgepetHouseLeaderboard(): Response<NgepetLeaderboardResponse>
+
+    @GET("ngepet/leaderboard/host")
+    suspend fun getNgepetHostLeaderboard(): Response<NgepetLeaderboardResponse>
+
+    @GET("ngepet/leaderboard/intruders")
+    suspend fun getNgepetIntruderLeaderboard(): Response<NgepetLeaderboardResponse>
 }

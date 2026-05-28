@@ -1,0 +1,28 @@
+{
+  "project_type": "Android Jetpack Compose app (Kotlin)",
+  "language": "Kotlin",
+  "build_system": "Gradle with Kotlin DSL, compileSdk 34, minSdk 26, JVM target 17",
+  "test_framework": "JUnit 4 + Espresso + Compose UI testing (no unit tests currently present)",
+  "build_command": "export JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 && export PATH=$JAVA_HOME/bin:$PATH && cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug",
+  "test_command": "export JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 && export PATH=$JAVA_HOME/bin:$PATH && cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew compileDebugKotlin",
+  "verification_instructions": "Run assembleDebug to confirm the project compiles without errors. There are no existing unit tests to run.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "Java 17 already available at /root/.local/share/mise/installs/java/17.0.2. Gradle wrapper present in MysticNusa/.",
+  "environment_constraints": "OPEN_INTERNET network mode. No Android device/emulator for instrumented tests - use compile verification only.",
+  "contribution_requirements": "No CONTRIBUTING.md found. Follow existing code patterns.",
+  "key_patterns": "Phase-based UI navigation using enum (e.g., TarotPhase). ViewModel with StateFlow<UiState>. GamesRepository wraps Retrofit calls with Result<T>. ApiService defines Retrofit endpoints. Data models use Gson @SerializedName. Reusable components: MysticButton, MysticCard, MysticTextField. Theme colors: MysticGold, MysticPurple, MysticSurface, TextSecondary. BASE_URL is https://mystical-nusa.web.id/api/. Image URLs from server are relative - prepend https://mystical-nusa.web.id/.",
+  "relevant_files": [
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/GameModels.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/remote/ApiService.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/repository/GamesRepository.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/viewmodels/NgepetViewModel.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/NgepetGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/TarotGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/theme/Color.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/MysticButton.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/MysticCard.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/MysticTextField.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/remote/RetrofitInstance.kt"
+  ],
+  "directory_structure": "MysticNusa/app/src/main/java/com/mysticnusa/app/ contains: data/ (models/, remote/, repository/, local/), ui/ (screens/, viewmodels/, components/, theme/), navigation/ (Screen.kt, NavGraph.kt), MainActivity.kt, MysticNusaApp.kt"
+}
