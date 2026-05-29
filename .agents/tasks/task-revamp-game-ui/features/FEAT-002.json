@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Revamp IntuitionGameScreen.kt UI to match the web frontend style - add background image, sound effects (correct/wrong), floating item animations with images, countdown bar, and purple-themed styling. DO NOT change any ViewModel calls or game logic.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Step 1: Read the current IntuitionGameScreen.kt to understand the existing structure and ViewModel interactions that MUST remain unchanged.",
     "Step 2: Revamp the UI of IntuitionGameScreen.kt with these changes: (a) Add GameBackground composable with URL 'https://mystical-nusa.web.id/images/asset/games/background/intuition-background.jpg' as full-screen background behind the Scaffold. (b) Replace the Scaffold topBar background with transparent/semi-transparent dark. (c) Change accent color from MysticGold to IntuitionPurple (#b149f7) throughout this screen. (d) Add a countdown timer bar (LinearProgressIndicator with purple gradient) that counts down 10 seconds per round - purely visual, does not affect game logic. (e) Keep item images using AsyncImage (already implemented) but add a floating animation effect (animate offset Y with infinite transition). (f) Add SoundManager.playSound calls: on correct answer play 'https://mystical-nusa.web.id/sound/sfx/correct-intuition.wav', on wrong answer play 'https://mystical-nusa.web.id/sound/sfx/wrong.mp3'. Place these after the answerRound call succeeds and lastAnswerCorrect is known. (g) Start BGM when screen enters composition using LaunchedEffect: SoundManager.playBgm(context, 'https://mystical-nusa.web.id/sound/bgm/default.mp3'). Stop on DisposableEffect onDispose.",
