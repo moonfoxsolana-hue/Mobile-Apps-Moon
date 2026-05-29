@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Improve ClaimScreen with floating/hanging notification (like NgepetGameScreen) and more elegant design. Also improve ProfileScreen with a more elegant visual design.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Update MysticNusa/app/src/main/java/com/mysticnusa/app/ui/viewmodels/AirdropViewModel.kt to add a notificationCounter field to AirdropUiState (like NgepetViewModel does), add clearMessage() and clearError() functions, and bump the counter when setting messages/errors so the LaunchedEffect auto-dismiss works for repeated identical values.",
     "Rewrite MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/ClaimScreen.kt to: (a) Add a floating top notification overlay using AnimatedVisibility with slideInVertically/fadeIn pattern (exactly like NgepetGameScreen lines 166-212) that shows success/error messages. (b) Add LaunchedEffect keyed on notificationCounter that auto-dismisses after 3 seconds. (c) Remove the inline MysticCard-based status messages at the bottom and replace with the floating notification. (d) Make the overall design more elegant: add a decorative header with a mystic-themed icon or gradient, improve card spacing, add subtle dividers, use gradient backgrounds on the claim buttons, add a token balance summary card at the top if available.",
@@ -20,5 +20,5 @@
     "Run ./gradlew assembleDebug in MysticNusa/ to confirm compilation succeeds with the updated screens"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Build successful with no warnings on the modified files. Used HorizontalDivider instead of deprecated Divider, and Icons.AutoMirrored.Filled.ExitToApp instead of deprecated Icons.Default.ExitToApp. MysticCard does not accept a border parameter so the subtle border effect was omitted from the claim cards (cards still look polished via the shared MysticCard elevation/shape). Used Icons.AutoMirrored.Filled.List for wallet icon since AccountBalanceWallet is not in the standard icon set naming."
 }
