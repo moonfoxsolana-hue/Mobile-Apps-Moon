@@ -10,7 +10,7 @@ data class UserProfile(
     @SerializedName("total_token")
     val totalToken: String?,
     @SerializedName("has_claimed")
-    val hasClaimed: Boolean?,
+    val hasClaimed: Int?,
     @SerializedName("locked_balance")
     val lockedBalance: String?
 )
