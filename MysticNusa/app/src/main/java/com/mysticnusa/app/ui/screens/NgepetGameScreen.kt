@@ -1467,25 +1467,40 @@ private fun IntruderMatchView(
             }
 
             Card(
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = MysticSurface)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         "Kamu sudah bersembunyi!",
                         color = SuccessColor,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     currentIntruder?.guessDeadline?.let {
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Deadline: $it", color = TextSecondary, fontSize = 12.sp)
+                        Text(
+                            "Deadline: $it",
+                            color = TextSecondary,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                     currentIntruder?.status?.let {
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Status: $it", color = TextSecondary, fontSize = 12.sp)
+                        Text(
+                            "Status: $it",
+                            color = TextSecondary,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }

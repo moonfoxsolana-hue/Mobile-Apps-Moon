@@ -701,11 +701,15 @@ class NgepetViewModel(
             val result = gamesRepository.ngepetMakeHiddenGuess(matchId, request)
             result.onSuccess { response ->
                 val newGuessedItems = _uiState.value.guessedItemNames + itemName
+                val isWrongButContinues = response.isCorrect == false && response.isEnd != true
                 val shouldResetSelection = response.isEnd == true || response.isCorrect == true
                 _uiState.value = _uiState.value.copy(
                     isGuessing = false,
                     isLoading = false,
-                    guessResult = response,
+                    guessResult = if (isWrongButContinues) null else response,
+                    showGuessItemDialog = isWrongButContinues,
+                    message = if (isWrongButContinues) "Tebakan salah! Coba lagi" else null,
+                    notificationCounter = if (isWrongButContinues) bumpCounter() else _uiState.value.notificationCounter,
                     intruderGuessCount = _uiState.value.intruderGuessCount + 1,
                     guessedItemNames = newGuessedItems,
                     selectedHiddenItemId = if (shouldResetSelection) null else _uiState.value.selectedHiddenItemId
