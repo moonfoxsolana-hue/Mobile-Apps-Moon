@@ -113,8 +113,8 @@ fun NgepetGameScreen(navController: NavController) {
         )
     }
 
-    // Message snackbar effect
-    LaunchedEffect(uiState.message, uiState.error) {
+    // Message auto-dismiss keyed on notificationCounter to handle identical consecutive values
+    LaunchedEffect(uiState.notificationCounter) {
         if (uiState.message != null || uiState.error != null) {
             kotlinx.coroutines.delay(3000)
             viewModel.clearMessage()
@@ -1564,28 +1564,38 @@ private fun HiddenItemGridDialog(
 
                 val openItems = hiddenItems.filter { it.status == "open" }
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(5),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.heightIn(max = 300.dp)
-                ) {
-                    items(openItems) { item ->
-                        Card(
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .clickable { item.id?.let { onSelect(it) } },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(containerColor = MysticDarkBackground),
-                            border = BorderStroke(1.dp, Color(0xFFe4a5ff))
-                        ) {
-                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                                AsyncImage(
-                                    model = "https://mystical-nusa.web.id/images/asset/games/items/mystery_box.jpg",
-                                    contentDescription = "Mystery Box",
-                                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
+                if (openItems.isEmpty()) {
+                    Text(
+                        text = "Tidak ada kotak tersedia",
+                        color = TextSecondary,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(5),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.heightIn(max = 300.dp)
+                    ) {
+                        items(openItems) { item ->
+                            Card(
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .clickable { item.id?.let { onSelect(it) } },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = MysticDarkBackground),
+                                border = BorderStroke(1.dp, Color(0xFFe4a5ff))
+                            ) {
+                                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                    AsyncImage(
+                                        model = "https://mystical-nusa.web.id/images/asset/games/items/mystery_box.jpg",
+                                        contentDescription = "Mystery Box",
+                                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
                             }
                         }
                     }
@@ -2144,10 +2154,10 @@ private fun GuessResultDialog(
         }
     }
 
-    // Shake animation for wrong guess
+    // Shake animation for wrong guess - keyed on Unit since each dialog instance is fresh
     val shakeAnim = remember { Animatable(0f) }
 
-    LaunchedEffect(guessResult) {
+    LaunchedEffect(Unit) {
         if (guessResult.isCorrect == false) {
             shakeAnim.animateTo(
                 targetValue = 1f,

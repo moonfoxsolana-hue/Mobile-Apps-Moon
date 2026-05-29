@@ -13,8 +13,15 @@ class SoundManager(private val context: Context) {
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(url)
                 setOnPreparedListener { it.start() }
-                setOnCompletionListener { it.release() }
-                setOnErrorListener { mp, _, _ -> mp.release(); true }
+                setOnCompletionListener {
+                    it.release()
+                    mediaPlayer = null
+                }
+                setOnErrorListener { mp, _, _ ->
+                    mp.release()
+                    mediaPlayer = null
+                    true
+                }
                 prepareAsync()
             }
         } catch (e: Exception) {

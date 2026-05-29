@@ -36,6 +36,7 @@ data class NgepetUiState(
     val guessResult: NgepetGuessResponse? = null,
     val message: String? = null,
     val error: String? = null,
+    val notificationCounter: Int = 0,
     val selectedMatchForJoin: NgepetMatchListItem? = null,
     val showMatchDetailDialog: Boolean = false,
     // Guessing animation state
@@ -115,6 +116,8 @@ class NgepetViewModel(
     fun clearMessage() {
         _uiState.value = _uiState.value.copy(message = null)
     }
+
+    private fun bumpCounter() = _uiState.value.notificationCounter + 1
 
     fun clearGuessResult() {
         val currentResult = _uiState.value.guessResult
@@ -206,7 +209,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -256,7 +260,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -279,7 +284,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -297,7 +303,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -352,7 +359,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -370,7 +378,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -381,12 +390,12 @@ class NgepetViewModel(
     fun createMatch() {
         val state = _uiState.value
         if (state.createHostName.isBlank()) {
-            _uiState.value = state.copy(error = "Host name is required")
+            _uiState.value = state.copy(error = "Host name is required", notificationCounter = bumpCounter())
             return
         }
         val tokenPool = state.createTokenPool.toIntOrNull()
         if (tokenPool == null || tokenPool <= 0) {
-            _uiState.value = state.copy(error = "Token pool must be a positive number")
+            _uiState.value = state.copy(error = "Token pool must be a positive number", notificationCounter = bumpCounter())
             return
         }
 
@@ -410,20 +419,23 @@ class NgepetViewModel(
                         isLoading = false,
                         currentMatchId = matchId,
                         currentRole = "host",
-                        message = response.message
+                        message = response.message,
+                        notificationCounter = bumpCounter()
                     )
                     loadMatchDetail(matchId)
                     _uiState.value = _uiState.value.copy(phase = NgepetPhase.MATCH_ROOM)
                 } else {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        error = "Match created but no ID returned"
+                        error = "Match created but no ID returned",
+                        notificationCounter = bumpCounter()
                     )
                 }
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -437,13 +449,15 @@ class NgepetViewModel(
             result.onSuccess { message ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    message = message
+                    message = message,
+                    notificationCounter = bumpCounter()
                 )
                 refreshMatchDetail()
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -467,7 +481,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -482,6 +497,7 @@ class NgepetViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     message = response.message,
+                    notificationCounter = bumpCounter(),
                     currentMatchId = null,
                     currentRole = null,
                     currentIntruderMatchId = null,
@@ -492,7 +508,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -504,23 +521,23 @@ class NgepetViewModel(
         val state = _uiState.value
         val matchId = state.selectedMatchForJoin?.id ?: return
         if (state.joinName.isBlank()) {
-            _uiState.value = state.copy(error = "Name is required")
+            _uiState.value = state.copy(error = "Name is required", notificationCounter = bumpCounter())
             return
         }
         val tokenAmount = state.joinTokenAmount.toIntOrNull()
         if (tokenAmount == null || tokenAmount <= 0) {
-            _uiState.value = state.copy(error = "Token amount must be a positive number")
+            _uiState.value = state.copy(error = "Token amount must be a positive number", notificationCounter = bumpCounter())
             return
         }
         // Validate token range against match limits
         val minToken = state.selectedMatchForJoin?.minIntruderToken
         val maxToken = state.selectedMatchForJoin?.maxIntruderToken
         if (minToken != null && tokenAmount < minToken) {
-            _uiState.value = state.copy(error = "Token minimum is $minToken")
+            _uiState.value = state.copy(error = "Token minimum is $minToken", notificationCounter = bumpCounter())
             return
         }
         if (maxToken != null && tokenAmount > maxToken) {
-            _uiState.value = state.copy(error = "Token maximum is $maxToken")
+            _uiState.value = state.copy(error = "Token maximum is $maxToken", notificationCounter = bumpCounter())
             return
         }
 
@@ -538,6 +555,7 @@ class NgepetViewModel(
                     currentMatchId = matchId,
                     currentRole = "intruder",
                     message = message,
+                    notificationCounter = bumpCounter(),
                     showMatchDetailDialog = false,
                     selectedMatchForJoin = null,
                     intruderGuessCount = 0
@@ -554,7 +572,8 @@ class NgepetViewModel(
                     }
                 }.onFailure {
                     _uiState.value = _uiState.value.copy(
-                        error = "Berhasil join, tapi gagal memuat data match. Silakan refresh."
+                        error = "Berhasil join, tapi gagal memuat data match. Silakan refresh.",
+                        notificationCounter = bumpCounter()
                     )
                 }
                 loadMatchDetail(matchId)
@@ -562,7 +581,8 @@ class NgepetViewModel(
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -576,13 +596,15 @@ class NgepetViewModel(
             result.onSuccess { message ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    message = message
+                    message = message,
+                    notificationCounter = bumpCounter()
                 )
                 refreshMatchDetail()
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -615,7 +637,8 @@ class NgepetViewModel(
                 _uiState.value = _uiState.value.copy(
                     isGuessing = false,
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -650,13 +673,15 @@ class NgepetViewModel(
             result.onSuccess { message ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    message = message
+                    message = message,
+                    notificationCounter = bumpCounter()
                 )
                 refreshMatchDetail()
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -671,13 +696,15 @@ class NgepetViewModel(
             result.onSuccess { message ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    message = message
+                    message = message,
+                    notificationCounter = bumpCounter()
                 )
                 loadAvatarShop()
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -690,13 +717,15 @@ class NgepetViewModel(
             result.onSuccess { message ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    message = message
+                    message = message,
+                    notificationCounter = bumpCounter()
                 )
                 loadOwnedAvatars()
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message
+                    error = e.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
