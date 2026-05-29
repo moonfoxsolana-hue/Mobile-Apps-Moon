@@ -41,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.mysticnusa.app.data.models.*
+import com.mysticnusa.app.data.remote.RetrofitInstance
 import com.mysticnusa.app.data.repository.GamesRepository
 import com.mysticnusa.app.ui.components.MysticButton
 import com.mysticnusa.app.ui.components.MysticCard
@@ -49,7 +50,7 @@ import com.mysticnusa.app.ui.theme.*
 import com.mysticnusa.app.ui.viewmodels.NgepetPhase
 import com.mysticnusa.app.ui.viewmodels.NgepetViewModel
 
-private const val BASE_URL = "https://mystical-nusa.web.id/"
+private val BASE_URL = RetrofitInstance.IMAGE_BASE_URL
 
 private val DifficultyEasy = Color(0xFF22c55e)
 private val DifficultyMedium = Color(0xFFf59e0b)
@@ -241,7 +242,7 @@ private fun LobbyPhase(
 }
 
 @Composable
-private fun LobbyMatchCard(match: NgepetLobbyMatch, onClick: () -> Unit) {
+private fun LobbyMatchCard(match: NgepetMatchListItem, onClick: () -> Unit) {
     val borderColor = tierColor(match.houseAvatar?.tier)
 
     Card(
@@ -314,7 +315,7 @@ private fun LobbyMatchCard(match: NgepetLobbyMatch, onClick: () -> Unit) {
 
 @Composable
 private fun MatchDetailDialog(
-    match: NgepetLobbyMatch,
+    match: NgepetMatchListItem,
     onJoin: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -1248,7 +1249,7 @@ private fun IntruderMatchView(
 @Composable
 private fun ItemSelectionDialog(
     title: String,
-    items: List<NgepetMatchItem>,
+    items: List<NgepetItem>,
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -1571,7 +1572,7 @@ private fun AvatarCollectionTab(
                             }
                         }
                     }
-                    if (ownedItem.isEquipped == true) {
+                    if (ownedItem.isEquipped == 1) {
                         Text(
                             text = "Dipakai",
                             color = SuccessColor,
@@ -1661,31 +1662,55 @@ private fun LeaderboardPhase(
                                 modifier = Modifier.width(36.dp)
                             )
                             Column(modifier = Modifier.weight(1f)) {
+                                val displayName = when (entry) {
+                                    is NgepetLeaderboardHouseItem -> entry.hostName ?: "-"
+                                    is NgepetLeaderboardHostItem -> entry.hostName ?: "-"
+                                    is NgepetLeaderboardIntruderItem -> entry.intruderName ?: "-"
+                                    else -> "-"
+                                }
                                 Text(
-                                    text = entry.name ?: entry.hostName ?: entry.intruderName ?: "-",
+                                    text = displayName,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp
                                 )
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    val effectiveWins = entry.wins ?: entry.totalWins
-                                    effectiveWins?.let {
-                                        Text("Wins: $it", color = TextSecondary, fontSize = 11.sp)
-                                    }
-                                    val effectiveMatches = entry.totalMatches ?: entry.totalIntruderGames ?: entry.totalGames
-                                    effectiveMatches?.let {
-                                        Text("Matches: $it", color = TextSecondary, fontSize = 11.sp)
-                                    }
-                                    entry.tokenPool?.let {
-                                        Text("Pool: $it", color = TextSecondary, fontSize = 11.sp)
-                                    }
-                                    val effectiveWinrate = entry.winrate ?: entry.winratePercentage ?: entry.winRate
-                                    effectiveWinrate?.let {
-                                        Text(
-                                            "WR: ${"%.1f".format(it)}%",
-                                            color = SuccessColor,
-                                            fontSize = 11.sp
-                                        )
+                                    when (entry) {
+                                        is NgepetLeaderboardHouseItem -> {
+                                            entry.tokenPool?.let {
+                                                Text("Pool: $it", color = TextSecondary, fontSize = 11.sp)
+                                            }
+                                        }
+                                        is NgepetLeaderboardHostItem -> {
+                                            entry.totalWins?.let {
+                                                Text("Wins: $it", color = TextSecondary, fontSize = 11.sp)
+                                            }
+                                            entry.totalIntruderGames?.let {
+                                                Text("Matches: $it", color = TextSecondary, fontSize = 11.sp)
+                                            }
+                                            entry.winratePercentage?.let {
+                                                Text(
+                                                    "WR: ${"%.1f".format(it)}%",
+                                                    color = SuccessColor,
+                                                    fontSize = 11.sp
+                                                )
+                                            }
+                                        }
+                                        is NgepetLeaderboardIntruderItem -> {
+                                            entry.totalWins?.let {
+                                                Text("Wins: $it", color = TextSecondary, fontSize = 11.sp)
+                                            }
+                                            entry.totalGames?.let {
+                                                Text("Matches: $it", color = TextSecondary, fontSize = 11.sp)
+                                            }
+                                            entry.winRate?.let {
+                                                Text(
+                                                    "WR: ${"%.1f".format(it)}%",
+                                                    color = SuccessColor,
+                                                    fontSize = 11.sp
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
