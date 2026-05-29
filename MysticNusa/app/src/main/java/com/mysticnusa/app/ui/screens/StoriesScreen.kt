@@ -117,7 +117,9 @@ private fun StoryCard(item: StoryItem, onClick: () -> Unit) {
             .clickable { onClick() }
     ) {
         Row(modifier = Modifier.padding(16.dp)) {
-            item.imagePath?.let { imageUrl ->
+            item.imagePath?.let { imagePath ->
+                val imageUrl = if (imagePath.startsWith("http")) imagePath
+                    else "https://mystical-nusa.web.id/${imagePath.trimStart('/')}"
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = item.title,

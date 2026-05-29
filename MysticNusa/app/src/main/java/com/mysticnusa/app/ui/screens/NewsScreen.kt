@@ -124,6 +124,7 @@ private fun NewsCard(item: NewsItem, onClick: () -> Unit) {
                     contentDescription = item.title,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(max = 400.dp)
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
                     contentScale = ContentScale.FillWidth
                 )

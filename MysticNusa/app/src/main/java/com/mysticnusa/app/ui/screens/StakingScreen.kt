@@ -537,32 +537,15 @@ private fun UserStakingsList(
 private fun calculateStakingProgress(startDate: String?, endDate: String?): Float {
     if (startDate == null || endDate == null) return 0f
     try {
-        val start = startDate.take(10).replace("-", "").toLongOrNull() ?: return 0f
-        val end = endDate.take(10).replace("-", "").toLongOrNull() ?: return 0f
-        val now = System.currentTimeMillis()
-        // Simple approximation: use date string parsing
-        val startMillis = parseSimpleDate(startDate.take(10))
-        val endMillis = parseSimpleDate(endDate.take(10))
-        if (endMillis <= startMillis) return 0f
-        val progress = (now - startMillis).toFloat() / (endMillis - startMillis).toFloat()
+        val start = java.time.LocalDate.parse(startDate.take(10))
+        val end = java.time.LocalDate.parse(endDate.take(10))
+        val now = java.time.LocalDate.now()
+        val totalDays = java.time.temporal.ChronoUnit.DAYS.between(start, end)
+        if (totalDays <= 0) return 0f
+        val elapsedDays = java.time.temporal.ChronoUnit.DAYS.between(start, now)
+        val progress = elapsedDays.toFloat() / totalDays.toFloat()
         return progress.coerceIn(0f, 1f)
     } catch (e: Exception) {
         return 0f
-    }
-}
-
-private fun parseSimpleDate(dateStr: String): Long {
-    // Expected format: yyyy-MM-dd
-    try {
-        val parts = dateStr.split("-")
-        if (parts.size != 3) return 0L
-        val year = parts[0].toInt()
-        val month = parts[1].toInt()
-        val day = parts[2].toInt()
-        // Rough approximation in milliseconds
-        val daysFromEpoch = (year - 1970) * 365L + (month - 1) * 30L + day
-        return daysFromEpoch * 24L * 60L * 60L * 1000L
-    } catch (e: Exception) {
-        return 0L
     }
 }
