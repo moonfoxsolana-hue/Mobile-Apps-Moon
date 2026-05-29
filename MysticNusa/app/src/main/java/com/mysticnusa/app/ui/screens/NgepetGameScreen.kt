@@ -23,7 +23,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -157,6 +160,7 @@ fun NgepetGameScreen(navController: NavController) {
                 NgepetPhase.AVATAR_SHOP -> AvatarShopPhase(viewModel, uiState)
                 NgepetPhase.LEADERBOARD -> LeaderboardPhase(viewModel, uiState)
                 NgepetPhase.HISTORY -> HistoryPhase(viewModel, uiState)
+                NgepetPhase.RULES -> RulesPhase(viewModel, uiState)
             }
 
             // Floating top notification overlay
@@ -230,57 +234,146 @@ private fun LobbyPhase(
         )
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Top toolbar buttons
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            MysticButton(
-                text = "Buka Rumah",
-                onClick = { viewModel.goToPhase(NgepetPhase.CREATE_MATCH) },
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(onClick = { viewModel.loadMatches() }) {
-                Icon(Icons.Filled.Refresh, "Refresh", tint = MysticGold)
-            }
-            IconButton(onClick = { viewModel.goToPhase(NgepetPhase.HISTORY) }) {
-                Icon(Icons.Filled.History, "History", tint = MysticGold)
-            }
-            IconButton(onClick = { viewModel.goToPhase(NgepetPhase.LEADERBOARD) }) {
-                Icon(Icons.Filled.EmojiEvents, "Leaderboard", tint = MysticGold)
-            }
-            IconButton(onClick = { viewModel.goToPhase(NgepetPhase.AVATAR_SHOP) }) {
-                Icon(Icons.Filled.Store, "Avatar Shop", tint = MysticGold)
-            }
-        }
+    var bottomBarVisible by remember { mutableStateOf(true) }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        uiState.error?.let {
-            Text(text = it, color = MaterialTheme.colorScheme.error)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MysticGold, modifier = Modifier.size(32.dp))
-            }
-        } else if (uiState.matches.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxWidth().padding(32.dp),
-                contentAlignment = Alignment.Center
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Main content
+        Column(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp)) {
+            // Token display row
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Belum ada rumah tersedia", color = TextSecondary)
+                AsyncImage(
+                    model = "https://mystical-nusa.web.id/images/asset/mystic-nusa-token.png",
+                    contentDescription = "Token",
+                    modifier = Modifier.size(24.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = uiState.tokenBalance ?: "0",
+                    color = MysticGold,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
             }
-        } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(uiState.matches) { match ->
-                    LobbyMatchCard(
-                        match = match,
-                        onClick = { viewModel.showMatchDetail(match) }
-                    )
+
+            // Top toolbar buttons - only Buka Rumah + Refresh
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                MysticButton(
+                    text = "Buka Rumah",
+                    onClick = { viewModel.goToPhase(NgepetPhase.CREATE_MATCH) },
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = { viewModel.loadMatches() }) {
+                    Icon(Icons.Filled.Refresh, "Refresh", tint = MysticGold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (uiState.isLoading) {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = MysticGold, modifier = Modifier.size(32.dp))
+                }
+            } else if (uiState.matches.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Belum ada rumah tersedia", color = TextSecondary)
+                }
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(uiState.matches) { match ->
+                        LobbyMatchCard(
+                            match = match,
+                            onClick = { viewModel.showMatchDetail(match) }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Bottom toolbar
+        Card(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            colors = CardDefaults.cardColors(containerColor = MysticDarkBackground.copy(alpha = 0.95f))
+        ) {
+            AnimatedVisibility(visible = bottomBarVisible) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Toggle button
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { bottomBarVisible = false }) {
+                            Icon(Icons.Filled.Close, "Hide", tint = MysticGold)
+                        }
+                        Text("Hide", color = TextSecondary, fontSize = 9.sp)
+                    }
+                    // Inventory
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { viewModel.goToPhase(NgepetPhase.AVATAR_SHOP) }) {
+                            Icon(Icons.Filled.ShoppingBag, "Inventory", tint = MysticGold)
+                        }
+                        Text("Inventory", color = TextSecondary, fontSize = 9.sp)
+                    }
+                    // Shop
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { viewModel.goToPhase(NgepetPhase.AVATAR_SHOP) }) {
+                            Icon(Icons.Filled.Store, "Shop", tint = MysticGold)
+                        }
+                        Text("Shop", color = TextSecondary, fontSize = 9.sp)
+                    }
+                    // Leaderboard
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { viewModel.goToPhase(NgepetPhase.LEADERBOARD) }) {
+                            Icon(Icons.Filled.EmojiEvents, "Leaderboard", tint = MysticGold)
+                        }
+                        Text("Rank", color = TextSecondary, fontSize = 9.sp)
+                    }
+                    // History
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { viewModel.goToPhase(NgepetPhase.HISTORY) }) {
+                            Icon(Icons.Filled.History, "History", tint = MysticGold)
+                        }
+                        Text("History", color = TextSecondary, fontSize = 9.sp)
+                    }
+                    // Rules
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { viewModel.goToPhase(NgepetPhase.RULES) }) {
+                            Icon(Icons.Filled.MenuBook, "Rules", tint = MysticGold)
+                        }
+                        Text("Rules", color = TextSecondary, fontSize = 9.sp)
+                    }
+                }
+            }
+            // When hidden, show only the toggle button
+            if (!bottomBarVisible) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { bottomBarVisible = true }) {
+                            Icon(Icons.Filled.Menu, "Show Menu", tint = MysticGold)
+                        }
+                        Text("Menu", color = TextSecondary, fontSize = 9.sp)
+                    }
                 }
             }
         }
@@ -662,6 +755,14 @@ private fun JoinMatchPhase(
 ) {
     LaunchedEffect(Unit) {
         viewModel.loadOwnedAvatars()
+    }
+
+    // Auto-select equipped avatar
+    LaunchedEffect(uiState.ownedAvatars) {
+        if (uiState.joinPlayerAvatarId == null && uiState.ownedAvatars.isNotEmpty()) {
+            val equipped = uiState.ownedAvatars.find { it.isEquipped == 1 && it.avatar?.type == "player" }
+            equipped?.avatarId?.let { viewModel.updateJoinPlayerAvatar(it) }
+        }
     }
 
     val match = uiState.selectedMatchForJoin
@@ -2206,6 +2307,85 @@ private fun HistoryPhase(
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(16.dp)
             )
+        }
+    }
+}
+
+// ==================== RULES PHASE ====================
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RulesPhase(
+    viewModel: NgepetViewModel,
+    uiState: com.mysticnusa.app.ui.viewmodels.NgepetUiState
+) {
+    var selectedTab by remember { mutableIntStateOf(0) }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        TabRow(
+            selectedTabIndex = selectedTab,
+            containerColor = MysticDarkBackground,
+            contentColor = MysticGold
+        ) {
+            listOf("Pembuka Rumah", "Babi Ngepet").forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTab == index,
+                    onClick = { selectedTab = index },
+                    text = { Text(title, color = if (selectedTab == index) MysticGold else TextSecondary) }
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            when (selectedTab) {
+                0 -> {
+                    val hostRules = listOf(
+                        "\uD83C\uDFE0 Buat Rumah: Host membuat rumah dengan mengisi nama host.",
+                        "\uD83C\uDFF0 Avatar Rumah: Gunakan avatar rumah yang dimiliki.",
+                        "\uD83D\uDC8E Token Pancingan: Isi jumlah token untuk memancing babi ngepet.",
+                        "\u2B50 Tingkat Kesulitan:\n  \uD83D\uDFE2 Easy -> 5x percobaan\n  \uD83D\uDFE1 Medium -> 4x percobaan\n  \uD83D\uDD34 Hard -> 3x percobaan",
+                        "\u23F1\uFE0F Durasi Waktu: Tentukan waktu untuk babi bersembunyi dan host menebak.",
+                        "\u2694\uFE0F Batas Token Intruders: Atur minimal dan maksimal token untuk babi ngepet masuk.",
+                        "\uD83D\uDC65 Batas Penyusup: Atur jumlah maksimum Penyusup yang bisa masuk.",
+                        "\uD83D\uDCB0 Menang: Jika tebakanmu benar, token si babi jadi milik host.",
+                        "\uD83D\uDCDC Aturan Final: Semua hasil permainan tidak bisa diganggu gugat."
+                    )
+                    hostRules.forEach { rule ->
+                        Text(
+                            text = rule,
+                            color = TextSecondary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+                1 -> {
+                    val intruderRules = listOf(
+                        "\uD83D\uDC16 Pilih Rumah: Pilih rumah yang tersedia selama slot penyusup masih ada.",
+                        "\u2B50 Tingkat Kesulitan:\n  \uD83D\uDFE2 Easy -> Host 5x menebak (berbahaya untuk penyusup)\n  \uD83D\uDFE1 Medium -> Host 4x menebak\n  \uD83D\uDD34 Hard -> Host 3x menebak (terlihat mudah untuk penyusup)",
+                        "\uD83D\uDC8E Tumbal Token: Tumbalkan sejumlah token untuk menjadi babi ngepet.",
+                        "\uD83D\uDCE6 Pilih Tempat Sembunyi: Setelah join, pilih 1 barang untuk bersembunyi.",
+                        "\uD83D\uDE45\u200D\u2642\uFE0F Jika Host Salah: Jika host salah semua tebakan, babi ngepet menang.",
+                        "\u23F3 Jika Waktu Habis: Jika host tidak menebak dalam waktu yang ditentukan, babi ngepet menang.",
+                        "\uD83C\uDFAF Kalah Jika Ketahuan: Jika host menebak barang tempat bersembunyi, babi ngepet kalah.",
+                        "\uD83D\uDCB0 Hadiah Kemenangan: Jika menang, dapatkan token 2x lipat dari jumlah token tumbal.",
+                        "\uD83D\uDCDC Aturan Final: Semua hasil permainan tidak bisa diganggu gugat."
+                    )
+                    intruderRules.forEach { rule ->
+                        Text(
+                            text = rule,
+                            color = TextSecondary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
