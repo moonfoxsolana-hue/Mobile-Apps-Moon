@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "fix",
   "description": "Fix the intruder hidden-guess flow to include hidden-item-card selection step, add sound effects for guess results, add floating/hanging notification overlay replacing bottom-aligned messages, and add shake animation effect on wrong guess.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Step 1 - Update NgepetHiddenGuessRequest in MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/NgepetModels.kt: Add the missing `hidden_item_id` field (SerializedName: 'hidden_item_id', type: String). The backend expects this field in the POST body.",
     "Step 2 - Update NgepetUiState in MysticNusa/app/src/main/java/com/mysticnusa/app/ui/viewmodels/NgepetViewModel.kt: Add new state fields: `selectedHiddenItemId: String? = null` (the mystery box the intruder chose), `guessedItemNames: Set<String> = emptySet()` (items already guessed, to grey them out), `showHiddenItemSelection: Boolean = false` (controls whether the hidden-item grid overlay is shown before the item selection dialog).",
@@ -29,5 +29,5 @@
     "Run: cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Build requires Java 17 (not Java 25 which is system default). Android SDK had to be installed from scratch at /root/android-sdk. Set JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 and ANDROID_HOME=/root/android-sdk with local.properties sdk.dir=/root/android-sdk for build to work. BUILD SUCCESSFUL with only warnings (no errors)."
 }
