@@ -14,7 +14,8 @@ data class AirdropUiState(
     val isLoading: Boolean = false,
     val claimResponse: AirdropClaimResponse? = null,
     val error: String? = null,
-    val hasClaimed: Boolean = false
+    val hasClaimed: Boolean = false,
+    val notificationCounter: Int = 0
 )
 
 class AirdropViewModel(
@@ -24,6 +25,16 @@ class AirdropViewModel(
     private val _uiState = MutableStateFlow(AirdropUiState())
     val uiState: StateFlow<AirdropUiState> = _uiState.asStateFlow()
 
+    private fun bumpCounter() = _uiState.value.notificationCounter + 1
+
+    fun clearMessage() {
+        _uiState.value = _uiState.value.copy(claimResponse = null)
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
+    }
+
     fun claimFirst(walletAddress: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
@@ -32,12 +43,14 @@ class AirdropViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     claimResponse = response,
-                    hasClaimed = true
+                    hasClaimed = true,
+                    notificationCounter = bumpCounter()
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = error.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }
@@ -50,12 +63,14 @@ class AirdropViewModel(
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    claimResponse = response
+                    claimResponse = response,
+                    notificationCounter = bumpCounter()
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = error.message
+                    error = error.message,
+                    notificationCounter = bumpCounter()
                 )
             }
         }

@@ -1,15 +1,24 @@
 package com.mysticnusa.app.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,56 +87,108 @@ fun ProfileScreen(navController: NavController) {
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        MysticCard(modifier = Modifier.fillMaxWidth()) {
-                            Column(
-                                modifier = Modifier.padding(20.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Profile",
-                                    tint = MysticGold,
-                                    modifier = Modifier.size(64.dp)
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                profileState.profile?.let { profile ->
-                                    Text(
-                                        text = profile.name ?: "User",
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                        // Avatar Section
+                        Box(
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    Brush.radialGradient(
+                                        colors = listOf(
+                                            MysticPurple.copy(alpha = 0.8f),
+                                            MysticGold.copy(alpha = 0.4f),
+                                            MysticPurple.copy(alpha = 0.2f)
+                                        )
                                     )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = profile.email ?: "",
-                                        color = TextSecondary,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-
-                                    Divider(color = MysticPurple.copy(alpha = 0.3f))
-                                    Spacer(modifier = Modifier.height(16.dp))
-
-                                    ProfileRow("Wallet", profile.walletAddress ?: "Belum diatur")
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    ProfileRow("Total Token", "${profile.totalToken ?: "0"} MYNU", valueColor = MysticGold)
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    ProfileRow("Locked Balance", "${profile.lockedBalance ?: "0"} MYNU")
-                                }
-                            }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Profile",
+                                tint = MysticGold,
+                                modifier = Modifier.size(96.dp)
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
+
+                        profileState.profile?.let { profile ->
+                            Text(
+                                text = profile.name ?: "User",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = profile.email ?: "",
+                                color = TextSecondary,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Decorative divider
+                        HorizontalDivider(
+                            color = MysticPurple.copy(alpha = 0.4f),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Stats Header
+                        Text(
+                            text = "Stats",
+                            color = MysticGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        profileState.profile?.let { profile ->
+                            // Wallet Row
+                            ProfileInfoCard(
+                                icon = Icons.AutoMirrored.Filled.List,
+                                label = "Wallet",
+                                value = profile.walletAddress ?: "Belum diatur"
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            // Total Token Row
+                            ProfileInfoCard(
+                                icon = Icons.Default.Star,
+                                label = "Total Token",
+                                value = "${profile.totalToken ?: "0"} MYNU",
+                                valueColor = MysticGold
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            // Locked Balance Row
+                            ProfileInfoCard(
+                                icon = Icons.Default.Lock,
+                                label = "Locked Balance",
+                                value = "${profile.lockedBalance ?: "0"} MYNU"
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         MysticButton(
                             text = "Riwayat Token",
                             onClick = { navController.navigate(Screen.TokenHistory.route) }
                         )
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(48.dp))
 
                         Button(
                             onClick = {
@@ -142,6 +203,13 @@ fun ProfileScreen(navController: NavController) {
                             ),
                             shape = MaterialTheme.shapes.medium
                         ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text("Logout", color = Color.White)
                         }
                     }
@@ -152,17 +220,43 @@ fun ProfileScreen(navController: NavController) {
 }
 
 @Composable
-private fun ProfileRow(label: String, value: String, valueColor: Color = TextSecondary) {
-    Row(
+private fun ProfileInfoCard(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    valueColor: Color = TextSecondary
+) {
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        shape = MaterialTheme.shapes.medium,
+        color = MysticSurface,
+        tonalElevation = 2.dp
     ) {
-        Text(text = label, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
-        Text(
-            text = value,
-            color = valueColor,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MysticPurpleLight,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = label,
+                color = TextSecondary,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = value,
+                color = valueColor,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
