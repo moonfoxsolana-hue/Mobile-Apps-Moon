@@ -1,0 +1,7 @@
+{
+  "task_id": "task-games-reorder-ui-polish",
+  "task_description": "Reorder and rename games on GamesScreen with image icons and 2-column grid layout, make Ular Tangga show 'Akan Hadir' coming soon screen, improve ClaimScreen with floating notifications and elegant design, improve ProfileScreen with elegant design.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}

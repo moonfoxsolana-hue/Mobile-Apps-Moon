@@ -1,0 +1,28 @@
+{
+  "project_type": "Android Kotlin Jetpack Compose app",
+  "language": "Kotlin",
+  "build_system": "Gradle with Kotlin DSL (build.gradle.kts), compileSdk 34, minSdk 26",
+  "test_framework": "JUnit4 + Espresso + Compose UI testing (androidTest)",
+  "build_command": "cd MysticNusa && ./gradlew assembleDebug",
+  "test_command": "cd MysticNusa && ./gradlew testDebugUnitTest",
+  "verification_instructions": "Build the project with ./gradlew assembleDebug to ensure compilation succeeds. No Android emulator available so runtime testing is not possible.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "Java 17 required (available via mise). Project uses Gradle wrapper.",
+  "environment_constraints": "OPEN_INTERNET network - can download dependencies. No Android emulator/device for runtime testing. Use AST/compilation validation only.",
+  "contribution_requirements": "Follow existing code patterns (MysticCard, MysticButton, theme colors). Use Coil for image loading (already in dependencies).",
+  "key_patterns": "Screens use Scaffold with TopAppBar and BottomNavBar. Cards use MysticCard component. Theme uses MysticGold, MysticPurple, MysticSurface, MysticDarkBackground colors. Navigation via NavController with Screen sealed class. Floating notifications use AnimatedVisibility with slideInVertically/fadeIn enter and auto-dismiss via LaunchedEffect with 3s delay (see NgepetGameScreen).",
+  "relevant_files": [
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/GamesScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/UlartanggaGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/ClaimScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/ProfileScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/viewmodels/AirdropViewModel.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/navigation/Screen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/navigation/NavGraph.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/MysticCard.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/MysticButton.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/theme/Color.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/NgepetGameScreen.kt"
+  ],
+  "directory_structure": "MysticNusa/ - Android app root with Gradle. app/src/main/java/com/mysticnusa/app/ contains: ui/screens/ (all screen composables), ui/components/ (reusable UI), ui/theme/ (colors, typography), ui/viewmodels/ (ViewModels), navigation/ (NavGraph, Screen sealed class), data/ (models, repository, remote). resources/views/ contains Laravel blade templates for the web version (reference only)."
+}

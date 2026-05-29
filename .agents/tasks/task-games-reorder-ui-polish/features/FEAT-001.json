@@ -1,0 +1,23 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Reorder games, rename titles, add image icons using Coil, use 2-column grid layout, and make Ular Tangga show a 'Akan Hadir' (Coming Soon) screen instead of the game",
+  "status": "in_progress",
+  "steps": [
+    "Rewrite MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/GamesScreen.kt to: (a) reorder games to: 1st Ngepet Online, 2nd Intuition, 3rd Mystical Logic of Minds (was Logical/IQ Test), 4th Arcane of Trivia (was Trivia), 5th Tarot of Mystic Nusa (was Tarot Ritual), 6th Ular Tangga Mystic (was Ular Tangga). (b) Replace emoji icons with images loaded from URLs using Coil AsyncImage: ngepet-online -> https://mystical-nusa.web.id/images/ngepet-online.jpg, intuition -> https://mystical-nusa.web.id/images/intuition-test.jpg, logical -> https://mystical-nusa.web.id/images/logic-minds.jpg, trivia -> https://mystical-nusa.web.id/images/trivia.jpg, tarot -> https://mystical-nusa.web.id/images/tarot.jpg, ulartangga -> https://mystical-nusa.web.id/images/coming-soon-games.jpg. (c) Use a 2-column grid layout (LazyVerticalGrid with GridCells.Fixed(2)) to match the mobile web design - each card shows the image (full width, rounded corners, object-fit cover), the game title below it, and a short description. (d) Make the layout scrollable and phone-screen friendly with proper padding.",
+    "Rewrite MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/UlartanggaGameScreen.kt to replace the entire game lobby/board content with a simple elegant 'Akan Hadir' (Coming Soon) screen. Show a centered layout with the coming-soon image (https://mystical-nusa.web.id/images/coming-soon-games.jpg), a large 'Akan Hadir' title in MysticGold, a subtitle 'Game ini sedang dalam pengembangan', and a back button. Keep the TopAppBar with back navigation.",
+    "Add necessary imports for Coil (AsyncImage from coil.compose) and LazyVerticalGrid/GridCells in GamesScreen.kt."
+  ],
+  "acceptance_criteria": [
+    "GamesScreen shows 6 games in a 2-column grid in the exact order specified",
+    "Each game card displays an image loaded from the specified URL using Coil AsyncImage",
+    "Game titles are: Ngepet Online, Intuition, Mystical Logic of Minds, Arcane of Trivia, Tarot of Mystic Nusa, Ular Tangga Mystic",
+    "Tapping Ular Tangga Mystic navigates to UlartanggaGameScreen which shows a 'Akan Hadir' coming soon screen instead of the game",
+    "The layout fits phone screens properly with 2 columns"
+  ],
+  "verification": [
+    "Run ./gradlew assembleDebug in MysticNusa/ to confirm compilation succeeds with the new code"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
