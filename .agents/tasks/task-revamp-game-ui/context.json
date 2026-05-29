@@ -1,0 +1,33 @@
+{
+  "project_type": "Android app using Kotlin and Jetpack Compose",
+  "language": "Kotlin",
+  "build_system": "Gradle (build.gradle.kts), compileSdk 34, Kotlin compiler extension 1.5.14",
+  "test_framework": "JUnit 4 with Espresso for instrumented tests, Compose UI testing",
+  "build_command": "Cannot build in sandbox (no Android SDK). Validate via AST/syntax check using kotlinc if available, otherwise visual code review.",
+  "test_command": "No tests can run without Android SDK. Validate code compiles syntactically.",
+  "verification_instructions": "1. Verify all Kotlin files have no syntax errors by checking imports and structure. 2. Verify no game logic was modified (ViewModel calls remain the same). 3. Confirm image URLs use the correct base URL. 4. Confirm sound effects are triggered at correct game events.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "No setup needed - we edit Kotlin source directly. No Android SDK in sandbox.",
+  "environment_constraints": "OPEN_INTERNET network mode. No Android SDK available, so cannot compile/run the app. Java 17+ available. Validate code structurally.",
+  "contribution_requirements": "Do NOT change game logic. Only modify UI/presentation layer. Keep all ViewModel interactions intact.",
+  "key_patterns": "Screens use Jetpack Compose with Scaffold+TopAppBar pattern. ViewModels expose StateFlow<UiState>. MysticButton, MysticCard, MysticTextField are reusable components. Coil AsyncImage already in dependencies for image loading. Colors defined in ui/theme/Color.kt. Base URL for assets: https://mystical-nusa.web.id",
+  "relevant_files": [
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/IntuitionGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/LogicalGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/TriviaGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/TarotGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/theme/Color.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/MysticButton.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/MysticCard.kt",
+    "MysticNusa/app/build.gradle.kts",
+    "resources/views/games/intuition/index.blade.php",
+    "resources/views/games/logical/index.blade.php",
+    "resources/views/games/trivia/index.blade.php",
+    "resources/views/games/tarot/index.blade.php",
+    "resources/views/layouts/intuition.blade.php",
+    "resources/views/layouts/logical.blade.php",
+    "resources/views/layouts/trivia.blade.php",
+    "resources/views/layouts/tarot.blade.php"
+  ],
+  "directory_structure": "MysticNusa/app/src/main/java/com/mysticnusa/app/ contains: data/ (models, remote, repository, local), navigation/, ui/ (components, screens, theme, viewmodels)"
+}

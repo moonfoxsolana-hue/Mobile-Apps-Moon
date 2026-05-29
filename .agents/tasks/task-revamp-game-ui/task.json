@@ -1,0 +1,7 @@
+{
+  "task_id": "task-revamp-game-ui",
+  "task_description": "Revamp UI style of 4 games (Intuition, Logical, Trivia, Tarot) in the Android app to match the web frontend. Add background images, sound effects, and themed styling from mystical-nusa.web.id assets. Do NOT modify any game logic.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
+  "blocked_reason": null
+}

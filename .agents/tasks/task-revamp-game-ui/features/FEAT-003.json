@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Revamp LogicalGameScreen.kt UI to match the web frontend style - add background image, gold-themed styling, click/hover sounds, and enhanced card styling. DO NOT change any ViewModel calls or game logic.",
+  "status": "pending",
+  "steps": [
+    "Step 1: Read the current LogicalGameScreen.kt to confirm existing ViewModel calls.",
+    "Step 2: Revamp LogicalGameScreen.kt UI: (a) Add GameBackground with URL 'https://mystical-nusa.web.id/images/asset/games/background/logical-background-large.webp'. (b) Make Scaffold/TopAppBar background transparent so the background image shows through. (c) The gold color theme (#d4af37) is already used - keep it. Style the question card with semi-transparent dark background (rgba(20,20,20,0.8) = Color(0xCC141414)) and a gold border, matching the web .logical-card style. (d) Style answer options with semi-transparent backgrounds and gold borders on selection, matching .logical-answer style. (e) Add SoundManager.playBgm on screen entry with URL 'https://mystical-nusa.web.id/sound/bgm/bgm-iq-normal.mp3', stop on exit. (f) Add click sound: call SoundManager.playSound with 'https://mystical-nusa.web.id/sound/sfx/click2.wav' when an answer is selected (inside the onClick of answer cards). (g) Add a progress bar styled with gold color (already exists but ensure it matches the web's .logical-progress-bar style).",
+    "Step 3: Ensure ALL ViewModel interactions remain unchanged: viewModel.startGame(), viewModel.answerQuestion(questionId, answerId), viewModel.finishGame(), and all state branches.",
+    "Step 4: Verify the result screen still shows IQ score, category, points, and duration with the same data sources."
+  ],
+  "acceptance_criteria": [
+    "LogicalGameScreen.kt displays a background image from the remote URL",
+    "Gold theme color is used for borders, accents, and text highlights",
+    "Question card has semi-transparent dark background with gold border",
+    "BGM plays on screen entry and stops on exit",
+    "Click sound plays when selecting an answer",
+    "All ViewModel function calls remain identical",
+    "Result screen still displays IQ, category, points, duration correctly"
+  ],
+  "verification": [
+    "Read LogicalGameScreen.kt and verify ViewModel calls unchanged",
+    "Verify SoundManager usage for BGM and click sounds",
+    "Verify GameBackground composable usage with correct URL"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
