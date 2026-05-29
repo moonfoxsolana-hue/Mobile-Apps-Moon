@@ -61,8 +61,11 @@ fun HomeScreen(navController: NavController) {
                     colors = CardDefaults.cardColors(containerColor = MysticSurface)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Text("\uD83D\uDCF0", fontSize = 28.sp)
                         Spacer(modifier = Modifier.height(4.dp))
@@ -77,8 +80,11 @@ fun HomeScreen(navController: NavController) {
                     colors = CardDefaults.cardColors(containerColor = MysticSurface)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Text("\uD83D\uDCDA", fontSize = 28.sp)
                         Spacer(modifier = Modifier.height(4.dp))
@@ -93,8 +99,11 @@ fun HomeScreen(navController: NavController) {
                     colors = CardDefaults.cardColors(containerColor = MysticSurface)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Text("\uD83D\uDD12", fontSize = 28.sp)
                         Spacer(modifier = Modifier.height(4.dp))

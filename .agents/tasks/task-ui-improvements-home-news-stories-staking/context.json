@@ -1,0 +1,26 @@
+{
+  "project_type": "Android app with Jetpack Compose (Kotlin) + Laravel PHP backend",
+  "language": "Kotlin",
+  "build_system": "Gradle with Kotlin DSL (build.gradle.kts), compileSdk 34, Kotlin compiler extension 1.5.14",
+  "test_framework": "JUnit 4 + Espresso + Compose UI testing",
+  "build_command": "Cannot build Android project in sandbox (requires Android SDK). Validate with AST/syntax checks.",
+  "test_command": "Cannot run Android tests in sandbox. Validate code correctness via syntax analysis.",
+  "verification_instructions": "Since Android SDK is not available, verify code compiles syntactically by checking for balanced braces, correct imports, and consistent patterns.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "N/A - Android project cannot be built in this sandbox environment",
+  "environment_constraints": "No Android SDK available in sandbox. Use AST/syntax validation only. OPEN_INTERNET network mode.",
+  "contribution_requirements": "Follow existing Compose patterns, use MysticCard, MysticButton components. Use theme colors from Color.kt (MysticGold, MysticPurple, MysticSurface, etc.).",
+  "key_patterns": "Jetpack Compose with Material3, Coil for async image loading, Retrofit for API calls, MVVM architecture with ViewModels and Repositories. Theme uses dark background with gold accent colors. Cards use MysticCard component, buttons use MysticButton.",
+  "relevant_files": [
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/HomeScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/NewsScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/StoriesScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/StakingScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/StoryModels.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/NewsModels.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/StakingModels.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/theme/Color.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/remote/ApiService.kt"
+  ],
+  "directory_structure": "MysticNusa/app/src/main/java/com/mysticnusa/app/ contains: data/ (models, remote, repository), navigation/, ui/ (components, screens, theme, viewmodels)"
+}

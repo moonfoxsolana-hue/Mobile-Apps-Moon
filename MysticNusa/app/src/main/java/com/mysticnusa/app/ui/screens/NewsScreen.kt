@@ -124,9 +124,8 @@ private fun NewsCard(item: NewsItem, onClick: () -> Unit) {
                     contentDescription = item.title,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.FillWidth
                 )
             }
             Column(modifier = Modifier.padding(16.dp)) {
