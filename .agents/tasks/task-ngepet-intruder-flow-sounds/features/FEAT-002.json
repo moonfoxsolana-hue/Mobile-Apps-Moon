@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "fix",
   "description": "Address code review issues: SoundManager dangling reference, LaunchedEffect key collision for message/error, shake animation re-trigger, and empty hidden items state message.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Step 1 - Fix SoundManager.kt: Null out mediaPlayer in the onCompletionListener callback to prevent double-release from DisposableEffect.",
     "Step 2 - Fix NgepetViewModel.kt: Add a notificationCounter field to NgepetUiState that increments whenever message or error is set, to guarantee LaunchedEffect re-triggers for identical consecutive values.",
@@ -22,5 +22,5 @@
     "Run: cd /projects/sandbox/Mobile-Apps/MysticNusa && JAVA_HOME=/root/.local/share/mise/installs/java/17.0.2 ANDROID_HOME=/root/android-sdk ./gradlew assembleDebug"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All 4 review issues addressed. Build successful. notificationCounter added to NgepetUiState with bumpCounter() helper called at all message/error set sites."
 }

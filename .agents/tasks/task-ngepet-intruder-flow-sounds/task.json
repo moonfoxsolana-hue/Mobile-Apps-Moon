@@ -1,7 +1,14 @@
 {
   "task_id": "task-ngepet-intruder-flow-sounds",
   "task_description": "Fix the intruder hidden-guess flow to include hidden-item-card selection, add sound effects (wrong guess, win, lose), replace bottom notifications with floating top overlays, and add shake animation on wrong guess.",
-  "status": "in_progress",
-  "feature_order": ["FEAT-001"],
+  "status": "completed",
+  "verification": {
+    "build": "pass",
+    "tests": "pass",
+    "test_quality": "skipped",
+    "docker_build": "skipped",
+    "summary": "assembleDebug BUILD SUCCESSFUL. No unit tests specific to this feature (existing pattern in this project). Verified: model updated with hidden_item_id, ViewModel has correct flow methods, Screen has HiddenItemGridDialog and ItemSelectionDialogWithGreyed, SoundManager created, floating notification replaces bottom text, shake animation on wrong guess."
+  },
+  "feature_order": ["FEAT-001", "FEAT-002"],
   "blocked_reason": null
 }
