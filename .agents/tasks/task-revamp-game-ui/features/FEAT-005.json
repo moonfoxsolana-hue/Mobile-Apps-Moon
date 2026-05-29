@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "feat",
   "description": "Revamp TarotGameScreen.kt UI to match the web frontend style - add background image, golden/mystical yellow theme, card-back images using Coil, floating animations, hover/click sounds, and enhanced oracle reading styling. DO NOT change any ViewModel calls or game logic.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Step 1: Read the current TarotGameScreen.kt to confirm existing ViewModel calls.",
     "Step 2: Revamp TarotGameScreen.kt UI: (a) Add GameBackground with URL 'https://mystical-nusa.web.id/images/asset/games/background/tarot-background.jpg'. (b) Make Scaffold/TopAppBar transparent. (c) Change accent color to TarotYellow (#ffde59) for titles/highlights, keep MysticGold for borders/buttons. (d) In CARD_SELECTION phase: replace the emoji-based card placeholders with AsyncImage showing the card-back image 'https://mystical-nusa.web.id/images/asset/tarot/closed-card.png'. When selected, add a purple glow border (drop-shadow effect via border+elevation). (e) In ORACLE phase: show the revealed card images if card.image is available (from TarotCardDetail.image field) using AsyncImage. (f) Style the AI reading section (READING phase) with a mystic border (golden, rounded), semi-transparent background, and the text in warm cream color (#fffde7). (g) Add floating animation to phase titles (animateFloatAsState infinite). (h) Add SoundManager: BGM 'https://mystical-nusa.web.id/sound/bgm/bgm-tarot.mp3' on entry, click sound 'https://mystical-nusa.web.id/sound/sfx/click2.wav' when tapping cards or buttons. (i) In the element selection area, style elements with the web's .element-selection look - horizontal row of clickable text items with glow when selected.",
