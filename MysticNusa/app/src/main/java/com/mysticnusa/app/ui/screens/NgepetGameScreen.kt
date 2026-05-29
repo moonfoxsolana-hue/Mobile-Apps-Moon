@@ -241,7 +241,7 @@ private fun LobbyPhase(
 }
 
 @Composable
-private fun LobbyMatchCard(match: NgepetLobbyMatch, onClick: () -> Unit) {
+private fun LobbyMatchCard(match: NgepetMatchListItem, onClick: () -> Unit) {
     val borderColor = tierColor(match.houseAvatar?.tier)
 
     Card(
@@ -314,7 +314,7 @@ private fun LobbyMatchCard(match: NgepetLobbyMatch, onClick: () -> Unit) {
 
 @Composable
 private fun MatchDetailDialog(
-    match: NgepetLobbyMatch,
+    match: NgepetMatchListItem,
     onJoin: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -1248,7 +1248,7 @@ private fun IntruderMatchView(
 @Composable
 private fun ItemSelectionDialog(
     title: String,
-    items: List<NgepetMatchItem>,
+    items: List<NgepetItem>,
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -1643,6 +1643,7 @@ private fun LeaderboardPhase(
             ) {
                 items(uiState.leaderboard.size) { index ->
                     val entry = uiState.leaderboard[index]
+                    val jsonEntry = (entry as? com.google.gson.JsonElement)?.asJsonObject
                     Card(
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(containerColor = MysticSurface),
@@ -1661,26 +1662,32 @@ private fun LeaderboardPhase(
                                 modifier = Modifier.width(36.dp)
                             )
                             Column(modifier = Modifier.weight(1f)) {
+                                val displayName = jsonEntry?.get("host_name")?.asString
+                                    ?: jsonEntry?.get("intruder_name")?.asString
+                                    ?: jsonEntry?.get("name")?.asString
+                                    ?: "-"
                                 Text(
-                                    text = entry.name ?: entry.hostName ?: entry.intruderName ?: "-",
+                                    text = displayName,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp
                                 )
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    val effectiveWins = entry.wins ?: entry.totalWins
-                                    effectiveWins?.let {
+                                    val totalWins = jsonEntry?.get("total_wins")?.asInt
+                                    totalWins?.let {
                                         Text("Wins: $it", color = TextSecondary, fontSize = 11.sp)
                                     }
-                                    val effectiveMatches = entry.totalMatches ?: entry.totalIntruderGames ?: entry.totalGames
-                                    effectiveMatches?.let {
+                                    val totalGames = jsonEntry?.get("total_intruder_games")?.asInt
+                                        ?: jsonEntry?.get("total_games")?.asInt
+                                    totalGames?.let {
                                         Text("Matches: $it", color = TextSecondary, fontSize = 11.sp)
                                     }
-                                    entry.tokenPool?.let {
+                                    jsonEntry?.get("token_pool")?.asInt?.let {
                                         Text("Pool: $it", color = TextSecondary, fontSize = 11.sp)
                                     }
-                                    val effectiveWinrate = entry.winrate ?: entry.winratePercentage ?: entry.winRate
-                                    effectiveWinrate?.let {
+                                    val winRate = jsonEntry?.get("winrate_percentage")?.asDouble
+                                        ?: jsonEntry?.get("win_rate")?.asDouble
+                                    winRate?.let {
                                         Text(
                                             "WR: ${"%.1f".format(it)}%",
                                             color = SuccessColor,

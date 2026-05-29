@@ -1,5 +1,6 @@
 package com.mysticnusa.app.data.remote
 
+import com.google.gson.JsonObject
 import com.mysticnusa.app.data.models.*
 import retrofit2.Response
 import retrofit2.http.*
@@ -143,58 +144,44 @@ interface ApiService {
     @GET("ulartangga/statistics")
     suspend fun getUlartanggaStatistics(): Response<ApiResponse>
 
-    // Ngepet
+    // Ngepet - Matches
     @GET("ngepet/match")
-    suspend fun getNgepetMatches(): Response<NgepetMatchesListResponse>
+    suspend fun getNgepetMatches(): Response<NgepetMatchesResponse>
 
     @GET("ngepet/match/active")
     suspend fun getNgepetActiveMatch(): Response<NgepetActiveMatchResponse>
 
     @GET("ngepet/match/history")
-    suspend fun getNgepetMatchHistory(): Response<NgepetHistoryResponse>
+    suspend fun getNgepetHistory(): Response<NgepetHistoryResponse>
 
     @GET("ngepet/match/{id}")
     suspend fun getNgepetMatchDetail(@Path("id") id: String): Response<NgepetMatchDetailResponse>
 
     @POST("ngepet/match/create")
-    suspend fun createNgepetMatch(@Body request: NgepetCreateMatchRequest): Response<NgepetCreateMatchResponse>
-
-    @POST("ngepet/match/{id}/close")
-    suspend fun closeNgepetMatch(@Path("id") id: String): Response<ApiResponse>
-
-    @POST("ngepet/match/{id}/hidden-item")
-    suspend fun hideTokenInItem(
-        @Path("id") id: String,
-        @Body request: NgepetHiddenItemRequest
-    ): Response<ApiResponse>
-
-    @POST("ngepet/match/{id}/guess")
-    suspend fun hostGuessNgepet(
-        @Path("id") id: String,
-        @Body request: NgepetHostGuessRequest
-    ): Response<NgepetGuessResponse>
+    suspend fun createNgepetMatch(@Body request: NgepetCreateRequest): Response<NgepetCreateResponse>
 
     @POST("ngepet/match/{id}/join")
-    suspend fun joinNgepetMatch(
-        @Path("id") id: String,
-        @Body request: NgepetJoinRequest
-    ): Response<ApiResponse>
+    suspend fun joinNgepetMatch(@Path("id") id: String, @Body request: NgepetJoinRequest): Response<JsonObject>
 
     @POST("ngepet/match/{id}/submit-choice")
-    suspend fun submitNgepetChoice(
-        @Path("id") id: String,
-        @Body request: NgepetSubmitChoiceRequest
-    ): Response<ApiResponse>
+    suspend fun submitNgepetChoice(@Path("id") id: String, @Body request: NgepetSubmitChoiceRequest): Response<JsonObject>
+
+    @POST("ngepet/match/{id}/guess")
+    suspend fun ngepetHostGuess(@Path("id") id: String, @Body request: NgepetHostGuessRequest): Response<NgepetGuessResponse>
+
+    @POST("ngepet/match/{id}/hidden-item")
+    suspend fun ngepetStoreHiddenItem(@Path("id") id: String, @Body request: NgepetHiddenItemRequest): Response<ApiResponse>
 
     @POST("ngepet/match/{id}/hidden-guess")
-    suspend fun intruderHiddenGuess(
-        @Path("id") id: String,
-        @Body request: NgepetHiddenGuessRequest
-    ): Response<NgepetGuessResponse>
+    suspend fun ngepetMakeHiddenGuess(@Path("id") id: String, @Body request: NgepetHiddenGuessRequest): Response<NgepetGuessResponse>
+
+    @POST("ngepet/match/{id}/close")
+    suspend fun closeNgepetMatch(@Path("id") id: String): Response<NgepetCloseResponse>
 
     @POST("ngepet/match/claim-victory")
-    suspend fun claimVictory(@Body request: NgepetClaimVictoryRequest): Response<ApiResponse>
+    suspend fun claimNgepetVictory(@Body request: NgepetClaimVictoryRequest): Response<ApiResponse>
 
+    // Ngepet - Avatars
     @GET("ngepet/avatar")
     suspend fun getNgepetAvatarShop(): Response<NgepetAvatarShopResponse>
 
@@ -207,12 +194,13 @@ interface ApiService {
     @POST("ngepet/avatar/{id}/equip")
     suspend fun equipNgepetAvatar(@Path("id") id: Int): Response<ApiResponse>
 
+    // Ngepet - Leaderboards
     @GET("ngepet/leaderboard/house")
-    suspend fun getNgepetHouseLeaderboard(): Response<NgepetLeaderboardResponse>
+    suspend fun getNgepetLeaderboardHouse(): Response<JsonObject>
 
     @GET("ngepet/leaderboard/host")
-    suspend fun getNgepetHostLeaderboard(): Response<NgepetLeaderboardResponse>
+    suspend fun getNgepetLeaderboardHost(): Response<JsonObject>
 
     @GET("ngepet/leaderboard/intruders")
-    suspend fun getNgepetIntruderLeaderboard(): Response<NgepetLeaderboardResponse>
+    suspend fun getNgepetLeaderboardIntruders(): Response<JsonObject>
 }
