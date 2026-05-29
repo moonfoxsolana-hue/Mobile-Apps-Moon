@@ -113,9 +113,9 @@ fun ProfileScreen(navController: NavController) {
 
                                     ProfileRow("Wallet", profile.walletAddress ?: "Belum diatur")
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    ProfileRow("Total Token", "${profile.totalToken ?: 0.0} MYNU", valueColor = MysticGold)
+                                    ProfileRow("Total Token", "${profile.totalToken ?: "0"} MYNU", valueColor = MysticGold)
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    ProfileRow("Locked Balance", "${profile.lockedBalance ?: 0.0} MYNU")
+                                    ProfileRow("Locked Balance", "${profile.lockedBalance ?: "0"} MYNU")
                                 }
                             }
                         }
