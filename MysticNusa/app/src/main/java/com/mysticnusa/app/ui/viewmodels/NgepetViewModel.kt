@@ -38,6 +38,14 @@ data class NgepetUiState(
     val error: String? = null,
     val selectedMatchForJoin: NgepetMatchListItem? = null,
     val showMatchDetailDialog: Boolean = false,
+    // Guessing animation state
+    val isGuessing: Boolean = false,
+    // Intruder guess attempt tracking
+    val intruderGuessCount: Int = 0,
+    val maxGuessAttempts: Int = 5,
+    // Host guess re-open flow
+    val lastGuessedIntruderId: String? = null,
+    val shouldReopenGuess: Boolean = false,
     // Create form fields
     val createHostName: String = "",
     val createDifficulty: String = "easy",
@@ -104,7 +112,16 @@ class NgepetViewModel(
     }
 
     fun clearGuessResult() {
-        _uiState.value = _uiState.value.copy(guessResult = null)
+        val currentResult = _uiState.value.guessResult
+        val shouldReopen = currentResult?.isEnd == false && _uiState.value.lastGuessedIntruderId != null
+        _uiState.value = _uiState.value.copy(
+            guessResult = null,
+            shouldReopenGuess = shouldReopen
+        )
+    }
+
+    fun clearReopenGuess() {
+        _uiState.value = _uiState.value.copy(shouldReopenGuess = false)
     }
 
     fun showMatchDetail(match: NgepetMatchListItem) {
@@ -211,9 +228,20 @@ class NgepetViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             val result = gamesRepository.getNgepetMatchDetail(matchId)
             result.onSuccess { response ->
+                val maxAttempts = if (_uiState.value.currentRole == "intruder") {
+                    when (response.match?.difficulty?.lowercase()) {
+                        "easy" -> 5
+                        "medium" -> 4
+                        "hard" -> 3
+                        else -> 5
+                    }
+                } else {
+                    _uiState.value.maxGuessAttempts
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    matchDetail = response
+                    matchDetail = response,
+                    maxGuessAttempts = maxAttempts
                 )
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
@@ -414,7 +442,7 @@ class NgepetViewModel(
     fun hostGuess(intruderId: String, itemName: String) {
         val matchId = _uiState.value.currentMatchId ?: return
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, lastGuessedIntruderId = intruderId)
             val request = NgepetHostGuessRequest(
                 matchIntruderId = intruderId,
                 itemName = itemName
@@ -552,7 +580,7 @@ class NgepetViewModel(
     fun intruderGuessHidden(itemName: String) {
         val intruderMatchId = _uiState.value.currentIntruderMatchId ?: return
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isGuessing = true, error = null)
             val request = NgepetHiddenGuessRequest(
                 matchIntruderId = intruderMatchId,
                 itemName = itemName
@@ -561,12 +589,15 @@ class NgepetViewModel(
             val result = gamesRepository.ngepetMakeHiddenGuess(matchId, request)
             result.onSuccess { response ->
                 _uiState.value = _uiState.value.copy(
+                    isGuessing = false,
                     isLoading = false,
-                    guessResult = response
+                    guessResult = response,
+                    intruderGuessCount = _uiState.value.intruderGuessCount + 1
                 )
                 refreshMatchDetail()
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
+                    isGuessing = false,
                     isLoading = false,
                     error = e.message
                 )
