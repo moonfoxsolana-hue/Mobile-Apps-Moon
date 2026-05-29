@@ -3,7 +3,8 @@ package com.mysticnusa.app.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.gson.JsonElement
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.mysticnusa.app.data.models.*
 import com.mysticnusa.app.data.repository.GamesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,9 @@ data class NgepetUiState(
     val avatarShop: List<NgepetAvatarShopItem> = emptyList(),
     val history: List<NgepetHistoryItem> = emptyList(),
     val leaderboard: List<Any> = emptyList(),
+    val leaderboardHouse: List<NgepetLeaderboardHouseItem> = emptyList(),
+    val leaderboardHost: List<NgepetLeaderboardHostItem> = emptyList(),
+    val leaderboardIntruder: List<NgepetLeaderboardIntruderItem> = emptyList(),
     val leaderboardType: String = "house",
     val currentRole: String? = null,
     val currentMatchId: String? = null,
@@ -270,12 +274,43 @@ class NgepetViewModel(
                 else -> gamesRepository.getNgepetLeaderboardHouse()
             }
             result.onSuccess { response ->
+                val gson = Gson()
                 val dataArray = response.getAsJsonArray("data")
-                val items = dataArray?.map { it }?.toList() ?: emptyList()
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    leaderboard = items
-                )
+                when (type) {
+                    "house" -> {
+                        val items: List<NgepetLeaderboardHouseItem> = if (dataArray != null) {
+                            gson.fromJson(dataArray, object : TypeToken<List<NgepetLeaderboardHouseItem>>() {}.type)
+                        } else emptyList()
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            leaderboardHouse = items,
+                            leaderboard = items
+                        )
+                    }
+                    "host" -> {
+                        val items: List<NgepetLeaderboardHostItem> = if (dataArray != null) {
+                            gson.fromJson(dataArray, object : TypeToken<List<NgepetLeaderboardHostItem>>() {}.type)
+                        } else emptyList()
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            leaderboardHost = items,
+                            leaderboard = items
+                        )
+                    }
+                    "intruders" -> {
+                        val items: List<NgepetLeaderboardIntruderItem> = if (dataArray != null) {
+                            gson.fromJson(dataArray, object : TypeToken<List<NgepetLeaderboardIntruderItem>>() {}.type)
+                        } else emptyList()
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            leaderboardIntruder = items,
+                            leaderboard = items
+                        )
+                    }
+                    else -> {
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                    }
+                }
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,

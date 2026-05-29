@@ -67,7 +67,7 @@ data class NgepetIntruder(
     val status: String?,
     @SerializedName("intruders_at") val intrudersAt: String?,
     @SerializedName("guess_deadline") val guessDeadline: String?,
-    @SerializedName("is_pick_choice") val isPickChoice: Any?,
+    @SerializedName("is_pick_choice") val isPickChoice: Int?,
     val result: String?,
     @SerializedName("token_pool") val tokenPool: Int?,
     val avatar: NgepetAvatarInfo?
@@ -189,7 +189,7 @@ data class NgepetAvatarShopResponse(
 data class NgepetOwnedAvatar(
     val id: Int,
     @SerializedName("avatar_id") val avatarId: Int?,
-    @SerializedName("is_equipped") val isEquipped: Any?,
+    @SerializedName("is_equipped") val isEquipped: Int?,
     val avatar: NgepetAvatarDetail?
 )
 

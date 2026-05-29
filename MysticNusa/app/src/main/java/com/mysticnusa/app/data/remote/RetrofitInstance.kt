@@ -19,6 +19,7 @@ import javax.net.ssl.X509TrustManager
 object RetrofitInstance {
 
     private const val BASE_URL = "https://mystical-nusa.web.id/api/"
+    const val IMAGE_BASE_URL = "https://mystical-nusa.web.id/"
 
     var tokenManager: TokenManager? = null
         private set
@@ -70,19 +71,21 @@ object RetrofitInstance {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
 
-        // Trust all certificates for development (handles Let's Encrypt on older devices)
-        try {
-            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-                override fun checkClientTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
-                override fun checkServerTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
-                override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> = arrayOf()
-            })
-            val sslContext = SSLContext.getInstance("TLS")
-            sslContext.init(null, trustAllCerts, java.security.SecureRandom())
-            clientBuilder.sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
-            clientBuilder.hostnameVerifier { _, _ -> true }
-        } catch (e: Exception) {
-            // If SSL setup fails, just use default
+        // Trust all certificates for development only (handles Let's Encrypt on older devices)
+        if (BuildConfig.DEBUG) {
+            try {
+                val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+                    override fun checkClientTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
+                    override fun checkServerTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
+                    override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> = arrayOf()
+                })
+                val sslContext = SSLContext.getInstance("TLS")
+                sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+                clientBuilder.sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
+                clientBuilder.hostnameVerifier { _, _ -> true }
+            } catch (e: Exception) {
+                // If SSL setup fails, just use default
+            }
         }
 
         if (BuildConfig.DEBUG) {
