@@ -318,6 +318,178 @@ data class TarotReading(
     val createdAt: String? = null
 )
 
+// Trivia Room (Multiplayer)
+data class TriviaPlayerSimple(
+    val id: Int?,
+    val name: String?
+)
+
+data class TriviaRoomPlayerInfo(
+    @SerializedName("player_id")
+    val playerId: Int?,
+    @SerializedName("is_host")
+    val isHost: Boolean?,
+    @SerializedName("is_ready")
+    val isReady: Boolean?,
+    val player: TriviaPlayerSimple?,
+    val score: Int?,
+    val duration: Int?
+)
+
+data class TriviaRoomInfo(
+    val id: Int,
+    val name: String?,
+    val category: String?,
+    @SerializedName("max_players")
+    val maxPlayers: Int?,
+    val status: String?,
+    @SerializedName("host_id")
+    val hostId: Int?,
+    @SerializedName("join_code")
+    val joinCode: String?,
+    val players: List<TriviaRoomPlayerInfo>?,
+    @SerializedName("players_count")
+    val playersCount: Int?
+)
+
+data class TriviaRoomListResponse(
+    val status: String?,
+    @SerializedName("player_id")
+    val playerId: Int?,
+    @SerializedName("room_detail")
+    val roomDetail: TriviaRoomInfo?,
+    val rooms: List<TriviaRoomInfo>?
+)
+
+data class TriviaRoomActiveResponse(
+    val status: String?,
+    val state: String?,
+    @SerializedName("room_detail")
+    val roomDetail: TriviaRoomInfo?,
+    @SerializedName("player_id")
+    val playerId: Int?,
+    val question: TriviaQuestion?,
+    @SerializedName("current_question")
+    val currentQuestion: Int?,
+    @SerializedName("total_question")
+    val totalQuestion: Int?,
+    val complete: Boolean?,
+    @SerializedName("logic_mode")
+    val logicMode: Boolean?
+)
+
+data class TriviaRoomCreateRequest(
+    val name: String,
+    val category: String,
+    @SerializedName("max_players")
+    val maxPlayers: Int,
+    @SerializedName("join_code")
+    val joinCode: String? = null,
+    @SerializedName("logic_mode")
+    val logicMode: Boolean? = null
+)
+
+data class TriviaRoomJoinRequest(
+    @SerializedName("room_id")
+    val roomId: Int,
+    @SerializedName("join_code")
+    val joinCode: String? = null
+)
+
+data class TriviaRoomReadyRequest(
+    @SerializedName("room_id")
+    val roomId: Int,
+    @SerializedName("is_ready")
+    val isReady: Boolean
+)
+
+data class TriviaRoomKickRequest(
+    @SerializedName("room_id")
+    val roomId: Int,
+    @SerializedName("player_id")
+    val playerId: Int
+)
+
+data class TriviaRoomStartRequest(
+    @SerializedName("room_id")
+    val roomId: Int,
+    @SerializedName("question_count")
+    val questionCount: Int? = null
+)
+
+data class TriviaRoomAnswerRequest(
+    @SerializedName("room_id")
+    val roomId: Int,
+    @SerializedName("question_id")
+    val questionId: Int,
+    @SerializedName("selected_answer")
+    val selectedAnswer: String
+)
+
+data class TriviaRoomFinishRequest(
+    @SerializedName("room_id")
+    val roomId: Int
+)
+
+data class TriviaRoomExitRequest(
+    @SerializedName("room_id")
+    val roomId: Int
+)
+
+data class TriviaRoomActionResponse(
+    val status: String?,
+    val message: String?
+)
+
+data class TriviaRoomStartResponse(
+    val status: String?,
+    val message: String?,
+    @SerializedName("room_id")
+    val roomId: Int?,
+    val questions: TriviaQuestion?,
+    @SerializedName("current_question")
+    val currentQuestion: Int?,
+    @SerializedName("total_questions")
+    val totalQuestions: Int?,
+    @SerializedName("logic_mode")
+    val logicMode: Boolean?
+)
+
+data class TriviaRoomAnswerResponse(
+    val status: String?,
+    @SerializedName("is_correct")
+    val isCorrect: Boolean?,
+    @SerializedName("correct_answer")
+    val correctAnswer: String?,
+    @SerializedName("current_score")
+    val currentScore: Int?,
+    @SerializedName("next_question")
+    val nextQuestion: TriviaQuestion?,
+    @SerializedName("current_question")
+    val currentQuestion: Int?,
+    @SerializedName("total_question")
+    val totalQuestion: Int?,
+    val complete: Boolean?,
+    @SerializedName("logic_mode")
+    val logicMode: Boolean?
+)
+
+data class TriviaRoomLeaderboardEntry(
+    @SerializedName("player_id")
+    val playerId: Int?,
+    val name: String?,
+    val score: Int?,
+    val duration: Int?
+)
+
+data class TriviaRoomFinishResponse(
+    val status: String?,
+    val message: String?,
+    val leaderboard: List<TriviaRoomLeaderboardEntry>?,
+    @SerializedName("room_finished")
+    val roomFinished: Boolean?
+)
+
 // Ulartangga
 data class UlartanggaMatch(
     val id: Int,
