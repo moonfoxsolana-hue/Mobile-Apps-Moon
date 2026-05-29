@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Fix and enhance the Ngepet game intruder 'cari token' (guess hidden token) feature. Add animation when guessing, implement auto-lose when all attempts are exhausted, fix the host guessing flow to stay on the same UI without refresh, and split the intruders list into 2 tabs (Active and History).",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "In NgepetGameScreen.kt IntruderMatchView: Fix the 'Tebak Token Host' button flow. Currently it opens an ItemSelectionDialog that closes after selection. Instead of closing the dialog immediately, after calling viewModel.intruderGuessHidden(itemName), keep the dialog context alive. The GuessResultDialog already shows results - but after dismissing it (when isEnd==false), the user should be able to click 'Tebak Token Host' again without the page refreshing. The current code already handles this correctly via guessResult state. The key fix is: in the GuessResultDialog onDismiss, when isEnd is false, do NOT call refreshMatchDetail() - just clear the guess result so the user stays on the same view and can guess again.",
     "In NgepetViewModel.kt: Modify the clearGuessResult() logic. Currently in NgepetGameScreen.kt the GuessResultDialog onDismiss does: val isEnd = guessResult.isEnd == true; clearGuessResult(); if (isEnd) refreshMatchDetail(). This is correct for not refreshing on non-end. But we need to ensure the intruder view after a non-end guess still shows the 'Tebak Token Host' button. The current logic already supports this since hasPickedChoice remains true and the button is shown. This step is about verifying and not breaking existing flow.",
@@ -29,5 +29,5 @@
     "Verify GuessResultDialog shows appropriate messages for all win/lose scenarios"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 5 enhancements implemented successfully: (1) isGuessing state with InfiniteTransition pulsing animation, (2) intruderGuessCount + maxGuessAttempts tracking based on difficulty, (3) GuessResultDialog shows win/lose/try-again with color coding, (4) shouldReopenGuess + lastGuessedIntruderId for host guess re-open flow via LaunchedEffect, (5) TabRow with Aktif/Riwayat tabs filtering by intruder status. Brace balance verified. No build system available to run compilation."
 }
