@@ -133,14 +133,7 @@ fun StakingScreen(navController: NavController) {
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = MysticSurface,
-                contentColor = MysticGold,
-                indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                        height = 3.dp,
-                        color = MysticGold
-                    )
-                }
+                contentColor = MysticGold
             ) {
                 Tab(
                     selected = selectedTab == 0,

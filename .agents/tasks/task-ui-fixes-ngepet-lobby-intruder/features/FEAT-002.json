@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Major UI restructure of Ngepet Online lobby: move menus to bottom toolbar, add rules, show token balance, fix avatar selection on join, fix button text clipping",
+  "status": "completed",
+  "steps": [
+    "1. Add token balance to NgepetViewModel: Add `tokenBalance: String? = null` to NgepetUiState. Add a `loadTokenBalance()` function that calls `api.getProfile()` via a ProfileRepository instance (or directly via RetrofitInstance.api) and extracts `totalToken` from the UserProfile response. Call `loadTokenBalance()` in the ViewModel's `init` block alongside `checkActiveMatch()` and `loadMatches()`.",
+    "2. Add rules phase: Add `RULES` to the `NgepetPhase` enum in NgepetViewModel.kt. Add the RULES case to the `when` block in NgepetGameScreen's main content area. Also add it to the `goBack()` function mapping to LOBBY.",
+    "3. Restructure LobbyPhase UI - Top toolbar: The top toolbar Row should ONLY contain: (a) 'Buka Rumah' button (MysticButton with Modifier.weight(1f)) and (b) Refresh IconButton. Remove History, Leaderboard, and AvatarShop IconButtons from the top row.",
+    "4. Restructure LobbyPhase UI - Token display: Above the top toolbar, add a Row that shows the token balance. Display an AsyncImage with URL 'https://mystical-nusa.web.id/images/asset/mystic-nusa-token.png' (size 24.dp) followed by a Text showing `uiState.tokenBalance ?: '0'` in MysticGold color, bold. This mirrors the website's `.mystic-token-container` display.",
+    "5. Restructure LobbyPhase UI - Bottom toolbar: Add a BottomAppBar or a fixed Row at the bottom of the LobbyPhase screen. Use a Scaffold inside LobbyPhase (or modify the outer Scaffold to accept a bottomBar when in LOBBY phase). The bottom toolbar should contain 6 icon buttons in a Row with equal spacing: (a) Toggle/Hide icon (use Icons.Filled.Menu or VisibilityOff), (b) Inventory icon (use a backpack-like icon - Icons.Filled.Inventory2 or similar, or use Store), (c) Shop icon (Icons.Filled.Store), (d) Leaderboard icon (Icons.Filled.EmojiEvents), (e) History icon (Icons.Filled.History), (f) Rules icon (Icons.Filled.MenuBook or Description). Each button navigates to the respective phase. For hide/show, toggle visibility of the toolbar icons. Style: background MysticDarkBackground with some transparency, icons in MysticGold.",
+    "6. Add RulesPhase composable: Create a new `@Composable private fun RulesPhase(viewModel, uiState)` in NgepetGameScreen.kt. It should display the rules in a scrollable Column with two sections - 'Rules Pembuka Rumah (Host)' and 'Rules Babi Ngepet (Intruder)'. Hardcode the rules content from the website Blade template (resources/views/layouts/ngepet.blade.php rulesModal). Use MysticGold for headers, TextSecondary for rule items. Use bullet points or emoji prefixes matching the website.",
+    "7. Fix avatar selection when joining a room: In the JoinMatchPhase, the avatar selection LazyRow already exists and `viewModel.updateJoinPlayerAvatar(owned.avatarId)` is called on click. The issue is that `owned.avatarId` might be null (it's `Int?`). In the joinMatch() function in NgepetViewModel.kt, the `avatarId = state.joinPlayerAvatarId` is already passed to NgepetJoinRequest. Verify the NgepetJoinRequest model sends `avatar_id` in the JSON payload. If `joinPlayerAvatarId` is null but user has avatars, auto-select the equipped one: In JoinMatchPhase's LaunchedEffect, after loadOwnedAvatars, check if `uiState.joinPlayerAvatarId == null` and auto-select the equipped avatar (where `isEquipped == 1`).",
+    "8. Fix 'Buka Rumah' button text clipping in the lobby top toolbar: The MysticButton currently uses Modifier.weight(1f) in a Row with other buttons. After removing the extra icons from the top row (step 3), it will have more space. Additionally, ensure the MysticButton text does not clip by checking if it has `maxLines = 1` and `overflow = TextOverflow.Ellipsis` or by ensuring sufficient minWidth. The real fix is that after step 3 (removing other buttons), the weight(1f) gives it plenty of room. If MysticButton has internal padding issues, adjust to `Modifier.weight(1f).heightIn(min = 40.dp)` to ensure text fits."
+  ],
+  "acceptance_criteria": [
+    "Token balance is displayed above the top toolbar showing token amount with the Mystic Nusa token image",
+    "Top toolbar contains ONLY 'Buka Rumah' button and 'Refresh' icon - no other menus",
+    "Bottom toolbar contains 6 menu icons: hide/show toggle, inventory, shop, leaderboard, history, rules",
+    "Rules screen shows hardcoded rules matching the website content with host and intruder sections",
+    "Avatar selection works when joining a room - equipped avatar is auto-selected, avatar_id sent in payload",
+    "'Buka Rumah' button text is not clipped/truncated"
+  ],
+  "verification": [
+    "Check LobbyPhase top Row only has MysticButton('Buka Rumah') and Refresh IconButton",
+    "Check bottom toolbar/bar exists with icons for inventory, shop, leaderboard, history, rules",
+    "Check RulesPhase composable exists with hardcoded rules content",
+    "Check NgepetViewModel has tokenBalance in state and loadTokenBalance function",
+    "Check JoinMatchPhase has auto-selection of equipped avatar in LaunchedEffect"
+  ],
+  "blocked_reason": null,
+  "findings": "All changes implemented: 1) NgepetViewModel - added tokenBalance to state, loadTokenBalance() using RetrofitInstance.api.getProfile(), RULES phase in enum/goToPhase/goBack. 2) NgepetGameScreen - LobbyPhase restructured with token display row, simplified top toolbar (only Buka Rumah + Refresh), bottom toolbar Card with 6 menu items (hide/show toggle, inventory, shop, leaderboard, history, rules) with AnimatedVisibility. 3) RulesPhase added with tabbed layout (Host/Intruder rules). 4) JoinMatchPhase auto-selects equipped avatar via LaunchedEffect on ownedAvatars. Cannot run Android build in sandbox but code follows existing patterns and all imports verified."
+}

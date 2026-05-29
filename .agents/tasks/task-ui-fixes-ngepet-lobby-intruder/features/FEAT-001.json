@@ -1,0 +1,26 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Fix build error in StakingScreen.kt, fix NewsDetailScreen image aspect ratio, add thumbnail and audio streaming to StoryDetailScreen",
+  "status": "completed",
+  "steps": [
+    "1. Fix StakingScreen.kt build error at line 139: Remove the custom `indicator` parameter from TabRow entirely. The `tabIndicatorOffset` extension is deprecated/removed in the Compose BOM 2024.06.00 version of Material3. Simply delete the `indicator = { tabPositions -> ... }` block (lines 136-142) so TabRow uses the default indicator behavior.",
+    "2. Fix NewsDetailScreen.kt: Change the AsyncImage modifier from `.fillMaxWidth().height(220.dp)` to `.fillMaxWidth().wrapContentHeight()` (remove fixed height). Change `contentScale = ContentScale.Crop` to `contentScale = ContentScale.FillWidth`. This makes the image display at full width with natural aspect ratio, not cropped. Keep the clip with rounded corners.",
+    "3. Fix StoryDetailScreen.kt - Add thumbnail image: Before the title Text, add an AsyncImage that displays `storyItem.imagePath` with the full URL constructed as `https://mystical-nusa.web.id/cerita/image/{storyItem.id}` (since imagePath is relative). Use `.fillMaxWidth().wrapContentHeight()` with `ContentScale.FillWidth` and rounded bottom corners, similar to NewsDetailScreen. Import coil.compose.AsyncImage, add `import androidx.compose.ui.draw.clip`, `import androidx.compose.ui.layout.ContentScale`, `import coil.compose.AsyncImage`.",
+    "4. Fix StoryDetailScreen.kt - Add audio streaming: Replace the placeholder audio button onClick with actual MediaPlayer usage. Add state variables `isPlaying` and a `remember { MediaPlayer() }` instance. On click, if not playing: prepare MediaPlayer with URL `https://mystical-nusa.web.id/cerita/audio/{storyItem.id}`, start it, set isPlaying=true. If playing: stop and reset, set isPlaying=false. Add a DisposableEffect to release the MediaPlayer on dispose. Change button text/icon based on isPlaying state. Import `android.media.MediaPlayer` and `androidx.compose.runtime.DisposableEffect`."
+  ],
+  "acceptance_criteria": [
+    "StakingScreen.kt no longer references `tabIndicatorOffset` - uses default TabRow indicator",
+    "NewsDetailScreen shows image at natural aspect ratio (no fixed 220.dp height, uses FillWidth content scale)",
+    "StoryDetailScreen displays a thumbnail image from the story's image URL before the title",
+    "StoryDetailScreen audio button streams audio from `https://mystical-nusa.web.id/cerita/audio/{id}` using MediaPlayer, with play/stop toggle"
+  ],
+  "verification": [
+    "Check StakingScreen.kt does not contain 'tabIndicatorOffset' string",
+    "Check NewsDetailScreen.kt uses ContentScale.FillWidth and wrapContentHeight() instead of height(220.dp) and ContentScale.Crop",
+    "Check StoryDetailScreen.kt contains AsyncImage with the image URL pattern",
+    "Check StoryDetailScreen.kt contains MediaPlayer setup with the audio URL pattern"
+  ],
+  "blocked_reason": null,
+  "findings": "All changes verified via grep - no tabIndicatorOffset references remain, NewsDetailScreen uses FillWidth and wrapContentHeight, StoryDetailScreen has AsyncImage and MediaPlayer with audio URL pattern. Cannot run Android build in sandbox but code is syntactically correct."
+}

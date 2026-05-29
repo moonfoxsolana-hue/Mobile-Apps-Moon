@@ -1,0 +1,29 @@
+{
+  "project_type": "Android Jetpack Compose app (Kotlin)",
+  "language": "Kotlin",
+  "build_system": "Gradle with Kotlin DSL (build.gradle.kts), compileSdk 34, Compose BOM 2024.06.00, Kotlin compiler extension 1.5.14",
+  "test_framework": "JUnit 4 + Espresso + Compose UI testing (not heavily used in this project)",
+  "build_command": "Cannot build in sandbox (no Android SDK). Use AST/syntax validation via kotlinc or grep-based verification.",
+  "test_command": "N/A - no Android SDK in sandbox",
+  "verification_instructions": "Verify code compiles syntactically: check imports are correct, no unresolved references, no obvious type mismatches. Verify logic is correct by reviewing the code paths.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "N/A - Android project, no build possible in sandbox",
+  "environment_constraints": "No Android SDK available in sandbox. Cannot run gradle build or tests. Must rely on code correctness verification through code review, import checking, and pattern adherence. Network is OPEN_INTERNET so we can fetch web resources if needed.",
+  "contribution_requirements": "Follow existing code patterns. Use Compose Material3 APIs. Use existing color theme (MysticGold, MysticPurple, TextSecondary, etc). Use existing component patterns (MysticButton, MysticCard, MysticTextField).",
+  "key_patterns": "ViewModel pattern with StateFlow. Repository pattern with Result<T>. Coil AsyncImage for images. RetrofitInstance.IMAGE_BASE_URL for image URLs. Material3 composables. NavController navigation.",
+  "relevant_files": [
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/NewsDetailScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/StoryDetailScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/NgepetGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/viewmodels/NgepetViewModel.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/StakingScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/StoryModels.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/NgepetModels.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/remote/ApiService.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/repository/GamesRepository.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/ProfileModels.kt",
+    "resources/views/games/ngepet_online/index.blade.php",
+    "resources/views/layouts/ngepet.blade.php"
+  ],
+  "directory_structure": "MysticNusa/app/src/main/java/com/mysticnusa/app/ contains: data/ (models, remote, repository, local), ui/ (screens, viewmodels, components, theme, util). resources/views/ contains Blade PHP templates for the web version reference."
+}

@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-004",
+  "type": "fix",
+  "description": "Address review feedback: fix MediaPlayer lifecycle race condition, remove duplicate Inventory button from lobby toolbar, fix image URL double-slash",
+  "status": "completed",
+  "steps": [
+    "1. Fix MediaPlayer lifecycle in StoryDetailScreen.kt: Move isPlaying = true inside setOnPreparedListener (after mp.start()), add setOnErrorListener to reset isPlaying = false, wrap mediaPlayer.stop() in try-catch for IllegalStateException when stop is called during prepareAsync, and call prepareAsync() after setting listeners.",
+    "2. Remove duplicate Inventory button from NgepetGameScreen.kt bottom toolbar: Since AVATAR_SHOP phase already has both Toko and Koleksi tabs, having both Inventory and Shop buttons is redundant. Remove the Inventory button, leaving 5 toolbar items: Toggle, Shop, Leaderboard, History, Rules. Also remove unused ShoppingBag icon import.",
+    "3. Fix image URL double-slash in StoryDetailScreen.kt: Change the URL from \"https://mystical-nusa.web.id/${storyItem.imagePath}\" to \"https://mystical-nusa.web.id/${storyItem.imagePath?.trimStart('/')}\" to prevent double-slash when imagePath starts with /."
+  ],
+  "acceptance_criteria": [
+    "isPlaying state is only set to true inside setOnPreparedListener after mp.start() - no premature UI state",
+    "setOnErrorListener is registered on MediaPlayer to reset isPlaying on error",
+    "mediaPlayer.stop() is wrapped in try-catch(IllegalStateException) to handle stop during prepareAsync",
+    "prepareAsync() is called after all listeners are set",
+    "Bottom toolbar has exactly 5 items: Toggle/Hide, Shop, Leaderboard, History, Rules",
+    "No duplicate navigation to AVATAR_SHOP from separate buttons",
+    "Image URL uses trimStart('/') to prevent double-slash"
+  ],
+  "verification": [
+    "Check StoryDetailScreen.kt: isPlaying = true is inside setOnPreparedListener callback",
+    "Check StoryDetailScreen.kt: setOnErrorListener is present",
+    "Check StoryDetailScreen.kt: stop() is wrapped in try-catch(IllegalStateException)",
+    "Check NgepetGameScreen.kt: no 'Inventory' button in bottom toolbar",
+    "Check NgepetGameScreen.kt: no ShoppingBag import",
+    "Check StoryDetailScreen.kt: trimStart('/') used in image URL"
+  ],
+  "blocked_reason": null,
+  "findings": "All three review fixes applied. Fix 3 (token balance silent failure) was explicitly marked as acceptable as-is in the task description, so no change made there."
+}

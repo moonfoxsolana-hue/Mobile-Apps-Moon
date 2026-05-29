@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.mysticnusa.app.data.models.*
+import com.mysticnusa.app.data.remote.RetrofitInstance
 import com.mysticnusa.app.data.repository.GamesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,12 +14,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 enum class NgepetPhase {
-    LOBBY, CREATE_MATCH, JOIN_MATCH, MATCH_ROOM, AVATAR_SHOP, LEADERBOARD, HISTORY
+    LOBBY, CREATE_MATCH, JOIN_MATCH, MATCH_ROOM, AVATAR_SHOP, LEADERBOARD, HISTORY, RULES
 }
 
 data class NgepetUiState(
     val isLoading: Boolean = false,
     val phase: NgepetPhase = NgepetPhase.LOBBY,
+    val tokenBalance: String? = null,
     val matches: List<NgepetMatchListItem> = emptyList(),
     val activeMatchData: NgepetActiveMatchData? = null,
     val matchDetail: NgepetMatchDetailResponse? = null,
@@ -77,6 +79,7 @@ class NgepetViewModel(
     init {
         checkActiveMatch()
         loadMatches()
+        loadTokenBalance()
     }
 
     // Navigation
@@ -91,6 +94,7 @@ class NgepetViewModel(
             }
             NgepetPhase.LEADERBOARD -> loadLeaderboard(_uiState.value.leaderboardType)
             NgepetPhase.HISTORY -> loadHistory()
+            NgepetPhase.RULES -> {}
             else -> {}
         }
     }
@@ -104,6 +108,7 @@ class NgepetViewModel(
             NgepetPhase.AVATAR_SHOP -> NgepetPhase.LOBBY
             NgepetPhase.LEADERBOARD -> NgepetPhase.LOBBY
             NgepetPhase.HISTORY -> NgepetPhase.LOBBY
+            NgepetPhase.RULES -> NgepetPhase.LOBBY
             else -> NgepetPhase.LOBBY
         }
         goToPhase(target)
@@ -232,6 +237,19 @@ class NgepetViewModel(
                     notificationCounter = bumpCounter()
                 )
             }
+        }
+    }
+
+    fun loadTokenBalance() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.getProfile()
+                if (response.isSuccessful) {
+                    response.body()?.let { profile ->
+                        _uiState.value = _uiState.value.copy(tokenBalance = profile.totalToken)
+                    }
+                }
+            } catch (_: Exception) { }
         }
     }
 
@@ -683,11 +701,15 @@ class NgepetViewModel(
             val result = gamesRepository.ngepetMakeHiddenGuess(matchId, request)
             result.onSuccess { response ->
                 val newGuessedItems = _uiState.value.guessedItemNames + itemName
+                val isWrongButContinues = response.isCorrect == false && response.isEnd != true
                 val shouldResetSelection = response.isEnd == true || response.isCorrect == true
                 _uiState.value = _uiState.value.copy(
                     isGuessing = false,
                     isLoading = false,
-                    guessResult = response,
+                    guessResult = if (isWrongButContinues) null else response,
+                    showGuessItemDialog = isWrongButContinues,
+                    message = if (isWrongButContinues) "Tebakan salah! Coba lagi" else null,
+                    notificationCounter = if (isWrongButContinues) bumpCounter() else _uiState.value.notificationCounter,
                     intruderGuessCount = _uiState.value.intruderGuessCount + 1,
                     guessedItemNames = newGuessedItems,
                     selectedHiddenItemId = if (shouldResetSelection) null else _uiState.value.selectedHiddenItemId
