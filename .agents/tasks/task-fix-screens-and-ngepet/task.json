@@ -1,0 +1,7 @@
+{
+  "task_id": "task-fix-screens-and-ngepet",
+  "task_description": "Fix blank News/Stories screens (missing API routes), fix Staking screen Boolean parsing error, and enhance Ngepet game: add guess animation for intruders, implement auto-lose logic, fix host guessing flow to stay on same UI, and split intruders list into Active/History tabs.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}

@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Fix and enhance the Ngepet game intruder 'cari token' (guess hidden token) feature. Add animation when guessing, implement auto-lose when all attempts are exhausted, fix the host guessing flow to stay on the same UI without refresh, and split the intruders list into 2 tabs (Active and History).",
+  "status": "pending",
+  "steps": [
+    "In NgepetGameScreen.kt IntruderMatchView: Fix the 'Tebak Token Host' button flow. Currently it opens an ItemSelectionDialog that closes after selection. Instead of closing the dialog immediately, after calling viewModel.intruderGuessHidden(itemName), keep the dialog context alive. The GuessResultDialog already shows results - but after dismissing it (when isEnd==false), the user should be able to click 'Tebak Token Host' again without the page refreshing. The current code already handles this correctly via guessResult state. The key fix is: in the GuessResultDialog onDismiss, when isEnd is false, do NOT call refreshMatchDetail() - just clear the guess result so the user stays on the same view and can guess again.",
+    "In NgepetViewModel.kt: Modify the clearGuessResult() logic. Currently in NgepetGameScreen.kt the GuessResultDialog onDismiss does: val isEnd = guessResult.isEnd == true; clearGuessResult(); if (isEnd) refreshMatchDetail(). This is correct for not refreshing on non-end. But we need to ensure the intruder view after a non-end guess still shows the 'Tebak Token Host' button. The current logic already supports this since hasPickedChoice remains true and the button is shown. This step is about verifying and not breaking existing flow.",
+    "Add guess animation in IntruderMatchView: When the user selects an item to guess, add a shake/pulse animation on the selected item before showing the result. Add an 'isGuessing' state to NgepetUiState (Boolean, default false). Set it to true when intruderGuessHidden is called, set it to false when the response comes back. In the IntruderMatchView, when isGuessing is true, show an animated overlay (e.g., a pulsing card with 'Menebak...' text and a rotating/scaling animation using Compose animateFloatAsState or InfiniteTransition).",
+    "Handle auto-lose for intruders: In NgepetViewModel.kt intruderGuessHidden(), after receiving the guess response, check if is_end is true and is_correct is false. In this case, the intruder has lost (all attempts exhausted - the API already handles this server-side by setting status to 'end' and result to 'lose'). The GuessResultDialog already shows 'Tebakan Salah!' and 'Match Selesai' when isEnd==true. Enhance the dialog to show a clear 'Kamu Kalah!' message when isCorrect==false && isEnd==true, with the answer revealed. Also show remaining attempts count in the UI - add a field to track guess attempts. Since the API doesn't return remaining attempts in the guess response, track it client-side in NgepetUiState (intruderGuessCount: Int = 0, maxGuessAttempts: Int = 5). Increment on each guess. Determine maxGuessAttempts from matchDetail.difficulty (easy=5, medium=4, hard=3).",
+    "Fix host guessing flow in HostMatchView: Currently showGuessDialog holds the intruder ID as String?. When the host selects an item, it calls viewModel.hostGuess(intruderId, itemName) and sets showGuessDialog = null. The GuessResultDialog then appears. On dismiss (if !isEnd), the dialog closes and the host must find the intruder card and click 'Tebak' again. Fix: After the GuessResultDialog is dismissed (when isEnd==false), automatically re-open the guess dialog for the same intruder. Add a 'lastGuessedIntruderId' state. In the onDismiss of GuessResultDialog, if !isEnd, set showGuessDialog back to lastGuessedIntruderId. This way the host can keep guessing the same intruder without navigating away.",
+    "Split intruders list in HostMatchView into 2 tabs: 'Aktif' and 'Riwayat'. Active intruders are those with status in ['join', 'wait']. History intruders are those with status 'end'. Add a TabRow with 2 tabs above the intruders list. Filter the intruders list based on selected tab. Show the 'Tebak' button only for active intruders with status 'wait'. History tab shows result (win/lose) for each intruder.",
+    "In the GuessResultDialog, enhance the display: When isEnd==true and isCorrect==false (intruder lost or host failed), show the correct answer item name prominently. When isEnd==true and isCorrect==true, show a victory message. Add some color differentiation - green for correct, red for wrong."
+  ],
+  "acceptance_criteria": [
+    "Intruder can click 'Tebak Token Host', select an item, see a guessing animation, then see the result dialog",
+    "After dismissing a non-final guess result, the intruder stays on the same view and can guess again without page refresh",
+    "When intruder exhausts all attempts (wrong guesses), the dialog clearly shows 'Kamu Kalah!' with the correct answer",
+    "Host can guess an intruder's location, see the result, and if wrong (not final), the guess dialog re-opens for the same intruder",
+    "Intruders section in host view has 2 tabs: 'Aktif' (active intruders) and 'Riwayat' (ended intruders)",
+    "A guessing animation (pulse/loading) is shown while waiting for the API response",
+    "Kotlin files have valid syntax structure"
+  ],
+  "verification": [
+    "Review the IntruderMatchView code to confirm animation state and button re-display logic",
+    "Review the HostMatchView code to confirm the guess dialog re-opens after non-final guess",
+    "Review the intruders section to confirm 2-tab structure with correct filtering",
+    "Verify NgepetViewModel.kt has isGuessing state and intruderGuessCount tracking",
+    "Verify GuessResultDialog shows appropriate messages for all win/lose scenarios"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

@@ -9,6 +9,8 @@ use App\Http\Controllers\StakingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\YoutubeConfigController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\AiStoryController;
 use App\Http\Controllers\Api\NgepetMatchController;
 use App\Http\Controllers\Api\NgepetAvatarController;
 use App\Http\Controllers\Api\IntuitionGameController;
@@ -47,6 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/staking/cancel/{id}', [StakingController::class, 'cancel']);
     Route::get('/token-history', [ProfileController::class, 'tokenHistory']);
     Route::post('/story/agent', [AgenticAIController::class, 'agentic']);
+
+    Route::get('/news', [NewsController::class, 'list']);
+    Route::get('/stories', [AiStoryController::class, 'list']);
 
     Route::prefix('v1/admin/content')->group(function () {
         // Endpoint: /api/v1/admin/content/general
