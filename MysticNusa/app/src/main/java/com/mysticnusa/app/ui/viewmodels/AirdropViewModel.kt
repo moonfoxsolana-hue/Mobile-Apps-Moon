@@ -8,6 +8,7 @@ import com.mysticnusa.app.data.repository.AirdropRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class AirdropUiState(
@@ -25,53 +26,59 @@ class AirdropViewModel(
     private val _uiState = MutableStateFlow(AirdropUiState())
     val uiState: StateFlow<AirdropUiState> = _uiState.asStateFlow()
 
-    private fun bumpCounter() = _uiState.value.notificationCounter + 1
-
     fun clearMessage() {
-        _uiState.value = _uiState.value.copy(claimResponse = null)
+        _uiState.update { it.copy(claimResponse = null, notificationCounter = it.notificationCounter + 1) }
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
+        _uiState.update { it.copy(error = null, notificationCounter = it.notificationCounter + 1) }
     }
 
     fun claimFirst(walletAddress: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.update { it.copy(isLoading = true, error = null) }
             val result = airdropRepository.claimFirst(walletAddress)
             result.onSuccess { response ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    claimResponse = response,
-                    hasClaimed = true,
-                    notificationCounter = bumpCounter()
-                )
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        claimResponse = response,
+                        hasClaimed = true,
+                        notificationCounter = it.notificationCounter + 1
+                    )
+                }
             }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = error.message,
-                    notificationCounter = bumpCounter()
-                )
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = error.message,
+                        notificationCounter = it.notificationCounter + 1
+                    )
+                }
             }
         }
     }
 
     fun claimWithCode(code: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.update { it.copy(isLoading = true, error = null) }
             val result = airdropRepository.claimWithCode(code)
             result.onSuccess { response ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    claimResponse = response,
-                    notificationCounter = bumpCounter()
-                )
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        claimResponse = response,
+                        notificationCounter = it.notificationCounter + 1
+                    )
+                }
             }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = error.message,
-                    notificationCounter = bumpCounter()
-                )
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = error.message,
+                        notificationCounter = it.notificationCounter + 1
+                    )
+                }
             }
         }
     }

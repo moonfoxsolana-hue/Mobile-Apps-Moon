@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.compose.ui.graphics.painter.ColorPainter
 import coil.compose.AsyncImage
 import com.mysticnusa.app.navigation.Screen
 import com.mysticnusa.app.ui.components.BottomNavBar
@@ -110,7 +111,9 @@ fun GamesScreen(navController: NavController) {
                                 .fillMaxWidth()
                                 .aspectRatio(4f / 3f)
                                 .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
+                            placeholder = ColorPainter(MysticSurface),
+                            error = ColorPainter(MysticSurface)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
