@@ -27,6 +27,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +37,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.animation.core.InfiniteTransition
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -807,6 +814,15 @@ private fun HostMatchView(
 ) {
     var showHideTokenDialog by remember { mutableStateOf(false) }
     var showGuessDialog by remember { mutableStateOf<String?>(null) } // intruder ID
+    var intruderTab by remember { mutableIntStateOf(0) }
+
+    // Observe shouldReopenGuess from ViewModel
+    LaunchedEffect(uiState.shouldReopenGuess) {
+        if (uiState.shouldReopenGuess && uiState.lastGuessedIntruderId != null) {
+            showGuessDialog = uiState.lastGuessedIntruderId
+            viewModel.clearReopenGuess()
+        }
+    }
 
     // Hide token dialog
     if (showHideTokenDialog) {
@@ -936,14 +952,43 @@ private fun HostMatchView(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Intruders section
-        Text("Intruders", color = MysticGold, fontWeight = FontWeight.Bold)
+        // Intruders section with tabs
+        val allIntruders = matchDetail.intruders ?: emptyList()
+        val activeIntruders = allIntruders.filter { it.status == "join" || it.status == "wait" }
+        val historyIntruders = allIntruders.filter { it.status == "end" }
+
+        val intruderTabs = listOf("Aktif", "Riwayat")
+        TabRow(
+            selectedTabIndex = intruderTab,
+            containerColor = MysticDarkBackground,
+            contentColor = MysticGold
+        ) {
+            intruderTabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = intruderTab == index,
+                    onClick = { intruderTab = index },
+                    text = {
+                        Text(
+                            title,
+                            color = if (intruderTab == index) MysticGold else TextSecondary
+                        )
+                    }
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
-        val intruders = matchDetail.intruders ?: emptyList()
-        if (intruders.isEmpty()) {
-            Text("Belum ada intruder", color = TextSecondary, fontSize = 12.sp)
+
+        val displayedIntruders = if (intruderTab == 0) activeIntruders else historyIntruders
+
+        if (displayedIntruders.isEmpty()) {
+            Text(
+                text = if (intruderTab == 0) "Belum ada intruder aktif" else "Belum ada riwayat",
+                color = TextSecondary,
+                fontSize = 12.sp
+            )
         } else {
-            intruders.forEach { intruder ->
+            displayedIntruders.forEach { intruder ->
                 Card(
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = MysticSurface),
@@ -975,10 +1020,14 @@ private fun HostMatchView(
                                 fontSize = 11.sp
                             )
                             intruder.result?.let {
-                                Text("Result: $it", color = SuccessColor, fontSize = 11.sp)
+                                Text(
+                                    "Result: $it",
+                                    color = if (it == "win") SuccessColor else DifficultyHard,
+                                    fontSize = 11.sp
+                                )
                             }
                         }
-                        if (intruder.status == "wait") {
+                        if (intruderTab == 0 && intruder.status == "wait") {
                             Button(
                                 onClick = { showGuessDialog = intruder.id },
                                 colors = ButtonDefaults.buttonColors(
@@ -1062,6 +1111,48 @@ private fun IntruderMatchView(
     // Find current intruder
     val currentIntruder = matchDetail.intruders?.find { it.id == uiState.currentIntruderMatchId }
     val hasPickedChoice = currentIntruder?.isPickChoice != null && currentIntruder.isPickChoice != 0
+
+    // Guessing animation
+    if (uiState.isGuessing) {
+        val infiniteTransition = rememberInfiniteTransition(label = "guessing")
+        val scale by infiniteTransition.animateFloat(
+            initialValue = 0.9f,
+            targetValue = 1.1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(600),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulseScale"
+        )
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .scale(scale)
+                    .padding(32.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MysticSurface)
+            ) {
+                Column(
+                    modifier = Modifier.padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(color = MysticGold)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Menebak...",
+                        color = MysticGold,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                }
+            }
+        }
+        return
+    }
 
     Column(
         modifier = Modifier
@@ -1189,11 +1280,25 @@ private fun IntruderMatchView(
                 }
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Guess attempts remaining - hide when match has ended server-side
+            val remaining = uiState.maxGuessAttempts - uiState.intruderGuessCount
+            if (currentIntruder?.status != "end") {
+                Text(
+                    text = "Sisa tebakan: $remaining / ${uiState.maxGuessAttempts}",
+                    color = if (remaining <= 1) DifficultyHard else TextSecondary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Guess hidden token button
             Button(
                 onClick = { showGuessHiddenDialog = true },
+                enabled = (uiState.maxGuessAttempts - uiState.intruderGuessCount) > 0,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MysticPurple,
                     contentColor = Color.White
@@ -1868,17 +1973,46 @@ private fun GuessResultDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (guessResult.isEnd == true) {
-                    Text(
-                        text = "Match Selesai",
-                        color = MysticGold,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    if (guessResult.isCorrect == true) {
+                        // Won
+                        Text(
+                            text = "Kamu Menang!",
+                            color = SuccessColor,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    } else {
+                        // Lost
+                        Text(
+                            text = "Kamu Kalah!",
+                            color = DifficultyHard,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
                     guessResult.answerItem?.let {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Jawaban: $it",
-                            color = TextSecondary
+                            color = MysticGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+                } else {
+                    // Game continues
+                    if (guessResult.isCorrect == true) {
+                        Text(
+                            text = "Lanjutkan!",
+                            color = SuccessColor,
+                            fontSize = 14.sp
+                        )
+                    } else {
+                        Text(
+                            text = "Coba lagi!",
+                            color = Color(0xFFf59e0b),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
                         )
                     }
                 }

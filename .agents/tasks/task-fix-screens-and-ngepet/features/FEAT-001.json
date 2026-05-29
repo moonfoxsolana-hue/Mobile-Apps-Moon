@@ -1,0 +1,26 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Fix News screen, Stories screen, and Staking screen errors. News and Stories are blank because the API routes do not exist in routes/api.php. Staking crashes because the API returns 'claimed' as an integer (0/1) but the Kotlin model expects Boolean.",
+  "status": "completed",
+  "steps": [
+    "Add API routes for news and stories in routes/api.php. Add inside the auth:sanctum middleware group: Route::get('/news', [NewsController::class, 'list']); and Route::get('/stories', [AiStoryController::class, 'list']); - these call the existing 'list' methods that already return paginated JSON. Also add the import for AiStoryController at the top of the file.",
+    "Fix StakingModels.kt: Change 'val claimed: Boolean?' to 'val claimed: Int?' in the UserStaking data class. The API returns 0 or 1 as integers from the database 'claimed' column.",
+    "Fix StakingScreen.kt: Update the claim button visibility condition from 'if (staking.status == \"active\")' - ensure it still works correctly since claimed is now Int? (the status field already handles this, so no change needed in the screen itself, but verify the condition 'staking.claimed' is not used directly).",
+    "Verify that the StakingViewModel and StakingRepository do not reference 'claimed' as Boolean anywhere that would break."
+  ],
+  "acceptance_criteria": [
+    "routes/api.php contains GET /news route pointing to NewsController::list",
+    "routes/api.php contains GET /stories route pointing to AiStoryController::list",
+    "UserStaking.claimed is typed as Int? instead of Boolean?",
+    "PHP syntax is valid (php -l on modified files)",
+    "Kotlin model matches the JSON response format from the API"
+  ],
+  "verification": [
+    "Run php -l on routes/api.php to verify valid PHP syntax",
+    "Visually inspect that the routes are correctly placed inside the auth:sanctum middleware group",
+    "Verify StakingModels.kt has claimed as Int? type"
+  ],
+  "blocked_reason": null,
+  "findings": "NewsController was NOT already imported in api.php (contrary to task description), so both NewsController and AiStoryController imports were added. No Kotlin code references .claimed anywhere, so changing Boolean? to Int? has no downstream impact."
+}

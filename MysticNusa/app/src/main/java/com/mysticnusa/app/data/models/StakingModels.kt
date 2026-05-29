@@ -29,7 +29,7 @@ data class UserStaking(
     @SerializedName("end_date")
     val endDate: String?,
     val status: String?,
-    val claimed: Boolean?
+    val claimed: Int?
 )
 
 data class StakeRequest(
