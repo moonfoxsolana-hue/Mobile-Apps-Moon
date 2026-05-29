@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "fix",
   "description": "Fix build error in StakingScreen.kt, fix NewsDetailScreen image aspect ratio, add thumbnail and audio streaming to StoryDetailScreen",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Fix StakingScreen.kt build error at line 139: Remove the custom `indicator` parameter from TabRow entirely. The `tabIndicatorOffset` extension is deprecated/removed in the Compose BOM 2024.06.00 version of Material3. Simply delete the `indicator = { tabPositions -> ... }` block (lines 136-142) so TabRow uses the default indicator behavior.",
     "2. Fix NewsDetailScreen.kt: Change the AsyncImage modifier from `.fillMaxWidth().height(220.dp)` to `.fillMaxWidth().wrapContentHeight()` (remove fixed height). Change `contentScale = ContentScale.Crop` to `contentScale = ContentScale.FillWidth`. This makes the image display at full width with natural aspect ratio, not cropped. Keep the clip with rounded corners.",
@@ -22,5 +22,5 @@
     "Check StoryDetailScreen.kt contains MediaPlayer setup with the audio URL pattern"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All changes verified via grep - no tabIndicatorOffset references remain, NewsDetailScreen uses FillWidth and wrapContentHeight, StoryDetailScreen has AsyncImage and MediaPlayer with audio URL pattern. Cannot run Android build in sandbox but code is syntactically correct."
 }
