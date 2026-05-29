@@ -1282,20 +1282,23 @@ private fun IntruderMatchView(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Guess attempts remaining
+            // Guess attempts remaining - hide when match has ended server-side
             val remaining = uiState.maxGuessAttempts - uiState.intruderGuessCount
-            Text(
-                text = "Sisa tebakan: $remaining / ${uiState.maxGuessAttempts}",
-                color = if (remaining <= 1) DifficultyHard else TextSecondary,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold
-            )
+            if (currentIntruder?.status != "end") {
+                Text(
+                    text = "Sisa tebakan: $remaining / ${uiState.maxGuessAttempts}",
+                    color = if (remaining <= 1) DifficultyHard else TextSecondary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Guess hidden token button
             Button(
                 onClick = { showGuessHiddenDialog = true },
+                enabled = (uiState.maxGuessAttempts - uiState.intruderGuessCount) > 0,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MysticPurple,
                     contentColor = Color.White

@@ -113,6 +113,9 @@ class NgepetViewModel(
 
     fun clearGuessResult() {
         val currentResult = _uiState.value.guessResult
+        // Note: lastGuessedIntruderId is only ever set by hostGuess(), so the re-open
+        // mechanism (shouldReopenGuess) only fires for the host role. For the intruder
+        // path, lastGuessedIntruderId remains null and shouldReopen evaluates to false.
         val shouldReopen = currentResult?.isEnd == false && _uiState.value.lastGuessedIntruderId != null
         _uiState.value = _uiState.value.copy(
             guessResult = null,
@@ -228,7 +231,8 @@ class NgepetViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             val result = gamesRepository.getNgepetMatchDetail(matchId)
             result.onSuccess { response ->
-                val maxAttempts = if (_uiState.value.currentRole == "intruder") {
+                val isIntruder = _uiState.value.currentRole == "intruder"
+                val maxAttempts = if (isIntruder) {
                     when (response.match?.difficulty?.lowercase()) {
                         "easy" -> 5
                         "medium" -> 4
@@ -241,7 +245,8 @@ class NgepetViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     matchDetail = response,
-                    maxGuessAttempts = maxAttempts
+                    maxGuessAttempts = maxAttempts,
+                    intruderGuessCount = if (isIntruder) 0 else _uiState.value.intruderGuessCount
                 )
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(
@@ -529,7 +534,8 @@ class NgepetViewModel(
                     currentRole = "intruder",
                     message = message,
                     showMatchDetailDialog = false,
-                    selectedMatchForJoin = null
+                    selectedMatchForJoin = null,
+                    intruderGuessCount = 0
                 )
                 // Load active match to get intruder_match_id
                 val activeResult = gamesRepository.getNgepetActiveMatch()
