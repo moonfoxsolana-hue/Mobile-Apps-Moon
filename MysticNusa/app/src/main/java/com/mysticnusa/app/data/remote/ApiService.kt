@@ -68,6 +68,40 @@ interface ApiService {
     @GET("trivia/leaderboard")
     suspend fun getTriviaLeaderboard(): Response<List<LeaderboardEntry>>
 
+    @GET("trivia/statistics")
+    suspend fun getTriviaStatistics(): Response<TriviaStatisticsResponse>
+
+    // Trivia Room (Multiplayer)
+    @GET("trivia/room/list")
+    suspend fun getTriviaRoomList(): Response<TriviaRoomListResponse>
+
+    @GET("trivia/room/active-room")
+    suspend fun getTriviaActiveRoom(): Response<TriviaRoomActiveResponse>
+
+    @POST("trivia/room/create")
+    suspend fun createTriviaRoom(@Body request: TriviaRoomCreateRequest): Response<TriviaRoomListResponse>
+
+    @POST("trivia/room/join")
+    suspend fun joinTriviaRoom(@Body request: TriviaRoomJoinRequest): Response<TriviaRoomListResponse>
+
+    @POST("trivia/room/ready")
+    suspend fun readyTriviaRoom(@Body request: TriviaRoomReadyRequest): Response<TriviaRoomActionResponse>
+
+    @POST("trivia/room/kick")
+    suspend fun kickTriviaPlayer(@Body request: TriviaRoomKickRequest): Response<TriviaRoomActionResponse>
+
+    @POST("trivia/room/start")
+    suspend fun startTriviaRoom(@Body request: TriviaRoomStartRequest): Response<TriviaRoomStartResponse>
+
+    @POST("trivia/room/answer")
+    suspend fun answerTriviaRoom(@Body request: TriviaRoomAnswerRequest): Response<TriviaRoomAnswerResponse>
+
+    @POST("trivia/room/finish")
+    suspend fun finishTriviaRoom(@Body request: TriviaRoomFinishRequest): Response<TriviaRoomFinishResponse>
+
+    @POST("trivia/room/exit")
+    suspend fun exitTriviaRoom(@Body request: TriviaRoomExitRequest): Response<TriviaRoomActionResponse>
+
     // Logical
     @POST("logical/start")
     suspend fun startLogical(): Response<LogicalStartResponse>

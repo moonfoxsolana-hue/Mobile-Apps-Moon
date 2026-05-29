@@ -92,6 +92,205 @@ class GamesRepository {
         }
     }
 
+    suspend fun getTriviaStatistics(): Result<TriviaStatisticsResponse> {
+        return try {
+            val response = api.getTriviaStatistics()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get trivia statistics: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Trivia Room (Multiplayer)
+    suspend fun getTriviaRoomList(): Result<TriviaRoomListResponse> {
+        return try {
+            val response = api.getTriviaRoomList()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get room list: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getTriviaActiveRoom(): Result<TriviaRoomActiveResponse> {
+        return try {
+            val response = api.getTriviaActiveRoom()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get active room: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun createTriviaRoom(request: TriviaRoomCreateRequest): Result<TriviaRoomListResponse> {
+        return try {
+            val response = api.createTriviaRoom(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to create room: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun joinTriviaRoom(request: TriviaRoomJoinRequest): Result<TriviaRoomListResponse> {
+        return try {
+            val response = api.joinTriviaRoom(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to join room: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun readyTriviaRoom(request: TriviaRoomReadyRequest): Result<TriviaRoomActionResponse> {
+        return try {
+            val response = api.readyTriviaRoom(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to ready: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun kickTriviaPlayer(request: TriviaRoomKickRequest): Result<TriviaRoomActionResponse> {
+        return try {
+            val response = api.kickTriviaPlayer(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to kick player: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun startTriviaRoom(request: TriviaRoomStartRequest): Result<TriviaRoomStartResponse> {
+        return try {
+            val response = api.startTriviaRoom(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to start room: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun answerTriviaRoom(request: TriviaRoomAnswerRequest): Result<TriviaRoomAnswerResponse> {
+        return try {
+            val response = api.answerTriviaRoom(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to answer room question: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun finishTriviaRoom(request: TriviaRoomFinishRequest): Result<TriviaRoomFinishResponse> {
+        return try {
+            val response = api.finishTriviaRoom(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to finish room: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun exitTriviaRoom(request: TriviaRoomExitRequest): Result<TriviaRoomActionResponse> {
+        return try {
+            val response = api.exitTriviaRoom(request)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to exit room: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // Logical
     suspend fun startLogical(): Result<LogicalStartResponse> {
         return try {

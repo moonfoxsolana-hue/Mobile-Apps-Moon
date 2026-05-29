@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-003",
+  "type": "fix",
+  "description": "Fix multiple issues in the Ngepet game: (1) After selecting a mystery box once, keep using that selectedHiddenItemId for subsequent guesses without requiring re-selection. (2) When the match ends (guessResult.isEnd == true or intruder status == 'end'), automatically redirect to LOBBY phase. (3) When a player joins a new match (joinMatch or checkActiveMatch), reset guessedItemNames to empty so previously greyed items are clickable again. (4) Show a candle animation when the intruder has already picked their hiding spot (hasPickedChoice == true). (5) Center all item images in all views (host items grid, intruder items grid, item selection dialogs, avatar shop, avatar collection).",
+  "status": "completed",
+  "steps": [
+    "Step 1 - Fix mystery box re-selection: In NgepetViewModel.kt, modify intruderGuessHidden() to NOT reset selectedHiddenItemId after a wrong guess (only reset when isEnd==true or isCorrect==true - which is already done). Then modify the IntruderMatchView in NgepetGameScreen.kt: when selectedHiddenItemId is already set (not null), change the 'Tebak Token Host' button to directly open the item guess dialog (showGuessItemDialog=true) instead of showing the hidden item grid. Only show the hidden item grid if selectedHiddenItemId is null.",
+    "Step 2 - Auto-redirect to lobby on game end: In NgepetViewModel.kt, modify intruderGuessHidden() to detect when guessResult.isEnd==true and schedule navigation to LOBBY. Also in clearGuessResult(), after an isEnd==true result is dismissed, trigger goToPhase(LOBBY) and clear match state (currentMatchId=null, currentRole=null, etc). Similarly for the host: when closeMatch succeeds (already goes to LOBBY). Also add detection in refreshMatchDetail(): if the match status from server is 'closed' or current intruder status is 'end', transition to LOBBY.",
+    "Step 3 - Reset guessedItemNames on new match: In NgepetViewModel.kt, in joinMatch() (success handler) add guessedItemNames=emptySet(). In checkActiveMatch() (success handler) add guessedItemNames=emptySet(). This ensures when a player starts a new game, the greyed-out items from the previous game are cleared.",
+    "Step 4 - Candle animation when intruder has picked: In NgepetGameScreen.kt IntruderMatchView, in the 'hasPickedChoice' section (after 'Kamu sudah bersembunyi!' card), add a candle animation using Jetpack Compose animation. Use an InfiniteTransition with a flickering alpha animation (simulating candle flame). Display a candle emoji or icon with animated glow effect using Box with animating background gradient or shadow.",
+    "Step 5 - Center all item images: In NgepetGameScreen.kt, find all AsyncImage composables that display item images and ensure they use Alignment.Center within their parent Box/Column. Specifically: (a) In HostMatchView items grid, wrap AsyncImage in a Box with contentAlignment=Center. (b) In IntruderMatchView items grid (pick hiding spot), same treatment. (c) In ItemSelectionDialog, same. (d) In ItemSelectionDialogWithGreyed, same. (e) In AvatarShopTab, the AsyncImage already uses Alignment.CenterHorizontally on Column - ensure the image itself fills the allocated space properly with ContentScale.Fit instead of Crop to prevent cutting. (f) In AvatarCollectionTab, same - use ContentScale.Fit. (g) In LobbyMatchCard house avatar. (h) In HiddenItemGridDialog mystery box images."
+  ],
+  "acceptance_criteria": [
+    "After selecting a mystery box, subsequent 'Tebak Token Host' clicks go directly to item selection dialog without showing mystery box grid again",
+    "When a game ends (isEnd==true), after dismissing the result dialog the user is automatically navigated back to LOBBY",
+    "When joining a new match, all items in the guess dialog are clickable (not greyed out from previous match)",
+    "A candle/flame animation is visible when intruder has already picked their hiding spot",
+    "All item images are visually centered in their containers across all views (host, intruder, dialogs, shop, collection)"
+  ],
+  "verification": [
+    "In NgepetViewModel.kt, verify selectedHiddenItemId persists across wrong guesses",
+    "In NgepetViewModel.kt, verify goToPhase(LOBBY) is called after game end",
+    "In NgepetViewModel.kt, verify guessedItemNames = emptySet() in joinMatch success and checkActiveMatch success",
+    "In NgepetGameScreen.kt, verify InfiniteTransition animation exists in hasPickedChoice section",
+    "In NgepetGameScreen.kt, verify all AsyncImage use ContentScale.Fit or are wrapped in centered Box"
+  ],
+  "blocked_reason": null,
+  "findings": "All 5 fixes implemented successfully: (1) Mystery box re-selection fixed by checking selectedHiddenItemId before showing grid. (2) Auto-redirect to LOBBY on game end via clearGuessResult() and refreshMatchDetail() detecting closed/end status. (3) guessedItemNames/intruderGuessCount/selectedHiddenItemId reset in joinMatch and checkActiveMatch. (4) Candle animation added using InfiniteTransition with flickerAlpha and floatY animations, displayed as emoji with gold glow. (5) All AsyncImage uses changed from ContentScale.Crop to ContentScale.Fit, item images wrapped in centered Box containers. No build/test execution possible (no Android SDK in sandbox)."
+}

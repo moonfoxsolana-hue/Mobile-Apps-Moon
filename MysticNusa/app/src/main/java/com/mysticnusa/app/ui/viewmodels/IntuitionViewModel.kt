@@ -20,7 +20,13 @@ data class IntuitionUiState(
     val isComplete: Boolean = false,
     val lastAnswerCorrect: Boolean? = null,
     val showFeedback: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val statisticsData: IntuitionStatisticsResponse? = null,
+    val leaderboard: List<LeaderboardEntry> = emptyList(),
+    val showStats: Boolean = false,
+    val showLeaderboard: Boolean = false,
+    val statsLoading: Boolean = false,
+    val leaderboardLoading: Boolean = false
 )
 
 class IntuitionViewModel(
@@ -123,6 +129,72 @@ class IntuitionViewModel(
                     error = e.message ?: "Terjadi kesalahan"
                 )
             }
+        }
+    }
+
+    fun loadStatistics() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(statsLoading = true)
+            try {
+                val result = gamesRepository.getIntuitionStatistics()
+                result.onSuccess { response ->
+                    _uiState.value = _uiState.value.copy(
+                        statsLoading = false,
+                        statisticsData = response
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        statsLoading = false,
+                        error = error.message ?: "Gagal memuat statistik"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    statsLoading = false,
+                    error = e.message ?: "Terjadi kesalahan"
+                )
+            }
+        }
+    }
+
+    fun loadLeaderboard() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(leaderboardLoading = true)
+            try {
+                val result = gamesRepository.getIntuitionLeaderboard()
+                result.onSuccess { response ->
+                    _uiState.value = _uiState.value.copy(
+                        leaderboardLoading = false,
+                        leaderboard = response
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        leaderboardLoading = false,
+                        error = error.message ?: "Gagal memuat leaderboard"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    leaderboardLoading = false,
+                    error = e.message ?: "Terjadi kesalahan"
+                )
+            }
+        }
+    }
+
+    fun toggleStats() {
+        val newShowStats = !_uiState.value.showStats
+        _uiState.value = _uiState.value.copy(showStats = newShowStats, showLeaderboard = false)
+        if (newShowStats && _uiState.value.statisticsData == null) {
+            loadStatistics()
+        }
+    }
+
+    fun toggleLeaderboard() {
+        val newShowLeaderboard = !_uiState.value.showLeaderboard
+        _uiState.value = _uiState.value.copy(showLeaderboard = newShowLeaderboard, showStats = false)
+        if (newShowLeaderboard && _uiState.value.leaderboard.isEmpty()) {
+            loadLeaderboard()
         }
     }
 

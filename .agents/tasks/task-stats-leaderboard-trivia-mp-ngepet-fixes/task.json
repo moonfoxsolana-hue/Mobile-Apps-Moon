@@ -1,0 +1,14 @@
+{
+  "task_id": "task-stats-leaderboard-trivia-mp-ngepet-fixes",
+  "task_description": "Add statistics and leaderboard features to Intuition, Logical, and Trivia games. Implement Trivia multiplayer room mode. Fix Ngepet game issues: mystery box re-selection, auto-redirect to lobby on game end, reset greyed items on new match, candle animation after hiding, center all item images.",
+  "status": "completed",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null,
+  "verification": {
+    "build": "skipped",
+    "tests": "skipped",
+    "test_quality": "skipped",
+    "docker_build": "skipped",
+    "summary": "Android project - cannot build or test in sandbox. Code validated through semantic review (v1). All review issues addressed in follow-up commit. 2426 lines added across 17 files on branch feature/stats-leaderboard-games."
+  }
+}

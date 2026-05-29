@@ -1,0 +1,31 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Add Trivia Multiplayer Room mode to the Android app. The backend API already fully supports multiplayer rooms with these endpoints: POST /trivia/room/create, POST /trivia/room/join, GET /trivia/room/list, GET /trivia/room/active-room, POST /trivia/room/ready, POST /trivia/room/kick, POST /trivia/room/start, POST /trivia/room/answer, POST /trivia/room/finish, POST /trivia/room/exit. The web blade template shows the full multiplayer flow: list rooms -> create/join -> lobby (ready/kick/start) -> questions with timer -> result leaderboard with polling. This needs to be fully implemented in the Android app.",
+  "status": "completed",
+  "steps": [
+    "Step 1: Add Trivia Room models to GameModels.kt. Create data classes: TriviaRoom (id, name, category, max_players, status, host_id, join_code, players_count, players), TriviaRoomPlayer (player_id, player, is_host, is_ready, score, duration), TriviaRoomCreateRequest (name, category, max_players, join_code, logic_mode), TriviaRoomJoinRequest (room_id, join_code), TriviaRoomReadyRequest (room_id, is_ready), TriviaRoomKickRequest (room_id, player_id), TriviaRoomStartRequest (room_id, question_count), TriviaRoomAnswerRequest (room_id, question_id, selected_answer), TriviaRoomFinishRequest (room_id), TriviaRoomExitRequest (room_id), TriviaRoomListResponse (status, player_id, room_detail, rooms), TriviaRoomActiveResponse (status, state, room_detail, player_id, question, current_question, total_question, complete, logic_mode), TriviaRoomCreateResponse (status, player_id, message, room_detail), TriviaRoomJoinResponse (status, player_id, message, room_detail), TriviaRoomStartResponse (status, message, room_id, questions, current_question, total_questions, logic_mode), TriviaRoomAnswerResponse (status, is_correct, correct_answer, current_score, next_question, current_question, total_question, complete, logic_mode), TriviaRoomFinishResponse (status, message, leaderboard, room_finished), TriviaRoomLeaderboardEntry (player_id, name, score, duration), TriviaPlayerInfo (id, name).",
+    "Step 2: Add Trivia Room API endpoints to ApiService.kt: GET trivia/room/list, GET trivia/room/active-room, POST trivia/room/create, POST trivia/room/join, POST trivia/room/ready, POST trivia/room/kick, POST trivia/room/start, POST trivia/room/answer, POST trivia/room/finish, POST trivia/room/exit.",
+    "Step 3: Add Trivia Room repository methods to GamesRepository.kt: getTriviaRoomList(), getTriviaActiveRoom(), createTriviaRoom(), joinTriviaRoom(), readyTriviaRoom(), kickTriviaPlayer(), startTriviaRoom(), answerTriviaRoom(), finishTriviaRoom(), exitTriviaRoom().",
+    "Step 4: Update TriviaViewModel.kt to add multiplayer room state and functions. Add to TriviaUiState: roomPhase (enum: NONE, ROOM_LIST, ROOM_LOBBY, ROOM_PLAYING, ROOM_RESULT), rooms list, currentRoom, playerId, isHost, roomQuestion, roomLeaderboard, etc. Add functions: loadRoomList(), createRoom(), joinRoom(), readyPlayer(), kickPlayer(), startRoom(), answerRoomQuestion(), finishRoom(), exitRoom(), pollRoomStatus() with coroutine-based 3-second polling.",
+    "Step 5: Update TriviaGameScreen.kt to add a 'Main Bersama' button on the intro screen (similar to web blade template). When clicked, transition to room list phase showing available rooms. Implement room list UI, create room dialog (name, category, max_players, join_code, logic_mode checkbox), join room dialog (join_code input). Implement room lobby UI showing players list with ready/kick/start buttons. Implement room playing UI reusing question display. Implement room result UI showing leaderboard with polling animation while waiting for others to finish."
+  ],
+  "acceptance_criteria": [
+    "All Trivia Room data classes exist in GameModels.kt",
+    "ApiService.kt has all 10 trivia room endpoints defined",
+    "GamesRepository.kt has wrapper methods for all room API calls",
+    "TriviaViewModel has room state management with polling logic",
+    "TriviaGameScreen shows 'Main Bersama' button that enters multiplayer flow",
+    "Room list displays available rooms with create/join functionality",
+    "Room lobby shows players with host controls (kick, start) and player controls (ready)",
+    "Room playing state shows questions with countdown timer",
+    "Room result shows leaderboard with waiting animation and final results"
+  ],
+  "verification": [
+    "Verify all API endpoint paths match routes/api.php trivia room routes",
+    "Verify the polling mechanism uses coroutine delay similar to NgepetViewModel's 30-second refresh",
+    "Verify the room flow matches the web blade template logic"
+  ],
+  "blocked_reason": null,
+  "findings": "All 5 steps implemented successfully. Added 18 Trivia Room data classes to GameModels.kt (request/response models). Added 10 API endpoints to ApiService.kt matching routes/api.php paths. Added 10 repository methods to GamesRepository.kt. Updated TriviaViewModel with TriviaRoomPhase enum, room state fields, and all room action functions including lobby/result polling with 3-second interval. Updated TriviaGameScreen.kt with Main Bersama button, room list UI with create/join dialogs, lobby with player list and host controls, playing phase with countdown timer, and result phase with leaderboard display. No build/test execution possible in sandbox (no Android SDK)."
+}
