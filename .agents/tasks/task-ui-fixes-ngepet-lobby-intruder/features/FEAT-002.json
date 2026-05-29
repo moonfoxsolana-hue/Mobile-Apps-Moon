@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Major UI restructure of Ngepet Online lobby: move menus to bottom toolbar, add rules, show token balance, fix avatar selection on join, fix button text clipping",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Add token balance to NgepetViewModel: Add `tokenBalance: String? = null` to NgepetUiState. Add a `loadTokenBalance()` function that calls `api.getProfile()` via a ProfileRepository instance (or directly via RetrofitInstance.api) and extracts `totalToken` from the UserProfile response. Call `loadTokenBalance()` in the ViewModel's `init` block alongside `checkActiveMatch()` and `loadMatches()`.",
     "2. Add rules phase: Add `RULES` to the `NgepetPhase` enum in NgepetViewModel.kt. Add the RULES case to the `when` block in NgepetGameScreen's main content area. Also add it to the `goBack()` function mapping to LOBBY.",
@@ -29,5 +29,5 @@
     "Check JoinMatchPhase has auto-selection of equipped avatar in LaunchedEffect"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All changes implemented: 1) NgepetViewModel - added tokenBalance to state, loadTokenBalance() using RetrofitInstance.api.getProfile(), RULES phase in enum/goToPhase/goBack. 2) NgepetGameScreen - LobbyPhase restructured with token display row, simplified top toolbar (only Buka Rumah + Refresh), bottom toolbar Card with 6 menu items (hide/show toggle, inventory, shop, leaderboard, history, rules) with AnimatedVisibility. 3) RulesPhase added with tabbed layout (Host/Intruder rules). 4) JoinMatchPhase auto-selects equipped avatar via LaunchedEffect on ownedAvatars. Cannot run Android build in sandbox but code follows existing patterns and all imports verified."
 }
