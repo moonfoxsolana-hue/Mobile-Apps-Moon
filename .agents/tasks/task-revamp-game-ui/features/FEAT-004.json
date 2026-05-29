@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Revamp TriviaGameScreen.kt UI to match the web frontend style - add background image, cyan/teal theme, sound effects for correct/wrong/streak/finish, countdown bar, and enhanced styling. DO NOT change any ViewModel calls or game logic.",
+  "status": "completed",
+  "steps": [
+    "Step 1: Read the current TriviaGameScreen.kt to confirm existing ViewModel calls.",
+    "Step 2: Revamp TriviaGameScreen.kt UI: (a) Add GameBackground with URL 'https://mystical-nusa.web.id/images/asset/games/background/trivia-background.jpg'. (b) Make Scaffold/TopAppBar transparent. (c) Change accent color from MysticGold to TriviaCyan (#37c7d4) for this screen's title, borders, progress bar, and buttons. Keep correct answer green (#22c55e) and wrong answer red (#ef4444) as they already are. (d) Style question card and answer options to match web: semi-transparent dark bg, cyan borders. (e) Add a countdown timer bar (10 seconds) that animates width from 100% to 0% during each question - purely visual timer decoration, does NOT affect game logic (the game logic already handles timing server-side). Use a gradient purple-blue like the web (LinearGradient from blue to purple). (f) Add sound effects using SoundManager: on correct answer with streak < 5 play 'https://mystical-nusa.web.id/sound/sfx/success.mp3', on correct with streak >= 5 play 'https://mystical-nusa.web.id/sound/sfx/great-success.mp3', on wrong answer play 'https://mystical-nusa.web.id/sound/sfx/wrong.mp3', on game finish (result screen shown) play 'https://mystical-nusa.web.id/sound/sfx/finish.mp3'. Trigger sounds based on uiState.lastAnswerCorrect and uiState.streak values after the answer response. (g) Start BGM on entry: 'https://mystical-nusa.web.id/sound/bgm/bgm-iq.mp3', stop on exit.",
+    "Step 3: Ensure ALL ViewModel interactions remain unchanged: viewModel.startGame(category, count), viewModel.answerQuestion(id, answer), viewModel.finishGame().",
+    "Step 4: Verify the result screen still shows score, streak, duration correctly."
+  ],
+  "acceptance_criteria": [
+    "TriviaGameScreen.kt displays background image from remote URL",
+    "Cyan/teal theme color (#37c7d4) used for accents",
+    "Sound effects play: success.mp3 on correct, great-success.mp3 on streak>=5, wrong.mp3 on incorrect, finish.mp3 on result",
+    "BGM plays on entry, stops on exit",
+    "A decorative countdown bar with gradient is visible during questions",
+    "All ViewModel function calls remain identical",
+    "Result screen still shows score, streak, duration"
+  ],
+  "verification": [
+    "Read TriviaGameScreen.kt and verify ViewModel calls unchanged",
+    "Verify SoundManager usage for all 4 SFX types and BGM",
+    "Verify GameBackground usage with correct URL"
+  ],
+  "blocked_reason": null,
+  "findings": "Revamped TriviaGameScreen.kt following IntuitionGameScreen/LogicalGameScreen patterns. Added GameBackground with trivia-background.jpg. Transparent Scaffold/TopAppBar. Changed all MysticGold accents to TriviaCyan. Question card uses MysticDarkOverlay bg with cyan border. Answer options use Color.White.copy(alpha=0.05f) for unselected, TriviaCyan border on selection. Decorative countdown bar uses Box-based approach with Brush.horizontalGradient (blue to purple). Sound effects: success/great-success (streak-based), wrong, finish, click2. BGM plays on entry (bgm-iq.mp3), stops on exit. All ViewModel calls (startGame, answerQuestion, finishGame) preserved unchanged. Pre-game card uses MysticDarkOverlay + TriviaCyan for highlights. No Android SDK for build verification."
+}

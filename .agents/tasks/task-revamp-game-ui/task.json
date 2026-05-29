@@ -1,0 +1,14 @@
+{
+  "task_id": "task-revamp-game-ui",
+  "task_description": "Revamp UI style of 4 games (Intuition, Logical, Trivia, Tarot) in the Android app to match the web frontend. Add background images, sound effects, and themed styling from mystical-nusa.web.id assets. Do NOT modify any game logic.",
+  "status": "completed",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
+  "blocked_reason": null,
+  "verification": {
+    "build": "skipped",
+    "tests": "skipped",
+    "test_quality": "skipped",
+    "docker_build": "skipped",
+    "summary": "No Android SDK available in sandbox so build/tests cannot run. Verified: (1) No ViewModel/data layer files modified (git diff confirms 0 changes). (2) All 4 game screens have correct ViewModel calls preserved. (3) New files (SoundManager.kt, GameBackground.kt) have valid Kotlin structure. (4) Color.kt only received additions. (5) All image/sound URLs correctly use https://mystical-nusa.web.id base URL."
+  }
+}

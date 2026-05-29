@@ -11,3 +11,9 @@ val MysticPurpleLight = Color(0xFFa278ff)
 val MysticPurpleSoft = Color(0xFFb88aff)
 val TextPrimary = Color.White
 val TextSecondary = Color(0xFFcccccc)
+
+// Game-specific theme colors
+val IntuitionPurple = Color(0xFFb149f7)
+val TriviaCyan = Color(0xFF37c7d4)
+val TarotYellow = Color(0xFFffde59)
+val MysticDarkOverlay = Color(0xCC141414)

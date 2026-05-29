@@ -1,0 +1,24 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Create a shared SoundManager utility and update Color.kt with per-game theme colors, then add ExoPlayer/MediaPlayer dependency if needed. This establishes the infrastructure for the 4 game screen revamps.",
+  "status": "completed",
+  "steps": [
+    "Step 1: Update MysticNusa/app/src/main/java/com/mysticnusa/app/ui/theme/Color.kt to add game-specific theme colors matching the web frontend: IntuitionPurple (#b149f7), LogicalGold (#d4af37, already exists as MysticGold), TriviaCyan (#37c7d4), TarotYellow (#ffde59). Add background overlay color MysticDarkOverlay = Color(0xCC141414) for the semi-transparent dark cards.",
+    "Step 2: Create MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/SoundManager.kt - a singleton/object that uses Android MediaPlayer to play sound effects from remote URLs. It should expose functions: playSound(context, url), playBgm(context, url), stopBgm(), toggleMute(). Sound URLs will be constructed from base URL https://mystical-nusa.web.id. The SoundManager should cache MediaPlayer instances for SFX and have a separate one for BGM loop.",
+    "Step 3: Create MysticNusa/app/src/main/java/com/mysticnusa/app/ui/components/GameBackground.kt - a reusable composable that shows a full-screen background image loaded via Coil AsyncImage from a remote URL, with a dark overlay on top. Parameters: imageUrl (String), modifier (Modifier). It should fill the parent Box with ContentScale.Crop and layer a semi-transparent black/dark gradient on top.",
+    "Step 4: Verify no game logic code was touched - only new files and Color.kt theme additions."
+  ],
+  "acceptance_criteria": [
+    "Color.kt contains new game-specific color constants: IntuitionPurple, TriviaCyan, TarotYellow, MysticDarkOverlay",
+    "SoundManager.kt exists with playSound, playBgm, stopBgm, toggleMute functions using MediaPlayer",
+    "GameBackground.kt exists as a reusable composable accepting an imageUrl parameter",
+    "No existing files modified except Color.kt (which only gets additions)"
+  ],
+  "verification": [
+    "Read the created files and verify they compile-ready Kotlin with correct imports",
+    "Verify Color.kt only has additions, no removals"
+  ],
+  "blocked_reason": null,
+  "findings": "No Android SDK or kotlinc available in sandbox. Code verified structurally. All existing colors preserved in Color.kt. No game logic files touched."
+}
