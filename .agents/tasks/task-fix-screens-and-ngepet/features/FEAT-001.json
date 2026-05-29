@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "fix",
   "description": "Fix News screen, Stories screen, and Staking screen errors. News and Stories are blank because the API routes do not exist in routes/api.php. Staking crashes because the API returns 'claimed' as an integer (0/1) but the Kotlin model expects Boolean.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Add API routes for news and stories in routes/api.php. Add inside the auth:sanctum middleware group: Route::get('/news', [NewsController::class, 'list']); and Route::get('/stories', [AiStoryController::class, 'list']); - these call the existing 'list' methods that already return paginated JSON. Also add the import for AiStoryController at the top of the file.",
     "Fix StakingModels.kt: Change 'val claimed: Boolean?' to 'val claimed: Int?' in the UserStaking data class. The API returns 0 or 1 as integers from the database 'claimed' column.",
@@ -22,5 +22,5 @@
     "Verify StakingModels.kt has claimed as Int? type"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "NewsController was NOT already imported in api.php (contrary to task description), so both NewsController and AiStoryController imports were added. No Kotlin code references .claimed anywhere, so changing Boolean? to Int? has no downstream impact."
 }
