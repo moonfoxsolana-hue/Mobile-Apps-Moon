@@ -46,6 +46,63 @@ fun HomeScreen(navController: NavController) {
                 .fillMaxSize()
         ) {
             HeroSection(navController)
+            // Quick Navigation
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { navController.navigate(Screen.News.route) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MysticSurface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("\uD83D\uDCF0", fontSize = 28.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Berita", color = MysticGold, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { navController.navigate(Screen.Stories.route) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MysticSurface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("\uD83D\uDCDA", fontSize = 28.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Cerita", color = MysticGold, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { navController.navigate(Screen.Staking.route) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MysticSurface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("\uD83D\uDD12", fontSize = 28.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Staking", color = MysticGold, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
             AboutSection()
             TokenomicsSection()
             UtilitySection()
