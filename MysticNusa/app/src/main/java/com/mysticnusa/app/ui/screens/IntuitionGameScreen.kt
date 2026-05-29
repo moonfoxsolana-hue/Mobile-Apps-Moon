@@ -6,8 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
@@ -32,7 +34,6 @@ import com.mysticnusa.app.data.models.IntuitionRoundItem
 import com.mysticnusa.app.data.repository.GamesRepository
 import com.mysticnusa.app.ui.components.GameBackground
 import com.mysticnusa.app.ui.components.MysticButton
-import com.mysticnusa.app.ui.components.MysticCard
 import com.mysticnusa.app.ui.components.SoundManager
 import com.mysticnusa.app.ui.theme.*
 import com.mysticnusa.app.ui.viewmodels.IntuitionViewModel
@@ -83,6 +84,14 @@ fun IntuitionGameScreen(navController: NavController) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = IntuitionPurple)
                         }
                     },
+                    actions = {
+                        IconButton(onClick = { viewModel.toggleStats() }) {
+                            Text("\uD83D\uDCCA", fontSize = 20.sp)
+                        }
+                        IconButton(onClick = { viewModel.toggleLeaderboard() }) {
+                            Text("\uD83C\uDFC6", fontSize = 20.sp)
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent
                     )
@@ -92,6 +101,117 @@ fun IntuitionGameScreen(navController: NavController) {
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
                 when {
+                    // Statistics overlay
+                    uiState.showStats -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Statistik", color = IntuitionPurple, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            if (uiState.statsLoading) {
+                                CircularProgressIndicator(color = IntuitionPurple)
+                            } else {
+                                uiState.statisticsData?.let { stats ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .border(1.dp, IntuitionPurple.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MysticDarkOverlay)
+                                    ) {
+                                        Column(modifier = Modifier.padding(20.dp)) {
+                                            StatRow("Total Dimainkan", "${stats.totalPlayed ?: 0}", IntuitionPurple)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            StatRow("Total Benar", "${stats.totalCorrect ?: 0}", IntuitionPurple)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            StatRow("Level", "${stats.level ?: 0}", IntuitionPurple)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            StatRow("Token Reward", "${stats.tokenReward ?: 0}", IntuitionPurple)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+                            MysticButton(text = "Tutup", onClick = { viewModel.toggleStats() })
+                        }
+                    }
+
+                    // Leaderboard overlay
+                    uiState.showLeaderboard -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Leaderboard", color = IntuitionPurple, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            if (uiState.leaderboardLoading) {
+                                CircularProgressIndicator(color = IntuitionPurple)
+                            } else {
+                                uiState.leaderboard.take(10).forEachIndexed { index, entry ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp)
+                                            .border(1.dp, IntuitionPurple.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MysticDarkOverlay)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            // Rank
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .clip(CircleShape)
+                                                    .background(IntuitionPurple.copy(alpha = 0.2f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "${index + 1}",
+                                                    color = IntuitionPurple,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 14.sp
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = entry.name ?: "Unknown",
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                                Text(
+                                                    text = "Benar: ${entry.totalCorrect ?: 0} | Level: ${entry.level ?: 0}",
+                                                    color = TextSecondary,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (uiState.leaderboard.isEmpty()) {
+                                    Text("Belum ada data leaderboard", color = TextSecondary)
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+                            MysticButton(text = "Tutup", onClick = { viewModel.toggleLeaderboard() })
+                        }
+                    }
+
                     // Game Complete
                     uiState.isComplete -> {
                         Column(
@@ -538,5 +658,17 @@ private fun IntuitionItemCard(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun StatRow(label: String, value: String, color: Color) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = label, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+        Text(text = value, color = color, fontWeight = FontWeight.Bold, fontSize = 18.sp)
     }
 }

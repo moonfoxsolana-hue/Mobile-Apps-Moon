@@ -98,6 +98,14 @@ fun TriviaGameScreen(navController: NavController) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = TriviaCyan)
                         }
                     },
+                    actions = {
+                        IconButton(onClick = { viewModel.toggleStats() }) {
+                            Text("\uD83D\uDCCA", fontSize = 20.sp)
+                        }
+                        IconButton(onClick = { viewModel.toggleLeaderboard() }) {
+                            Text("\uD83C\uDFC6", fontSize = 20.sp)
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent
                     )
@@ -107,6 +115,119 @@ fun TriviaGameScreen(navController: NavController) {
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
                 when {
+                    // Statistics overlay
+                    uiState.showStats -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Statistik", color = TriviaCyan, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            if (uiState.statsLoading) {
+                                CircularProgressIndicator(color = TriviaCyan)
+                            } else {
+                                uiState.statisticsData?.let { stats ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .border(1.dp, TriviaCyan.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MysticDarkOverlay)
+                                    ) {
+                                        Column(modifier = Modifier.padding(20.dp)) {
+                                            TriviaStatRow("Total Dimainkan", "${stats.totalPlayed ?: 0}", TriviaCyan)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            TriviaStatRow("Total Benar", "${stats.totalCorrect ?: 0}", TriviaCyan)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            TriviaStatRow("Total Salah", "${stats.totalWrong ?: 0}", TriviaCyan)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            TriviaStatRow("Skor Tertinggi", "${stats.highestScore ?: 0}", TriviaCyan)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            TriviaStatRow("Akurasi Rata-rata", "${String.format("%.1f", stats.averageAccuracy ?: 0.0)}%", TriviaCyan)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+                            MysticButton(text = "Tutup", onClick = { viewModel.toggleStats() })
+                        }
+                    }
+
+                    // Leaderboard overlay
+                    uiState.showLeaderboard -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Leaderboard", color = TriviaCyan, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            if (uiState.leaderboardLoading) {
+                                CircularProgressIndicator(color = TriviaCyan)
+                            } else {
+                                uiState.leaderboard.take(10).forEachIndexed { index, entry ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp)
+                                            .border(1.dp, TriviaCyan.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MysticDarkOverlay)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            // Rank
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .clip(CircleShape)
+                                                    .background(TriviaCyan.copy(alpha = 0.2f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "${index + 1}",
+                                                    color = TriviaCyan,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 14.sp
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = entry.name ?: "Unknown",
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                                Text(
+                                                    text = "Skor: ${entry.highestScore ?: 0} | Streak: ${entry.highestStreak ?: 0}",
+                                                    color = TextSecondary,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (uiState.leaderboard.isEmpty()) {
+                                    Text("Belum ada data leaderboard", color = TextSecondary)
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+                            MysticButton(text = "Tutup", onClick = { viewModel.toggleLeaderboard() })
+                        }
+                    }
+
                     // Finished
                     uiState.isComplete && uiState.finishResponse != null -> {
                         val finish = uiState.finishResponse!!
@@ -418,5 +539,17 @@ fun TriviaGameScreen(navController: NavController) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TriviaStatRow(label: String, value: String, color: Color) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = label, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+        Text(text = value, color = color, fontWeight = FontWeight.Bold, fontSize = 18.sp)
     }
 }

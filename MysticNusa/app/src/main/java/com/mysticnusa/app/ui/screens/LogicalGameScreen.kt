@@ -67,6 +67,14 @@ fun LogicalGameScreen(navController: NavController) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = MysticGold)
                         }
                     },
+                    actions = {
+                        IconButton(onClick = { viewModel.toggleStats() }) {
+                            Text("\uD83D\uDCCA", fontSize = 20.sp)
+                        }
+                        IconButton(onClick = { viewModel.toggleLeaderboard() }) {
+                            Text("\uD83C\uDFC6", fontSize = 20.sp)
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent
                     )
@@ -76,6 +84,115 @@ fun LogicalGameScreen(navController: NavController) {
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
                 when {
+                    // Statistics overlay
+                    uiState.showStats -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Statistik", color = MysticGold, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            if (uiState.statsLoading) {
+                                CircularProgressIndicator(color = MysticGold)
+                            } else {
+                                uiState.statisticsData?.let { stats ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .border(1.dp, MysticGold.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MysticDarkOverlay)
+                                    ) {
+                                        Column(modifier = Modifier.padding(20.dp)) {
+                                            LogicalStatRow("IQ Tertinggi", "${stats.highestIq ?: 0}", MysticGold)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            LogicalStatRow("IQ Terakhir", "${stats.lastIq ?: 0}", MysticGold)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            LogicalStatRow("Total Match", "${stats.totalMatches ?: 0}", MysticGold)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+                            MysticButton(text = "Tutup", onClick = { viewModel.toggleStats() })
+                        }
+                    }
+
+                    // Leaderboard overlay
+                    uiState.showLeaderboard -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Leaderboard", color = MysticGold, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            if (uiState.leaderboardLoading) {
+                                CircularProgressIndicator(color = MysticGold)
+                            } else {
+                                uiState.leaderboard.take(10).forEachIndexed { index, entry ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp)
+                                            .border(1.dp, MysticGold.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MysticDarkOverlay)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            // Rank
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .clip(CircleShape)
+                                                    .background(MysticGold.copy(alpha = 0.2f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "${index + 1}",
+                                                    color = MysticGold,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 14.sp
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = entry.name ?: "Unknown",
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                                Text(
+                                                    text = "Poin: ${entry.highestPoint ?: 0} | IQ: ${entry.highestIq ?: 0}",
+                                                    color = TextSecondary,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (uiState.leaderboard.isEmpty()) {
+                                    Text("Belum ada data leaderboard", color = TextSecondary)
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+                            MysticButton(text = "Tutup", onClick = { viewModel.toggleLeaderboard() })
+                        }
+                    }
+
                     // Finished with results
                     uiState.isComplete && uiState.finishResponse != null -> {
                         val finish = uiState.finishResponse!!
@@ -343,5 +460,17 @@ fun LogicalGameScreen(navController: NavController) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LogicalStatRow(label: String, value: String, color: Color) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = label, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+        Text(text = value, color = color, fontWeight = FontWeight.Bold, fontSize = 18.sp)
     }
 }

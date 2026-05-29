@@ -15,6 +15,12 @@ data class LeaderboardEntry(
     val highestScore: Int? = null,
     @SerializedName("highest_iq")
     val highestIq: Int? = null,
+    @SerializedName("highest_point")
+    val highestPoint: Int? = null,
+    @SerializedName("highest_streak")
+    val highestStreak: Int? = null,
+    @SerializedName("average_accuracy")
+    val averageAccuracy: Double? = null,
     val score: Int? = null,
     val rank: Int? = null,
     @SerializedName("total_played")
@@ -92,6 +98,21 @@ data class TriviaFinishResponse(
     @SerializedName("duration_seconds")
     val durationSeconds: Int?,
     val category: String? = null
+)
+
+data class TriviaStatisticsResponse(
+    val status: String?,
+    val name: String? = null,
+    @SerializedName("total_played")
+    val totalPlayed: Int?,
+    @SerializedName("total_correct")
+    val totalCorrect: Int?,
+    @SerializedName("total_wrong")
+    val totalWrong: Int?,
+    @SerializedName("highest_score")
+    val highestScore: Int?,
+    @SerializedName("average_accuracy")
+    val averageAccuracy: Double?
 )
 
 // Logical

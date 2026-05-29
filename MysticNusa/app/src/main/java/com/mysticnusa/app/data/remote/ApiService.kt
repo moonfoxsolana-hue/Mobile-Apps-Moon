@@ -68,6 +68,9 @@ interface ApiService {
     @GET("trivia/leaderboard")
     suspend fun getTriviaLeaderboard(): Response<List<LeaderboardEntry>>
 
+    @GET("trivia/statistics")
+    suspend fun getTriviaStatistics(): Response<TriviaStatisticsResponse>
+
     // Logical
     @POST("logical/start")
     suspend fun startLogical(): Response<LogicalStartResponse>

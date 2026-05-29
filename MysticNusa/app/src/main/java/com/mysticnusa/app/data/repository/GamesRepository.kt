@@ -92,6 +92,24 @@ class GamesRepository {
         }
     }
 
+    suspend fun getTriviaStatistics(): Result<TriviaStatisticsResponse> {
+        return try {
+            val response = api.getTriviaStatistics()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Empty response body"))
+            } else {
+                val errorMsg = parseErrorMessage(
+                    response.errorBody()?.string(),
+                    "Failed to get trivia statistics: ${response.code()}"
+                )
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // Logical
     suspend fun startLogical(): Result<LogicalStartResponse> {
         return try {
