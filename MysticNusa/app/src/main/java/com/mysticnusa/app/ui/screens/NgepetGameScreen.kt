@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -322,13 +321,6 @@ private fun LobbyPhase(
                             Icon(Icons.Filled.Close, "Hide", tint = MysticGold)
                         }
                         Text("Hide", color = TextSecondary, fontSize = 9.sp)
-                    }
-                    // Inventory
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = { viewModel.goToPhase(NgepetPhase.AVATAR_SHOP) }) {
-                            Icon(Icons.Filled.ShoppingBag, "Inventory", tint = MysticGold)
-                        }
-                        Text("Inventory", color = TextSecondary, fontSize = 9.sp)
                     }
                     // Shop
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -82,7 +82,7 @@ fun StoryDetailScreen(navController: NavController, storyId: Int) {
                     ) {
                         storyItem.imagePath?.let {
                             AsyncImage(
-                                model = "https://mystical-nusa.web.id/${storyItem.imagePath}",
+                                model = "https://mystical-nusa.web.id/${storyItem.imagePath?.trimStart('/')}",
                                 contentDescription = storyItem.title,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -133,19 +133,27 @@ fun StoryDetailScreen(navController: NavController, storyId: Int) {
                                             try {
                                                 mediaPlayer.reset()
                                                 mediaPlayer.setDataSource("https://mystical-nusa.web.id/cerita/audio/${storyItem.id}")
-                                                mediaPlayer.prepareAsync()
                                                 mediaPlayer.setOnPreparedListener { mp ->
                                                     mp.start()
+                                                    isPlaying = true
                                                 }
                                                 mediaPlayer.setOnCompletionListener {
                                                     isPlaying = false
                                                 }
-                                                isPlaying = true
+                                                mediaPlayer.setOnErrorListener { _, _, _ ->
+                                                    isPlaying = false
+                                                    true
+                                                }
+                                                mediaPlayer.prepareAsync()
                                             } catch (e: Exception) {
                                                 isPlaying = false
                                             }
                                         } else {
-                                            mediaPlayer.stop()
+                                            try {
+                                                mediaPlayer.stop()
+                                            } catch (_: IllegalStateException) {
+                                                // stop() called during prepareAsync - safe to ignore
+                                            }
                                             mediaPlayer.reset()
                                             isPlaying = false
                                         }
