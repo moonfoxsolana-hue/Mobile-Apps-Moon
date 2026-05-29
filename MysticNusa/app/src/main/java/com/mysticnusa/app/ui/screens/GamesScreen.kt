@@ -2,30 +2,74 @@ package com.mysticnusa.app.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.graphics.painter.ColorPainter
+import coil.compose.AsyncImage
 import com.mysticnusa.app.navigation.Screen
 import com.mysticnusa.app.ui.components.BottomNavBar
 import com.mysticnusa.app.ui.components.MysticCard
 import com.mysticnusa.app.ui.theme.*
 
+private data class GameItem(
+    val title: String,
+    val description: String,
+    val imageUrl: String,
+    val route: String
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamesScreen(navController: NavController) {
     val games = listOf(
-        Triple("\uD83E\uDDE0", "Trivia", "Uji pengetahuanmu!") to Screen.TriviaGame.route,
-        Triple("\uD83E\uDDEA", "Logical / IQ Test", "Tes kecerdasan logikamu!") to Screen.LogicalGame.route,
-        Triple("\uD83D\uDD2E", "Intuition", "Ikuti intuisimu!") to Screen.IntuitionGame.route,
-        Triple("\uD83C\uDCCF", "Tarot Ritual", "Baca takdirmu hari ini") to Screen.TarotGame.route,
-        Triple("\uD83C\uDFB2", "Ular Tangga", "Board game klasik multiplayer") to Screen.UlartanggaGame.route,
-        Triple("\uD83D\uDC17", "Ngepet Online", "Curi token dari rumah!") to Screen.NgepetGame.route
+        GameItem(
+            title = "Ngepet Online",
+            description = "Curi token dari rumah!",
+            imageUrl = "https://mystical-nusa.web.id/images/ngepet-online.jpg",
+            route = Screen.NgepetGame.route
+        ),
+        GameItem(
+            title = "Intuition",
+            description = "Ikuti intuisimu!",
+            imageUrl = "https://mystical-nusa.web.id/images/intuition-test.jpg",
+            route = Screen.IntuitionGame.route
+        ),
+        GameItem(
+            title = "Mystical Logic of Minds",
+            description = "Tes kecerdasan logikamu!",
+            imageUrl = "https://mystical-nusa.web.id/images/logic-minds.jpg",
+            route = Screen.LogicalGame.route
+        ),
+        GameItem(
+            title = "Arcane of Trivia",
+            description = "Uji pengetahuanmu!",
+            imageUrl = "https://mystical-nusa.web.id/images/trivia.jpg",
+            route = Screen.TriviaGame.route
+        ),
+        GameItem(
+            title = "Tarot of Mystic Nusa",
+            description = "Baca takdirmu hari ini",
+            imageUrl = "https://mystical-nusa.web.id/images/tarot.jpg",
+            route = Screen.TarotGame.route
+        ),
+        GameItem(
+            title = "Ular Tangga Mystic",
+            description = "Board game klasik multiplayer",
+            imageUrl = "https://mystical-nusa.web.id/images/coming-soon-games.jpg",
+            route = Screen.UlartanggaGame.route
+        )
     )
 
     Scaffold(
@@ -40,49 +84,52 @@ fun GamesScreen(navController: NavController) {
         bottomBar = { BottomNavBar(navController) },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        Column(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 8.dp),
+            contentPadding = PaddingValues(vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            games.chunked(2).forEach { row ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+            items(games) { game ->
+                MysticCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { navController.navigate(game.route) }
                 ) {
-                    row.forEach { (info, route) ->
-                        val (emoji, title, description) = info
-                        MysticCard(
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AsyncImage(
+                            model = game.imageUrl,
+                            contentDescription = game.title,
                             modifier = Modifier
-                                .weight(1f)
-                                .clickable { navController.navigate(route) }
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(text = emoji, fontSize = 36.sp)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = title,
-                                    color = MysticGold,
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = description,
-                                    color = TextSecondary,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
-                    }
-                    if (row.size == 1) {
-                        Spacer(modifier = Modifier.weight(1f))
+                                .fillMaxWidth()
+                                .aspectRatio(4f / 3f)
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop,
+                            placeholder = ColorPainter(MysticSurface),
+                            error = ColorPainter(MysticSurface)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = game.title,
+                            color = MysticGold,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = game.description,
+                            color = TextSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }

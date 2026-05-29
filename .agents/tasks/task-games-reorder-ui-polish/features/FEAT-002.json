@@ -1,0 +1,24 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Improve ClaimScreen with floating/hanging notification (like NgepetGameScreen) and more elegant design. Also improve ProfileScreen with a more elegant visual design.",
+  "status": "completed",
+  "steps": [
+    "Update MysticNusa/app/src/main/java/com/mysticnusa/app/ui/viewmodels/AirdropViewModel.kt to add a notificationCounter field to AirdropUiState (like NgepetViewModel does), add clearMessage() and clearError() functions, and bump the counter when setting messages/errors so the LaunchedEffect auto-dismiss works for repeated identical values.",
+    "Rewrite MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/ClaimScreen.kt to: (a) Add a floating top notification overlay using AnimatedVisibility with slideInVertically/fadeIn pattern (exactly like NgepetGameScreen lines 166-212) that shows success/error messages. (b) Add LaunchedEffect keyed on notificationCounter that auto-dismisses after 3 seconds. (c) Remove the inline MysticCard-based status messages at the bottom and replace with the floating notification. (d) Make the overall design more elegant: add a decorative header with a mystic-themed icon or gradient, improve card spacing, add subtle dividers, use gradient backgrounds on the claim buttons, add a token balance summary card at the top if available.",
+    "Rewrite MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/ProfileScreen.kt to make it more elegant: (a) Replace the simple Person icon with a larger avatar area with a gradient circle background. (b) Add a decorative header section with gradient. (c) Improve the profile info cards with better spacing, icons for each field (wallet icon, token icon, lock icon). (d) Add a stats summary section with token balance prominently displayed. (e) Use Divider with subtle gradient/alpha for separators. (f) Make the logout button more refined with proper spacing from content."
+  ],
+  "acceptance_criteria": [
+    "ClaimScreen notifications appear as floating overlay at the top of the screen (not inline at bottom)",
+    "Notifications auto-dismiss after 3 seconds",
+    "Notifications slide in from top with animation (slideInVertically + fadeIn)",
+    "ClaimScreen has a more polished visual design with better spacing and hierarchy",
+    "ProfileScreen shows an elegant avatar area, well-organized profile info with icons, and improved visual hierarchy",
+    "Both screens still function correctly (claim actions work, profile data displays, logout works)"
+  ],
+  "verification": [
+    "Run ./gradlew assembleDebug in MysticNusa/ to confirm compilation succeeds with the updated screens"
+  ],
+  "blocked_reason": null,
+  "findings": "Build successful with no warnings on the modified files. Used HorizontalDivider instead of deprecated Divider, and Icons.AutoMirrored.Filled.ExitToApp instead of deprecated Icons.Default.ExitToApp. MysticCard does not accept a border parameter so the subtle border effect was omitted from the claim cards (cards still look polished via the shared MysticCard elevation/shape). Used Icons.AutoMirrored.Filled.List for wallet icon since AccountBalanceWallet is not in the standard icon set naming."
+}
