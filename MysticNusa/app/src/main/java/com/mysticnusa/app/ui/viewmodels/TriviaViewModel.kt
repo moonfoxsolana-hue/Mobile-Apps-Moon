@@ -521,7 +521,11 @@ class TriviaViewModel(
             try {
                 val request = TriviaRoomExitRequest(roomId)
                 gamesRepository.exitTriviaRoom(request)
-            } catch (_: Exception) { }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Gagal keluar dari room: ${e.message ?: "koneksi gagal"}"
+                )
+            }
             stopPolling()
             _uiState.value = _uiState.value.copy(
                 roomPhase = TriviaRoomPhase.ROOM_LIST,
@@ -594,17 +598,29 @@ class TriviaViewModel(
             while (true) {
                 delay(3000)
                 try {
-                    val roomId = _uiState.value.currentRoom?.id ?: return@launch
-                    val request = TriviaRoomFinishRequest(roomId)
-                    val result = gamesRepository.finishTriviaRoom(request)
+                    val result = gamesRepository.getTriviaActiveRoom()
                     result.onSuccess { response ->
-                        _uiState.value = _uiState.value.copy(
-                            roomLeaderboard = response.leaderboard ?: _uiState.value.roomLeaderboard,
-                            roomFinished = response.roomFinished ?: false
-                        )
-                        if (response.roomFinished == true) {
-                            stopPolling()
-                            return@launch
+                        when (response.state) {
+                            "finished" -> {
+                                _uiState.value = _uiState.value.copy(
+                                    roomFinished = true
+                                )
+                                stopPolling()
+                                // Fetch final leaderboard via finish endpoint one last time
+                                val roomId = _uiState.value.currentRoom?.id
+                                if (roomId != null) {
+                                    val finishResult = gamesRepository.finishTriviaRoom(TriviaRoomFinishRequest(roomId))
+                                    finishResult.onSuccess { finishResponse ->
+                                        _uiState.value = _uiState.value.copy(
+                                            roomLeaderboard = finishResponse.leaderboard ?: _uiState.value.roomLeaderboard
+                                        )
+                                    }
+                                }
+                                return@launch
+                            }
+                            else -> {
+                                // Still waiting for other players
+                            }
                         }
                     }
                 } catch (_: Exception) { }

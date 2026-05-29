@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Add Statistics and Leaderboard tabs/sections to Intuition, Logical, and Trivia game screens. The backend APIs already exist (GET /intuition/statistics, GET /intuition/leaderboard, GET /logical/statistics, GET /logical/leaderboard, GET /trivia/statistics, GET /trivia/leaderboard). The ApiService already has getIntuitionStatistics, getIntuitionLeaderboard, getLogicalStatistics, getLogicalLeaderboard, getTriviaLeaderboard. Missing: getTriviaStatistics endpoint in ApiService, TriviaStatisticsResponse model, and repository method for trivia statistics. The game screens currently do NOT display any statistics or leaderboard UI.",
+  "status": "completed",
+  "steps": [
+    "Step 1: Add TriviaStatisticsResponse model to GameModels.kt. The API returns: {status, name, total_played, total_correct, total_wrong, highest_score, average_accuracy}. Add a data class with @SerializedName annotations.",
+    "Step 2: Add getTriviaStatistics() suspend function to ApiService.kt: @GET('trivia/statistics') suspend fun getTriviaStatistics(): Response<TriviaStatisticsResponse>",
+    "Step 3: Add getTriviaStatistics() method to GamesRepository.kt following the existing pattern (similar to getLogicalStatistics).",
+    "Step 4: Update IntuitionViewModel.kt to add statistics and leaderboard loading. Add fields to IntuitionUiState: statisticsData (IntuitionStatisticsResponse?), leaderboard (List<LeaderboardEntry>), showStats (Boolean), showLeaderboard (Boolean). Add functions: loadStatistics(), loadLeaderboard(), toggleStats(), toggleLeaderboard().",
+    "Step 5: Update LogicalViewModel.kt to add statistics and leaderboard loading. Add fields to LogicalUiState: statisticsData (LogicalStatisticsResponse?), leaderboard (List<LeaderboardEntry>), showStats (Boolean), showLeaderboard (Boolean). Add functions: loadStatistics(), loadLeaderboard(), toggleStats(), toggleLeaderboard().",
+    "Step 6: Update TriviaViewModel.kt to add statistics and leaderboard loading. Add fields to TriviaUiState: statisticsData (TriviaStatisticsResponse?), leaderboard (List<LeaderboardEntry>), showStats (Boolean), showLeaderboard (Boolean). Add functions: loadStatistics(), loadLeaderboard(), toggleStats(), toggleLeaderboard().",
+    "Step 7: Update IntuitionGameScreen.kt to add Statistics and Leaderboard buttons and display sections. Add icon buttons in the top bar area (similar to NgepetGameScreen). When toggled, show a Card overlay with statistics info or a leaderboard list. Statistics shows: total_played, total_correct, level, token_reward. Leaderboard shows: top 10 with name, total_correct, level.",
+    "Step 8: Update LogicalGameScreen.kt to add Statistics and Leaderboard buttons and display sections. Statistics shows: highest_iq, last_iq, total_match. Leaderboard shows: top 10 with name, highest_point, highest_iq.",
+    "Step 9: Update TriviaGameScreen.kt to add Statistics and Leaderboard buttons and display sections. Statistics shows: total_played, total_correct, total_wrong, highest_score, average_accuracy. Leaderboard shows: top 10 with name, highest_score, highest_streak."
+  ],
+  "acceptance_criteria": [
+    "TriviaStatisticsResponse model exists in GameModels.kt with correct field mappings",
+    "ApiService.kt has getTriviaStatistics() function",
+    "GamesRepository.kt has getTriviaStatistics() wrapper method",
+    "All three ViewModels have statistics and leaderboard state fields and loading functions",
+    "All three game screens have Statistics and Leaderboard buttons that show overlay sections when clicked",
+    "The Leaderboard section displays a ranked list of players",
+    "The Statistics section displays the user's personal game stats"
+  ],
+  "verification": [
+    "Check that all new model classes have proper @SerializedName annotations",
+    "Verify all new ApiService methods match the routes in routes/api.php",
+    "Verify the UI composables follow existing patterns (MysticCard, MysticButton, color theme)"
+  ],
+  "blocked_reason": null,
+  "findings": "All 9 steps implemented. TriviaStatisticsResponse model added, ApiService and Repository updated with getTriviaStatistics(). All three ViewModels now have stats/leaderboard state fields with toggle and load functions. All three game screens have emoji icon buttons in the top bar that show statistics and leaderboard overlays. LeaderboardEntry model extended with highestPoint, highestStreak, averageAccuracy fields for the different game leaderboards. No build/test execution possible in this sandbox (no Android SDK), but code follows existing patterns exactly."
+}

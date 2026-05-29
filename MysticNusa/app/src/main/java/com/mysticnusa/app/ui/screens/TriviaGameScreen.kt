@@ -428,6 +428,10 @@ fun TriviaGameScreen(navController: NavController) {
                                     delay(stepDelay)
                                     countdownProgress = (countdownProgress - decrement).coerceAtLeast(0f)
                                 }
+                                // Auto-submit when timer reaches zero
+                                if (!uiState.roomShowFeedback && !uiState.roomLoading) {
+                                    viewModel.answerRoomQuestion(question.id, "tidak menjawab")
+                                }
                             }
 
                             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
