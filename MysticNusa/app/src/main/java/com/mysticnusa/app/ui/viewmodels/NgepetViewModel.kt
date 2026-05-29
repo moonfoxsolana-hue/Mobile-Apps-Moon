@@ -121,6 +121,7 @@ class NgepetViewModel(
 
     fun clearGuessResult() {
         val currentResult = _uiState.value.guessResult
+        val isEnd = currentResult?.isEnd == true
         // Note: lastGuessedIntruderId is only ever set by hostGuess(), so the re-open
         // mechanism (shouldReopenGuess) only fires for the host role. For the intruder
         // path, lastGuessedIntruderId remains null and shouldReopen evaluates to false.
@@ -128,6 +129,24 @@ class NgepetViewModel(
         _uiState.value = _uiState.value.copy(
             guessResult = null,
             shouldReopenGuess = shouldReopen
+        )
+        // Auto-redirect to lobby when game has ended
+        if (isEnd) {
+            resetMatchState()
+            goToPhase(NgepetPhase.LOBBY)
+        }
+    }
+
+    private fun resetMatchState() {
+        _uiState.value = _uiState.value.copy(
+            currentMatchId = null,
+            currentRole = null,
+            currentIntruderMatchId = null,
+            matchDetail = null,
+            activeMatchData = null,
+            selectedHiddenItemId = null,
+            guessedItemNames = emptySet(),
+            intruderGuessCount = 0
         )
     }
 
@@ -226,7 +245,10 @@ class NgepetViewModel(
                         activeMatchData = data,
                         currentMatchId = data.matchId,
                         currentRole = data.role,
-                        currentIntruderMatchId = data.intruderMatchId
+                        currentIntruderMatchId = data.intruderMatchId,
+                        guessedItemNames = emptySet(),
+                        intruderGuessCount = 0,
+                        selectedHiddenItemId = null
                     )
                     loadMatchDetail(data.matchId)
                     _uiState.value = _uiState.value.copy(phase = NgepetPhase.MATCH_ROOM)
@@ -269,7 +291,43 @@ class NgepetViewModel(
 
     fun refreshMatchDetail() {
         val matchId = _uiState.value.currentMatchId ?: return
-        loadMatchDetail(matchId)
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val result = gamesRepository.getNgepetMatchDetail(matchId)
+            result.onSuccess { response ->
+                val isIntruder = _uiState.value.currentRole == "intruder"
+                val maxAttempts = if (isIntruder) {
+                    when (response.match?.difficulty?.lowercase()) {
+                        "easy" -> 5
+                        "medium" -> 4
+                        "hard" -> 3
+                        else -> 5
+                    }
+                } else {
+                    _uiState.value.maxGuessAttempts
+                }
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    matchDetail = response,
+                    maxGuessAttempts = maxAttempts
+                )
+                // Auto-navigate to lobby if match is closed or intruder status is "end"
+                val matchStatus = response.match?.status?.lowercase()
+                val currentIntruder = if (isIntruder) {
+                    response.match?.intruders?.find { it.id == _uiState.value.currentIntruderMatchId }
+                } else null
+                if (matchStatus == "closed" || (isIntruder && currentIntruder?.status == "end")) {
+                    resetMatchState()
+                    goToPhase(NgepetPhase.LOBBY)
+                }
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message,
+                    notificationCounter = bumpCounter()
+                )
+            }
+        }
     }
 
     fun loadAvatarShop() {
@@ -558,7 +616,9 @@ class NgepetViewModel(
                     notificationCounter = bumpCounter(),
                     showMatchDetailDialog = false,
                     selectedMatchForJoin = null,
-                    intruderGuessCount = 0
+                    intruderGuessCount = 0,
+                    guessedItemNames = emptySet(),
+                    selectedHiddenItemId = null
                 )
                 // Load active match to get intruder_match_id
                 val activeResult = gamesRepository.getNgepetActiveMatch()

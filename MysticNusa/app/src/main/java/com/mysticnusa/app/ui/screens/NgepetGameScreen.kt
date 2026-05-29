@@ -312,7 +312,7 @@ private fun LobbyMatchCard(match: NgepetMatchListItem, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(56.dp)
                     .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -381,7 +381,7 @@ private fun MatchDetailDialog(
                     modifier = Modifier
                         .size(80.dp)
                         .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -618,7 +618,7 @@ private fun CreateMatchPhase(
                             modifier = Modifier
                                 .size(56.dp)
                                 .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Fit
                         )
                         Text(
                             text = owned.avatar?.name ?: "",
@@ -768,7 +768,7 @@ private fun JoinMatchPhase(
                             modifier = Modifier
                                 .size(56.dp)
                                 .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Fit
                         )
                         Text(
                             text = owned.avatar?.name ?: "",
@@ -903,7 +903,7 @@ private fun HostMatchView(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
@@ -951,14 +951,19 @@ private fun HostMatchView(
                             modifier = Modifier.padding(8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            AsyncImage(
-                                model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
-                                contentDescription = item.name,
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(RoundedCornerShape(4.dp)),
-                                contentScale = ContentScale.Crop
-                            )
+                            Box(
+                                modifier = Modifier.size(48.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                AsyncImage(
+                                    model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
+                                    contentDescription = item.name,
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(RoundedCornerShape(4.dp)),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
                             Text(
                                 text = item.name ?: "",
                                 color = TextSecondary,
@@ -1043,7 +1048,7 @@ private fun HostMatchView(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Fit
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -1270,14 +1275,19 @@ private fun IntruderMatchView(
                                 modifier = Modifier.padding(8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                AsyncImage(
-                                    model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
-                                    contentDescription = item.name,
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .clip(RoundedCornerShape(4.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
+                                Box(
+                                    modifier = Modifier.size(48.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    AsyncImage(
+                                        model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
+                                        contentDescription = item.name,
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .clip(RoundedCornerShape(4.dp)),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
                                 Text(
                                     text = item.name ?: "",
                                     color = if (isSelected) MysticGold else TextSecondary,
@@ -1304,7 +1314,57 @@ private fun IntruderMatchView(
                 )
             }
         } else {
-            // Already picked - waiting state
+            // Already picked - waiting state with candle animation
+            val candleTransition = rememberInfiniteTransition(label = "candle")
+            val flickerAlpha by candleTransition.animateFloat(
+                initialValue = 0.6f,
+                targetValue = 1.0f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(800, easing = EaseInOutSine),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "flickerAlpha"
+            )
+            val floatY by candleTransition.animateFloat(
+                initialValue = -3f,
+                targetValue = 3f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1200, easing = EaseInOutSine),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "floatY"
+            )
+
+            // Candle animation
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .offset(y = floatY.dp)
+                        .alpha(flickerAlpha),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Glow effect behind candle
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(
+                                color = Color(0xFFFFD700).copy(alpha = flickerAlpha * 0.3f),
+                                shape = CircleShape
+                            )
+                    )
+                    Text(
+                        text = "\uD83D\uDD6F\uFE0F",
+                        fontSize = 36.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
             Card(
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = MysticSurface)
@@ -1344,9 +1404,18 @@ private fun IntruderMatchView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Guess hidden token button - now shows hidden item grid first
+            // Guess hidden token button - skip mystery box grid if already selected
             Button(
-                onClick = { viewModel.showHiddenItemGrid() },
+                onClick = {
+                    if (uiState.selectedHiddenItemId != null) {
+                        viewModel.dismissHiddenItemSelection()
+                        viewModel.dismissGuessItemDialog()
+                        // Directly open guess item dialog since mystery box is already chosen
+                        viewModel.selectHiddenItem(uiState.selectedHiddenItemId!!)
+                    } else {
+                        viewModel.showHiddenItemGrid()
+                    }
+                },
                 enabled = (uiState.maxGuessAttempts - uiState.intruderGuessCount) > 0,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MysticPurple,
@@ -1433,14 +1502,19 @@ private fun ItemSelectionDialog(
                                     modifier = Modifier.padding(8.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    AsyncImage(
-                                        model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
-                                        contentDescription = item.name,
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(RoundedCornerShape(4.dp)),
-                                        contentScale = ContentScale.Crop
-                                    )
+                                    Box(
+                                        modifier = Modifier.size(40.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        AsyncImage(
+                                            model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
+                                            contentDescription = item.name,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(RoundedCornerShape(4.dp)),
+                                            contentScale = ContentScale.Fit
+                                        )
+                                    }
                                     Text(
                                         text = item.name ?: "",
                                         color = TextSecondary,
@@ -1510,14 +1584,19 @@ private fun ItemSelectionDialogWithGreyed(
                                     modifier = Modifier.padding(8.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    AsyncImage(
-                                        model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
-                                        contentDescription = item.name,
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(RoundedCornerShape(4.dp)),
-                                        contentScale = ContentScale.Crop
-                                    )
+                                    Box(
+                                        modifier = Modifier.size(40.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        AsyncImage(
+                                            model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
+                                            contentDescription = item.name,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(RoundedCornerShape(4.dp)),
+                                            contentScale = ContentScale.Fit
+                                        )
+                                    }
                                     Text(
                                         text = item.name ?: "",
                                         color = if (isGreyed) Color.Gray else TextSecondary,
@@ -1746,7 +1825,7 @@ private fun AvatarShopTab(
                                     .size(64.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .border(1.dp, tierColor(avatar.tier), RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Fit
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
@@ -1838,7 +1917,7 @@ private fun AvatarCollectionTab(
                             .size(48.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .border(1.dp, tierColor(ownedItem.avatar?.tier), RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Fit
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
