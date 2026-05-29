@@ -46,6 +46,11 @@ data class NgepetUiState(
     // Host guess re-open flow
     val lastGuessedIntruderId: String? = null,
     val shouldReopenGuess: Boolean = false,
+    // Intruder hidden-item selection
+    val selectedHiddenItemId: String? = null,
+    val guessedItemNames: Set<String> = emptySet(),
+    val showHiddenItemSelection: Boolean = false,
+    val showGuessItemDialog: Boolean = false,
     // Create form fields
     val createHostName: String = "",
     val createDifficulty: String = "easy",
@@ -583,22 +588,27 @@ class NgepetViewModel(
         }
     }
 
-    fun intruderGuessHidden(itemName: String) {
+    fun intruderGuessHidden(hiddenItemId: String, itemName: String) {
         val intruderMatchId = _uiState.value.currentIntruderMatchId ?: return
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isGuessing = true, error = null)
+            _uiState.value = _uiState.value.copy(isGuessing = true, error = null, showGuessItemDialog = false)
             val request = NgepetHiddenGuessRequest(
+                hiddenItemId = hiddenItemId,
                 matchIntruderId = intruderMatchId,
                 itemName = itemName
             )
             val matchId = _uiState.value.currentMatchId ?: return@launch
             val result = gamesRepository.ngepetMakeHiddenGuess(matchId, request)
             result.onSuccess { response ->
+                val newGuessedItems = _uiState.value.guessedItemNames + itemName
+                val shouldResetSelection = response.isEnd == true || response.isCorrect == true
                 _uiState.value = _uiState.value.copy(
                     isGuessing = false,
                     isLoading = false,
                     guessResult = response,
-                    intruderGuessCount = _uiState.value.intruderGuessCount + 1
+                    intruderGuessCount = _uiState.value.intruderGuessCount + 1,
+                    guessedItemNames = newGuessedItems,
+                    selectedHiddenItemId = if (shouldResetSelection) null else _uiState.value.selectedHiddenItemId
                 )
                 refreshMatchDetail()
             }.onFailure { e ->
@@ -609,6 +619,26 @@ class NgepetViewModel(
                 )
             }
         }
+    }
+
+    fun selectHiddenItem(id: String) {
+        _uiState.value = _uiState.value.copy(
+            selectedHiddenItemId = id,
+            showHiddenItemSelection = false,
+            showGuessItemDialog = true
+        )
+    }
+
+    fun showHiddenItemGrid() {
+        _uiState.value = _uiState.value.copy(showHiddenItemSelection = true)
+    }
+
+    fun dismissHiddenItemSelection() {
+        _uiState.value = _uiState.value.copy(showHiddenItemSelection = false)
+    }
+
+    fun dismissGuessItemDialog() {
+        _uiState.value = _uiState.value.copy(showGuessItemDialog = false)
     }
 
     fun claimVictory() {

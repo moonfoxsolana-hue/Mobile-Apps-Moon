@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Fix the intruder hidden-guess flow to include hidden-item-card selection step, add sound effects for guess results, add floating/hanging notification overlay replacing bottom-aligned messages, and add shake animation effect on wrong guess.",
+  "status": "in_progress",
+  "steps": [
+    "Step 1 - Update NgepetHiddenGuessRequest in MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/NgepetModels.kt: Add the missing `hidden_item_id` field (SerializedName: 'hidden_item_id', type: String). The backend expects this field in the POST body.",
+    "Step 2 - Update NgepetUiState in MysticNusa/app/src/main/java/com/mysticnusa/app/ui/viewmodels/NgepetViewModel.kt: Add new state fields: `selectedHiddenItemId: String? = null` (the mystery box the intruder chose), `guessedItemNames: Set<String> = emptySet()` (items already guessed, to grey them out), `showHiddenItemSelection: Boolean = false` (controls whether the hidden-item grid overlay is shown before the item selection dialog).",
+    "Step 3 - Update intruderGuessHidden() in NgepetViewModel.kt: Change the signature to accept `hiddenItemId: String` in addition to `itemName: String`. Pass it to the NgepetHiddenGuessRequest constructor. After a successful guess, add the itemName to `guessedItemNames`. If the guess returns is_end=true or is_correct=true, reset `selectedHiddenItemId`. Add a new function `selectHiddenItem(id: String)` that sets `selectedHiddenItemId` and `showHiddenItemSelection = false`, then shows the item selection dialog (sets a new state flag `showGuessItemDialog = true`). Add `showGuessItemDialog: Boolean = false` to state. Add function `showHiddenItemGrid()` that sets `showHiddenItemSelection = true`.",
+    "Step 4 - Create a SoundManager utility class in MysticNusa/app/src/main/java/com/mysticnusa/app/ui/util/SoundManager.kt: This class will use Android's MediaPlayer to play sound effects from URLs (since sound files are hosted on the web server). It should have methods: `playWrongGuess()` (plays https://mystical-nusa.web.id/sound/sfx/Babi-Ngepet-game.mp3), `playIntruderWin()` (plays https://mystical-nusa.web.id/sound/sfx/Babi-Terbang-win.mp3), `playIntruderLose()` (plays https://mystical-nusa.web.id/sound/sfx/Babi-Ngepet-lose.mp3), `playEndSound()` (plays https://mystical-nusa.web.id/sound/sfx/end.mp3). Use MediaPlayer with setDataSource(url) and prepareAsync(). Include a release() method. Make it a singleton or provide via compositionLocal.",
+    "Step 5 - Rewrite the IntruderMatchView composable in NgepetGameScreen.kt to implement the correct flow: (a) When intruder clicks 'Tebak Token Host' button, instead of directly showing ItemSelectionDialog, show a HiddenItemGrid overlay/dialog with mystery box cards (use matchDetail.hiddenItems list from NgepetMatchDetail). (b) Each mystery box card shows an image loaded from the server URL 'https://mystical-nusa.web.id/images/asset/games/items/mystery_box.jpg'. (c) On clicking a mystery box, set selectedHiddenItemId via viewModel, then show the ItemSelectionDialog to choose which item to guess. (d) On selecting an item, call viewModel.intruderGuessHidden(hiddenItemId, itemName). Items already in guessedItemNames should appear greyed out and not be clickable.",
+    "Step 6 - Add shake animation to the GuessResultDialog and IntruderMatchView: When guess result is wrong (isCorrect=false), apply a horizontal shake offset animation (translateX oscillation) to the dialog card for 500ms, matching the web frontend's shake-effect CSS keyframes.",
+    "Step 7 - Add sound effect playback to the GuessResultDialog: When guessResult is shown, play appropriate sound: if isCorrect==true play intruderWinSound; if isCorrect==false and isEnd==true play intruderLoseSound; if isCorrect==false and isEnd==false play wrongGuessSound. Initialize SoundManager using LocalContext.current in the composable and call the appropriate method.",
+    "Step 8 - Replace the bottom-aligned message display in NgepetGameScreen.kt: Remove the existing `uiState.message?.let { msg -> Text(...Alignment.BottomCenter...) }` block. Replace it with a floating/hanging notification bar that appears at the TOP of the screen (Alignment.TopCenter), with animation (slide in from top), styled with a semi-transparent background, icon indicator, and auto-dismiss after 3 seconds. Also apply the same floating notification pattern for error messages. Use AnimatedVisibility with slideInVertically/slideOutVertically for the animation.",
+    "Step 9 - Update the GuessResultDialog to show role-appropriate messages: For intruder when isEnd==true and isCorrect==false, show 'Anda ketahuan penjaga!' message (matching web frontend). For intruder when isCorrect==true, show 'Berhasil menemukan Token!'. Include the answer_item when game ends with a loss."
+  ],
+  "acceptance_criteria": [
+    "NgepetHiddenGuessRequest includes hidden_item_id field and it is sent in API calls",
+    "Intruder flow requires selecting a mystery box (hidden-item-card) before selecting an item to guess",
+    "Mystery boxes are displayed in a grid using the hiddenItems data from matchDetail",
+    "Already-guessed items appear greyed out and are not clickable in the item selection dialog",
+    "Sound effects play on wrong guess, correct guess/win, and game over/lose using URLs from the server",
+    "A shake animation plays on wrong guess",
+    "All notifications/messages appear as floating overlays at the top of screen instead of bottom",
+    "Messages auto-dismiss after 3 seconds with slide animation",
+    "The project compiles successfully with ./gradlew assembleDebug"
+  ],
+  "verification": [
+    "Run: cd /projects/sandbox/Mobile-Apps/MysticNusa && ./gradlew assembleDebug"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
