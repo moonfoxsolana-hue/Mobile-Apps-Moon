@@ -9,5 +9,7 @@ data class StoryItem(
     val theme: String?,
     val content: String?,
     @SerializedName("audio_path")
-    val audioPath: String?
+    val audioPath: String?,
+    @SerializedName("image_path")
+    val imagePath: String?
 )

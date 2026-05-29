@@ -12,11 +12,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.mysticnusa.app.data.models.StoryItem
 import com.mysticnusa.app.data.repository.StoryRepository
 import com.mysticnusa.app.navigation.Screen
@@ -113,40 +116,55 @@ private fun StoryCard(item: StoryItem, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable { onClick() }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = item.date?.take(10) ?: "",
-                    color = MysticPurpleLight,
-                    style = MaterialTheme.typography.labelSmall
+        Row(modifier = Modifier.padding(16.dp)) {
+            item.imagePath?.let { imagePath ->
+                val imageUrl = if (imagePath.startsWith("http")) imagePath
+                    else "https://mystical-nusa.web.id/${imagePath.trimStart('/')}"
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = item.title,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
                 )
-                item.theme?.let { theme ->
-                    Surface(
-                        shape = RoundedCornerShape(4.dp),
-                        color = MysticPurple.copy(alpha = 0.2f)
-                    ) {
-                        Text(
-                            text = theme,
-                            color = MysticPurpleLight,
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                        )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = item.date?.take(10) ?: "",
+                        color = MysticPurpleLight,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                    item.theme?.let { theme ->
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = MysticPurple.copy(alpha = 0.2f)
+                        ) {
+                            Text(
+                                text = theme,
+                                color = MysticPurpleLight,
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
                     }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = item.title ?: "",
+                    color = MysticGold,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = item.title ?: "",
-                color = MysticGold,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }

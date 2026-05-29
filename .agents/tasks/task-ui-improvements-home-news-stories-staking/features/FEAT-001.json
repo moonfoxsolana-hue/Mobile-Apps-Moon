@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Center the news/stories/staking icons on the HomeScreen, display news images at full width with natural aspect ratio on NewsScreen, add thumbnail images using image_path field to StoriesScreen, and redesign StakingScreen to be more elegant with gradient backgrounds, better cards, improved visual hierarchy, and gold/mystic theme.",
+  "status": "completed",
+  "steps": [
+    "1. In HomeScreen.kt: The Quick Navigation Row (lines ~54-100) containing the 3 cards for Berita, Cerita, Staking already uses horizontalArrangement = Arrangement.spacedBy(8.dp). Add `horizontalArrangement = Arrangement.Center` to the inner Column of each Card (currently only has `horizontalAlignment = Alignment.CenterHorizontally`). Also ensure the Row itself has the cards centered by adding a modifier that wraps them with fillMaxWidth and centers content. The Column inside each card should have `modifier = Modifier.fillMaxWidth().padding(16.dp)` with both `horizontalAlignment = Alignment.CenterHorizontally` and add `verticalArrangement = Arrangement.Center` to properly center the emoji and text.",
+    "2. In NewsScreen.kt: In the NewsCard composable, change the AsyncImage modifier from `.height(180.dp)` with `ContentScale.Crop` to remove the fixed height and use `ContentScale.FillWidth` (or `ContentScale.Fit`) so the image displays at full width with its natural aspect ratio. Use `.fillMaxWidth().wrapContentHeight()` or `.aspectRatio()` approach. Keep the RoundedCornerShape for top corners.",
+    "3. In StoryModels.kt: Add an `image_path` field (nullable String) with @SerializedName(\"image_path\") annotation to the StoryItem data class. The backend API already returns this field (confirmed in AiStoryController.php and blade templates).",
+    "4. In StoriesScreen.kt: In the StoryCard composable, add a thumbnail image display using Coil's AsyncImage component. Import AsyncImage, ContentScale, and RoundedCornerShape. Display the image from item.imagePath (the new field). Use a Row layout with the thumbnail on the left (around 80x80dp with rounded corners) and the existing text content on the right. If image_path is null, show a placeholder or just the text as before.",
+    "5. In StakingScreen.kt: Redesign the entire screen for a more elegant appearance. Key changes: (a) Add a header banner/hero section with gradient background (MysticPurple to MysticDarkBackground) showing staking overview/stats. (b) Improve the TabRow styling with custom indicator using MysticGold. (c) In StakingTypesList: redesign cards with gradient borders or subtle gradient backgrounds, add icons/emojis for each staking type, improve the APR display with a larger highlighted badge, add a subtle shimmer/glow effect on the APR value, better spacing and typography hierarchy. (d) In UserStakingsList: add a progress indicator showing days remaining vs total duration, improve the status badge styling, add subtle card elevation/shadow effects. (e) Add overall better padding, spacing, and visual polish throughout."
+  ],
+  "acceptance_criteria": [
+    "HomeScreen Quick Navigation cards have their content (emoji + text) visually centered within each card",
+    "NewsScreen displays images at full width without a fixed height - images show their natural aspect ratio",
+    "StoryModels.kt has imagePath field with @SerializedName(\"image_path\") annotation",
+    "StoriesScreen shows thumbnail images from the image_path field in each story card",
+    "StakingScreen has an elegant redesign with gradient elements, better typography hierarchy, improved card styling, and polished UI"
+  ],
+  "verification": [
+    "Read HomeScreen.kt and verify the Quick Navigation cards have centered content alignment",
+    "Read NewsScreen.kt and verify AsyncImage no longer uses fixed height(180.dp) and uses appropriate ContentScale for natural aspect ratio",
+    "Read StoryModels.kt and verify imagePath field exists with proper annotation",
+    "Read StoriesScreen.kt and verify AsyncImage is used with item.imagePath for thumbnails",
+    "Read StakingScreen.kt and verify the redesign includes gradient backgrounds, improved card styling, better APR display, and overall elegant design"
+  ],
+  "blocked_reason": null,
+  "findings": "All 5 steps implemented successfully. Review fixes applied: (1) Replaced parseSimpleDate with java.time.LocalDate.parse and ChronoUnit.DAYS for accurate staking progress calculation, (2) Normalized story thumbnail URLs with base URL prefix matching IntuitionGameScreen pattern, (3) Added heightIn(max=400.dp) to news images to prevent viewport domination, (4) Removed dead start/end variables from calculateStakingProgress."
+}
