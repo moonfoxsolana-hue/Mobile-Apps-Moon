@@ -1,20 +1,25 @@
 package com.mysticnusa.app.ui.screens
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.mysticnusa.app.data.repository.StoryRepository
 import com.mysticnusa.app.ui.components.ErrorMessage
 import com.mysticnusa.app.ui.components.LoadingIndicator
@@ -61,64 +66,114 @@ fun StoryDetailScreen(navController: NavController, storyId: Int) {
                     onRetry = { viewModel.loadStories() }
                 )
                 else -> {
+                    val mediaPlayer = remember { MediaPlayer() }
+                    var isPlaying by remember { mutableStateOf(false) }
+
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            mediaPlayer.release()
+                        }
+                    }
+
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
                     ) {
-                        Text(
-                            text = storyItem.title ?: "",
-                            color = MysticGold,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            storyItem.theme?.let { theme ->
-                                Surface(
-                                    shape = RoundedCornerShape(4.dp),
-                                    color = MysticPurple.copy(alpha = 0.2f)
-                                ) {
-                                    Text(
-                                        text = theme,
-                                        color = MysticPurpleLight,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                    )
-                                }
-                            }
-                            Text(
-                                text = storyItem.date?.take(10) ?: "",
-                                color = TextSecondary,
-                                style = MaterialTheme.typography.labelSmall
+                        storyItem.imagePath?.let {
+                            AsyncImage(
+                                model = "https://mystical-nusa.web.id/${storyItem.imagePath}",
+                                contentDescription = storyItem.title,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)),
+                                contentScale = ContentScale.FillWidth
                             )
                         }
 
-                        storyItem.audioPath?.let {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = { /* Audio playback placeholder */ },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MysticPurple
-                                )
-                            ) {
-                                Icon(Icons.Default.PlayArrow, "Play", tint = MysticGold)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Dengarkan Audio", color = MysticGold)
-                            }
-                        }
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = storyItem.title ?: "",
+                                color = MysticGold,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
 
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = storyItem.content ?: "",
-                            color = TextSecondary,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                storyItem.theme?.let { theme ->
+                                    Surface(
+                                        shape = RoundedCornerShape(4.dp),
+                                        color = MysticPurple.copy(alpha = 0.2f)
+                                    ) {
+                                        Text(
+                                            text = theme,
+                                            color = MysticPurpleLight,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = storyItem.date?.take(10) ?: "",
+                                    color = TextSecondary,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+
+                            storyItem.audioPath?.let {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Button(
+                                    onClick = {
+                                        if (!isPlaying) {
+                                            try {
+                                                mediaPlayer.reset()
+                                                mediaPlayer.setDataSource("https://mystical-nusa.web.id/cerita/audio/${storyItem.id}")
+                                                mediaPlayer.prepareAsync()
+                                                mediaPlayer.setOnPreparedListener { mp ->
+                                                    mp.start()
+                                                }
+                                                mediaPlayer.setOnCompletionListener {
+                                                    isPlaying = false
+                                                }
+                                                isPlaying = true
+                                            } catch (e: Exception) {
+                                                isPlaying = false
+                                            }
+                                        } else {
+                                            mediaPlayer.stop()
+                                            mediaPlayer.reset()
+                                            isPlaying = false
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MysticPurple
+                                    )
+                                ) {
+                                    Icon(
+                                        if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                        contentDescription = if (isPlaying) "Pause" else "Play",
+                                        tint = MysticGold
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        if (isPlaying) "Berhenti" else "Dengarkan Audio",
+                                        color = MysticGold
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = storyItem.content ?: "",
+                                color = TextSecondary,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                 }
             }

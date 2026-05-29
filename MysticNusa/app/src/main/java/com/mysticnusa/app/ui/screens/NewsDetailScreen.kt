@@ -73,9 +73,9 @@ fun NewsDetailScreen(navController: NavController, newsId: Int) {
                                 contentDescription = newsItem.title,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(220.dp)
+                                    .wrapContentHeight()
                                     .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.FillWidth
                             )
                         }
 

@@ -1,0 +1,7 @@
+{
+  "task_id": "task-ui-fixes-ngepet-lobby-intruder",
+  "task_description": "Fix build error in StakingScreen, fix news/story detail screens (image ratio + audio streaming), restructure Ngepet lobby UI (bottom toolbar, rules, token display, avatar fix, button fix), and fix intruder phase issues (center text, keep dialog open after wrong guess)",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}
