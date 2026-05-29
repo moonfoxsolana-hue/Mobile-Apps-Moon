@@ -154,6 +154,7 @@ data class NgepetHiddenItemRequest(
 
 // === Hidden Guess (POST /ngepet/match/{id}/hidden-guess) ===
 data class NgepetHiddenGuessRequest(
+    @SerializedName("hidden_item_id") val hiddenItemId: String,
     @SerializedName("match_intruder_id") val matchIntruderId: String,
     @SerializedName("item_name") val itemName: String
 )

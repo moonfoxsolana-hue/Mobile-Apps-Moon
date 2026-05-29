@@ -1,0 +1,25 @@
+{
+  "project_type": "Android app with Kotlin + Jetpack Compose, backed by Laravel API",
+  "language": "Kotlin",
+  "build_system": "Gradle (Kotlin DSL), compileSdk 34, JVM target 17",
+  "test_framework": "JUnit 4 + Espresso + Compose UI test (minimal tests currently)",
+  "build_command": "cd MysticNusa && ./gradlew assembleDebug",
+  "test_command": "cd MysticNusa && ./gradlew testDebugUnitTest",
+  "verification_instructions": "Run ./gradlew assembleDebug in the MysticNusa directory to verify compilation succeeds",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "Java 17 is required. Run ./gradlew assembleDebug from MysticNusa/",
+  "environment_constraints": "OPEN_INTERNET - full network access. Java 17+ available via mise.",
+  "contribution_requirements": "Follow existing Kotlin code patterns, use Jetpack Compose for UI",
+  "key_patterns": "MVVM architecture: NgepetViewModel manages state via StateFlow<NgepetUiState>, NgepetGameScreen.kt renders phases. API calls go through GamesRepository -> ApiService (Retrofit). Models in NgepetModels.kt. Sound effects referenced in web frontend: intruderSound (wrong guess), intruderwinSound (correct guess/win), intruderloseSound (game over/lose). Backend POST /ngepet/match/{id}/hidden-guess expects: hidden_item_id, match_intruder_id, item_name. Returns: {status:'guess_submitted', is_correct:bool, is_end:bool, answer_item:string|null} or {error:string}.",
+  "relevant_files": [
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/screens/NgepetGameScreen.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/ui/viewmodels/NgepetViewModel.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/models/NgepetModels.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/remote/ApiService.kt",
+    "MysticNusa/app/src/main/java/com/mysticnusa/app/data/repository/GamesRepository.kt",
+    "MysticNusa/app/build.gradle.kts",
+    "resources/views/games/ngepet_online/match.blade.php",
+    "Controllers/Api/NgepetMatchController.php"
+  ],
+  "directory_structure": "MysticNusa/ = Android project root. app/src/main/java/com/mysticnusa/app/ has data/ (models, remote, repository), ui/ (screens, viewmodels, components, theme). app/src/main/res/ has drawable, values, xml (no raw folder yet for sounds). resources/views/ = web frontend (Blade templates). Controllers/ = Laravel backend."
+}

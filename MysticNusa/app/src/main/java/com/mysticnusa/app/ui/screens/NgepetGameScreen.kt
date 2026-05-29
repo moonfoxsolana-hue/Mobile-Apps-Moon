@@ -1,5 +1,8 @@
 package com.mysticnusa.app.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,10 +29,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -37,12 +42,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.animation.core.InfiniteTransition
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -54,8 +53,10 @@ import com.mysticnusa.app.ui.components.MysticButton
 import com.mysticnusa.app.ui.components.MysticCard
 import com.mysticnusa.app.ui.components.MysticTextField
 import com.mysticnusa.app.ui.theme.*
+import com.mysticnusa.app.ui.util.SoundManager
 import com.mysticnusa.app.ui.viewmodels.NgepetPhase
 import com.mysticnusa.app.ui.viewmodels.NgepetViewModel
+import kotlin.math.sin
 
 private val BASE_URL = RetrofitInstance.IMAGE_BASE_URL
 
@@ -112,11 +113,12 @@ fun NgepetGameScreen(navController: NavController) {
         )
     }
 
-    // Message snackbar effect
-    uiState.message?.let { msg ->
-        LaunchedEffect(msg) {
+    // Message auto-dismiss keyed on notificationCounter to handle identical consecutive values
+    LaunchedEffect(uiState.notificationCounter) {
+        if (uiState.message != null || uiState.error != null) {
             kotlinx.coroutines.delay(3000)
             viewModel.clearMessage()
+            viewModel.clearError()
         }
     }
 
@@ -157,17 +159,54 @@ fun NgepetGameScreen(navController: NavController) {
                 NgepetPhase.HISTORY -> HistoryPhase(viewModel, uiState)
             }
 
-            // Global message display
-            uiState.message?.let { msg ->
-                Text(
-                    text = msg,
-                    color = SuccessColor,
+            // Floating top notification overlay
+            AnimatedVisibility(
+                visible = uiState.message != null || uiState.error != null,
+                enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+                modifier = Modifier.align(Alignment.TopCenter)
+            ) {
+                val isError = uiState.error != null
+                val text = uiState.error ?: uiState.message ?: ""
+                Card(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp)
-                        .background(MysticSurface, RoundedCornerShape(8.dp))
                         .padding(horizontal = 16.dp, vertical = 8.dp)
-                )
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isError) Color(0xFF4a1010) else Color(0xFF1a3a1a)
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (isError) DifficultyHard.copy(alpha = 0.5f) else SuccessColor.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (isError) "!" else "i",
+                            color = if (isError) DifficultyHard else SuccessColor,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(
+                                    if (isError) DifficultyHard.copy(alpha = 0.2f) else SuccessColor.copy(alpha = 0.2f),
+                                    CircleShape
+                                )
+                                .wrapContentSize(Alignment.Center)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = text,
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
             }
         }
     }
@@ -1092,19 +1131,29 @@ private fun IntruderMatchView(
     uiState: com.mysticnusa.app.ui.viewmodels.NgepetUiState,
     matchDetail: NgepetMatchDetail
 ) {
-    var showGuessHiddenDialog by remember { mutableStateOf(false) }
     var selectedChoiceItem by remember { mutableStateOf<String?>(null) }
 
-    // Guess hidden token dialog
-    if (showGuessHiddenDialog) {
-        ItemSelectionDialog(
+    // Hidden item grid dialog (Step 1 of intruder guess flow)
+    if (uiState.showHiddenItemSelection) {
+        HiddenItemGridDialog(
+            hiddenItems = matchDetail.hiddenItems ?: emptyList(),
+            onSelect = { hiddenItemId -> viewModel.selectHiddenItem(hiddenItemId) },
+            onDismiss = { viewModel.dismissHiddenItemSelection() }
+        )
+    }
+
+    // Item selection dialog (Step 2 of intruder guess flow)
+    if (uiState.showGuessItemDialog) {
+        ItemSelectionDialogWithGreyed(
             title = "Tebak Token Host",
             items = matchDetail.items ?: emptyList(),
+            greyedItems = uiState.guessedItemNames,
             onSelect = { itemName ->
-                viewModel.intruderGuessHidden(itemName)
-                showGuessHiddenDialog = false
+                uiState.selectedHiddenItemId?.let { hiddenId ->
+                    viewModel.intruderGuessHidden(hiddenId, itemName)
+                }
             },
-            onDismiss = { showGuessHiddenDialog = false }
+            onDismiss = { viewModel.dismissGuessItemDialog() }
         )
     }
 
@@ -1295,9 +1344,9 @@ private fun IntruderMatchView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Guess hidden token button
+            // Guess hidden token button - now shows hidden item grid first
             Button(
-                onClick = { showGuessHiddenDialog = true },
+                onClick = { viewModel.showHiddenItemGrid() },
                 enabled = (uiState.maxGuessAttempts - uiState.intruderGuessCount) > 0,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MysticPurple,
@@ -1405,6 +1454,151 @@ private fun ItemSelectionDialog(
                         if (row.size == 1) Spacer(modifier = Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(4.dp))
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
+                ) {
+                    Text("Batal")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ItemSelectionDialogWithGreyed(
+    title: String,
+    items: List<NgepetItem>,
+    greyedItems: Set<String>,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MysticSurface)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(title, color = MysticGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Pilih item untuk ditebak", color = TextSecondary, fontSize = 12.sp)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                items.chunked(2).forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        row.forEach { item ->
+                            val isGreyed = item.name != null && greyedItems.contains(item.name)
+                            Card(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .then(
+                                        if (isGreyed) Modifier.alpha(0.4f)
+                                        else Modifier.clickable { item.name?.let { onSelect(it) } }
+                                    ),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isGreyed) Color(0xFF2a2a2a) else MysticDarkBackground
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    AsyncImage(
+                                        model = if (item.imageUrl != null) BASE_URL + item.imageUrl else null,
+                                        contentDescription = item.name,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(RoundedCornerShape(4.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Text(
+                                        text = item.name ?: "",
+                                        color = if (isGreyed) Color.Gray else TextSecondary,
+                                        fontSize = 10.sp,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+                        }
+                        if (row.size == 1) Spacer(modifier = Modifier.weight(1f))
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
+                ) {
+                    Text("Batal")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HiddenItemGridDialog(
+    hiddenItems: List<NgepetHiddenItem>,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MysticSurface)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Pilih Token Tersembunyi", color = MysticGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Pilih salah satu kotak misteri", color = TextSecondary, fontSize = 12.sp)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val openItems = hiddenItems.filter { it.status == "open" }
+
+                if (openItems.isEmpty()) {
+                    Text(
+                        text = "Tidak ada kotak tersedia",
+                        color = TextSecondary,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(5),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.heightIn(max = 300.dp)
+                    ) {
+                        items(openItems) { item ->
+                            Card(
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .clickable { item.id?.let { onSelect(it) } },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = MysticDarkBackground),
+                                border = BorderStroke(1.dp, Color(0xFFe4a5ff))
+                            ) {
+                                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                    AsyncImage(
+                                        model = "https://mystical-nusa.web.id/images/asset/games/items/mystery_box.jpg",
+                                        contentDescription = "Mystery Box",
+                                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -1944,10 +2138,42 @@ private fun GuessResultDialog(
     guessResult: NgepetGuessResponse,
     onDismiss: () -> Unit
 ) {
+    // Sound effects
+    val context = LocalContext.current
+    val soundManager = remember { SoundManager(context) }
+
+    DisposableEffect(Unit) {
+        onDispose { soundManager.release() }
+    }
+
+    LaunchedEffect(guessResult) {
+        when {
+            guessResult.isCorrect == true -> soundManager.playIntruderWin()
+            guessResult.isEnd == true && guessResult.isCorrect == false -> soundManager.playIntruderLose()
+            guessResult.isCorrect == false -> soundManager.playWrongGuess()
+        }
+    }
+
+    // Shake animation for wrong guess - keyed on Unit since each dialog instance is fresh
+    val shakeAnim = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        if (guessResult.isCorrect == false) {
+            shakeAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 500)
+            )
+            shakeAnim.snapTo(0f)
+        }
+    }
+
+    val shakeOffset = (sin(shakeAnim.value * 4 * Math.PI) * 10).toFloat()
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MysticSurface)
+            colors = CardDefaults.cardColors(containerColor = MysticSurface),
+            modifier = Modifier.offset(x = shakeOffset.dp)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -1976,7 +2202,7 @@ private fun GuessResultDialog(
                     if (guessResult.isCorrect == true) {
                         // Won
                         Text(
-                            text = "Kamu Menang!",
+                            text = "Berhasil menemukan Token!",
                             color = SuccessColor,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
@@ -1984,7 +2210,7 @@ private fun GuessResultDialog(
                     } else {
                         // Lost
                         Text(
-                            text = "Kamu Kalah!",
+                            text = "Anda ketahuan penjaga!",
                             color = DifficultyHard,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
