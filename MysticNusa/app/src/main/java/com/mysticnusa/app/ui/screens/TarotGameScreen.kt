@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -389,49 +391,66 @@ fun TarotGameScreen(navController: NavController) {
                                 )
                                 Spacer(modifier = Modifier.height(24.dp))
 
-                                uiState.cardDetails.forEach { card ->
-                                    Card(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp)
-                                            .border(1.dp, MysticGold.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = MysticDarkOverlay
-                                        )
-                                    ) {
-                                        Column(
-                                            modifier = Modifier.padding(12.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    uiState.cardDetails.forEach { card ->
+                                        Card(
+                                            modifier = Modifier
+                                                .width(100.dp)
+                                                .padding(horizontal = 4.dp)
+                                                .border(
+                                                    1.dp,
+                                                    MysticGold.copy(alpha = 0.5f),
+                                                    RoundedCornerShape(8.dp)
+                                                ),
+                                            shape = RoundedCornerShape(8.dp),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = MysticDarkOverlay
+                                            )
                                         ) {
-                                            // Show card image if available
-                                            card.image?.let { imageUrl ->
-                                                val fullUrl = if (imageUrl.startsWith("/")) {
-                                                    "https://mystical-nusa.web.id$imageUrl"
-                                                } else {
-                                                    imageUrl
+                                            Column(
+                                                modifier = Modifier.padding(8.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                // Show card image if available
+                                                card.image?.let { imageUrl ->
+                                                    val fullUrl = if (imageUrl.startsWith("/")) {
+                                                        "https://mystical-nusa.web.id$imageUrl"
+                                                    } else {
+                                                        imageUrl
+                                                    }
+                                                    AsyncImage(
+                                                        model = fullUrl,
+                                                        contentDescription = card.name ?: "Tarot Card",
+                                                        contentScale = ContentScale.Fit,
+                                                        modifier = Modifier
+                                                            .height(120.dp)
+                                                            .clip(RoundedCornerShape(4.dp))
+                                                            .border(
+                                                                1.dp,
+                                                                MysticGold,
+                                                                RoundedCornerShape(4.dp)
+                                                            )
+                                                    )
+                                                    Spacer(modifier = Modifier.height(8.dp))
                                                 }
-                                                AsyncImage(
-                                                    model = fullUrl,
-                                                    contentDescription = card.name ?: "Tarot Card",
-                                                    contentScale = ContentScale.Fit,
-                                                    modifier = Modifier
-                                                        .height(160.dp)
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .border(1.dp, MysticGold, RoundedCornerShape(8.dp))
+                                                Text(
+                                                    text = card.name ?: "Kartu",
+                                                    color = TarotYellow,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 12.sp,
+                                                    textAlign = TextAlign.Center,
+                                                    maxLines = 1
                                                 )
-                                                Spacer(modifier = Modifier.height(8.dp))
+                                                Text(
+                                                    text = card.orientation ?: "",
+                                                    color = MysticPurpleLight,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    fontSize = 10.sp
+                                                )
                                             }
-                                            Text(
-                                                text = card.name ?: "Kartu",
-                                                color = TarotYellow,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                text = card.orientation ?: "",
-                                                color = MysticPurpleLight,
-                                                style = MaterialTheme.typography.labelSmall
-                                            )
                                         }
                                     }
                                 }
@@ -471,45 +490,58 @@ fun TarotGameScreen(navController: NavController) {
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                uiState.cardDetails.forEach { card ->
-                                    Card(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp)
-                                            .border(1.dp, MysticGold.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = MysticDarkOverlay
-                                        )
-                                    ) {
-                                        Column(modifier = Modifier.padding(12.dp)) {
-                                            // Show card image if available
-                                            card.image?.let { imageUrl ->
-                                                val fullUrl = if (imageUrl.startsWith("/")) {
-                                                    "https://mystical-nusa.web.id$imageUrl"
-                                                } else {
-                                                    imageUrl
-                                                }
-                                                AsyncImage(
-                                                    model = fullUrl,
-                                                    contentDescription = card.name ?: "Tarot Card",
-                                                    contentScale = ContentScale.Fit,
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(180.dp)
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .border(1.dp, MysticGold, RoundedCornerShape(8.dp))
-                                                )
-                                                Spacer(modifier = Modifier.height(8.dp))
-                                            }
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    uiState.cardDetails.forEach { card ->
+                                        Card(
+                                            modifier = Modifier
+                                                .width(100.dp)
+                                                .padding(horizontal = 4.dp)
+                                                .border(
+                                                    1.dp,
+                                                    MysticGold.copy(alpha = 0.5f),
+                                                    RoundedCornerShape(8.dp)
+                                                ),
+                                            shape = RoundedCornerShape(8.dp),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = MysticDarkOverlay
+                                            )
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.padding(8.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
+                                                // Show card image if available
+                                                card.image?.let { imageUrl ->
+                                                    val fullUrl = if (imageUrl.startsWith("/")) {
+                                                        "https://mystical-nusa.web.id$imageUrl"
+                                                    } else {
+                                                        imageUrl
+                                                    }
+                                                    AsyncImage(
+                                                        model = fullUrl,
+                                                        contentDescription = card.name ?: "Tarot Card",
+                                                        contentScale = ContentScale.Fit,
+                                                        modifier = Modifier
+                                                            .height(120.dp)
+                                                            .clip(RoundedCornerShape(4.dp))
+                                                            .border(
+                                                                1.dp,
+                                                                MysticGold,
+                                                                RoundedCornerShape(4.dp)
+                                                            )
+                                                    )
+                                                    Spacer(modifier = Modifier.height(8.dp))
+                                                }
                                                 Text(
                                                     text = card.name ?: "",
                                                     color = TarotYellow,
-                                                    fontWeight = FontWeight.Bold
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 12.sp,
+                                                    textAlign = TextAlign.Center,
+                                                    maxLines = 1
                                                 )
                                                 Surface(
                                                     shape = RoundedCornerShape(4.dp),
@@ -519,7 +551,11 @@ fun TarotGameScreen(navController: NavController) {
                                                         text = card.orientation ?: "",
                                                         color = MysticPurpleLight,
                                                         style = MaterialTheme.typography.labelSmall,
-                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                        fontSize = 10.sp,
+                                                        modifier = Modifier.padding(
+                                                            horizontal = 4.dp,
+                                                            vertical = 1.dp
+                                                        )
                                                     )
                                                 }
                                             }
@@ -540,7 +576,7 @@ fun TarotGameScreen(navController: NavController) {
                                     )
                                 ) {
                                     Text(
-                                        text = uiState.reading ?: "",
+                                        text = formatTarotReading(uiState.reading ?: ""),
                                         color = Color(0xFFfffde7),
                                         style = MaterialTheme.typography.bodyMedium,
                                         modifier = Modifier.padding(16.dp)
@@ -566,5 +602,35 @@ fun TarotGameScreen(navController: NavController) {
                 }
             }
         }
+    }
+}
+
+private fun formatTarotReading(text: String): androidx.compose.ui.text.AnnotatedString {
+    val blueColor = Color(0xFF81D4FA) // Light Blue
+    val yellowColor = Color(0xFFFFF59D) // Light Yellow
+
+    return buildAnnotatedString {
+        val pattern = """(\*\*.*?\*\*|\*.*?\*)""".toRegex()
+        var lastIndex = 0
+
+        pattern.findAll(text).forEach { match ->
+            append(text.substring(lastIndex, match.range.first))
+
+            val matchValue = match.value
+            if (matchValue.startsWith("**") && matchValue.endsWith("**")) {
+                val content = matchValue.substring(2, matchValue.length - 2)
+                pushStyle(SpanStyle(color = blueColor, fontWeight = FontWeight.Bold))
+                append(content)
+                pop()
+            } else if (matchValue.startsWith("*") && matchValue.endsWith("*")) {
+                val content = matchValue.substring(1, matchValue.length - 1)
+                pushStyle(SpanStyle(color = yellowColor))
+                append(content)
+                pop()
+            }
+
+            lastIndex = match.range.last + 1
+        }
+        append(text.substring(lastIndex))
     }
 }

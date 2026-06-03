@@ -8,12 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.mysticnusa.app.data.local.TokenManager
 import com.mysticnusa.app.navigation.Screen
 import com.mysticnusa.app.ui.theme.MysticGold
@@ -40,13 +38,6 @@ fun SplashScreen(navController: NavController, tokenManager: TokenManager) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AsyncImage(
-                model = "https://mystical-nusa.web.id/images/asset/logo.png",
-                contentDescription = "Mystic Nusa Logo",
-                modifier = Modifier.size(120.dp),
-                contentScale = ContentScale.Fit
-            )
-            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Mystic Nusa",
                 fontSize = 36.sp,

@@ -330,7 +330,7 @@ fun TriviaGameScreen(navController: NavController) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
-                                        .border(1.dp, if (playerInfo.isReady == true) Color(0xFF22c55e).copy(alpha = 0.5f) else TriviaCyan.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
+                                        .border(1.dp, if (playerInfo.isReady == 1) Color(0xFF22c55e).copy(alpha = 0.5f) else TriviaCyan.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
                                     shape = RoundedCornerShape(12.dp),
                                     colors = CardDefaults.cardColors(containerColor = MysticDarkOverlay)
                                 ) {
@@ -344,7 +344,7 @@ fun TriviaGameScreen(navController: NavController) {
                                                 text = playerInfo.player?.name ?: "Player #${playerInfo.playerId}",
                                                 color = Color.White
                                             )
-                                            if (playerInfo.isHost == true) {
+                                            if (playerInfo.isHost == 1) {
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Surface(shape = RoundedCornerShape(4.dp), color = TriviaCyan.copy(alpha = 0.2f)) {
                                                     Text("HOST", color = TriviaCyan, fontSize = 10.sp, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
@@ -353,8 +353,8 @@ fun TriviaGameScreen(navController: NavController) {
                                         }
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text(
-                                                text = if (playerInfo.isReady == true) "Ready" else "Not Ready",
-                                                color = if (playerInfo.isReady == true) Color(0xFF22c55e) else Color(0xFFef4444),
+                                                text = if (playerInfo.isReady == 1) "Ready" else "Not Ready",
+                                                color = if (playerInfo.isReady == 1) Color(0xFF22c55e) else Color(0xFFef4444),
                                                 fontSize = 12.sp
                                             )
                                             // Kick button (host only, not self)
@@ -376,7 +376,7 @@ fun TriviaGameScreen(navController: NavController) {
 
                             // Player controls
                             val myPlayer = room?.players?.find { it.playerId == uiState.playerId }
-                            val amReady = myPlayer?.isReady ?: false
+                            val amReady = myPlayer?.isReady == 1
 
                             if (!uiState.isHost) {
                                 MysticButton(
