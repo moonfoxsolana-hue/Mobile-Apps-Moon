@@ -328,9 +328,9 @@ data class TriviaRoomPlayerInfo(
     @SerializedName("player_id")
     val playerId: Int?,
     @SerializedName("is_host")
-    val isHost: Boolean?,
+    val isHost: Int?,
     @SerializedName("is_ready")
-    val isReady: Boolean?,
+    val isReady: Int?,
     val player: TriviaPlayerSimple?,
     val score: Int?,
     val duration: Int?

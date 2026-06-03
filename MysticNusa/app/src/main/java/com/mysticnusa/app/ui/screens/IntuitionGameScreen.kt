@@ -381,32 +381,49 @@ fun IntuitionGameScreen(navController: NavController) {
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            // Feedback indicator
-                            if (uiState.showFeedback && uiState.lastAnswerCorrect != null) {
-                                Surface(
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = if (uiState.lastAnswerCorrect == true) Color(0xFF22c55e).copy(alpha = 0.15f) else Color(0xFFef4444).copy(alpha = 0.15f)
+                            // Feedback indicator (Hanging Text style)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(60.dp), // Beri ruang tetap agar konten di bawah tidak melompat
+                                contentAlignment = Alignment.TopCenter
+                            ) {
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = uiState.showFeedback && uiState.lastAnswerCorrect != null,
+                                    enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                                    exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
                                 ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                    Surface(
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = if (uiState.lastAnswerCorrect == true) Color(0xFF22c55e).copy(alpha = 0.2f) else Color(0xFFef4444).copy(alpha = 0.2f),
+                                        border = androidx.compose.foundation.BorderStroke(
+                                            1.dp,
+                                            if (uiState.lastAnswerCorrect == true) Color(0xFF22c55e).copy(alpha = 0.5f) else Color(0xFFef4444).copy(alpha = 0.5f)
+                                        )
                                     ) {
-                                        Icon(
-                                            imageVector = if (uiState.lastAnswerCorrect == true) Icons.Default.CheckCircle else Icons.Default.Close,
-                                            contentDescription = null,
-                                            tint = if (uiState.lastAnswerCorrect == true) Color(0xFF22c55e) else Color(0xFFef4444),
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            text = if (uiState.lastAnswerCorrect == true) "Benar! +1" else "Salah!",
-                                            color = if (uiState.lastAnswerCorrect == true) Color(0xFF22c55e) else Color(0xFFef4444),
-                                            fontWeight = FontWeight.Medium
-                                        )
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = if (uiState.lastAnswerCorrect == true) Icons.Default.CheckCircle else Icons.Default.Close,
+                                                contentDescription = null,
+                                                tint = if (uiState.lastAnswerCorrect == true) Color(0xFF22c55e) else Color(0xFFef4444),
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Text(
+                                                text = if (uiState.lastAnswerCorrect == true) "Benar! +1" else "Salah!",
+                                                color = if (uiState.lastAnswerCorrect == true) Color(0xFF22c55e) else Color(0xFFef4444),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 18.sp
+                                            )
+                                        }
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(16.dp))
                             }
+
+                            Spacer(modifier = Modifier.height(16.dp))
 
                             // Question prompt
                             Text(

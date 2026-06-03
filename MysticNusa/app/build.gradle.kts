@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace = "com.mysticnusa.app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mysticnusa.app"
+        applicationId = "com.mysticnusa"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -49,6 +49,9 @@ android {
     }
 
     packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
